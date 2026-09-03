@@ -118,3 +118,32 @@ validate, then tile ×4 for full space belt.
 - [ ] Shape-type 4→1 mux (brain-gated).
 - [ ] Brain: Goal Receiver decode → per-slot type+color control.
 - [ ] Base supply: map shape/fluid patch locations (read save or ask John).
+
+---
+
+## John's proven full-throughput ecosystem (use as black-box primitives)
+
+Compose these validated modules with connecting glue rather than rebuilding
+(architecture principle: compose black boxes). All are full-throughput, ¼-belt
+(12-lane) or full-belt scale, launcher-optimized, with labeled I/O:
+
+- **`Quad Splitter`** (Foundation_2x4): 1 shape input (¼ space belt = 12 lanes) ->
+  4 quadrant outputs labeled **NE / SE / SW / NW** (opposite edge). `Full Belt Quad
+  Splitter` = 4 of these + Demuxer + Overflow -> full belt.
+- **`Demuxer`** (2x4_Flipped): normalizes/routes the NE-SE-SW-NW quadrant streams.
+- **`Stacker`** (multi-platform, SpaceBelt I/O): full-throughput **2-input stacker**,
+  inputs labeled **Bottom** + **Top** -> **Stacked** (also `Passthrough` /
+  `USE ONE INPUT ONLY`). => the assembler is a CHAIN of 3 Stacker modules.
+- **`Painter`** (2x4 + pipes): **Shapes** + **Paint** -> **Painted Shapes**.
+- **`Overflow`** (1x1): eats excess to keep belts compressed.
+
+### Revised assembler / synthesizer plan (quarter scale, uncolored first)
+1. Base shape -> **Quad Splitter** -> NE/SE/SW/NW quadrant streams.
+2. (Type select per position: brain-driven mux across base types — later.)
+3. **Assemble** = chain 3 **Stacker** modules: Stacked(NE,SE) -> +SW -> +NW -> layer.
+4. Validate a fixed-recipe reassembly first (e.g. quad-split a circle and stack it
+   back), then a 2-type mix, then add type-select, then Painter, then the brain.
+
+NOTE: my hand-built VN-04 (2-in stacker) and VN-05 (4-quad assembler) were mechanic
+proofs; SUPERSEDED by John's `Stacker` module for the real full-throughput build.
+Composition needs each module's foundation footprint + port map (extract next).
