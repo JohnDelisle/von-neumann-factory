@@ -369,6 +369,41 @@ Other ids worth knowing that John's library never uses:
 presumably what puts a shape on channel 123), `WireGlobalTransmitterReceiver`,
 `LogicGateAnd/Or/XOr`, `WireDefault1Up/2Up Forward|Left` variants.
 
+## Wire-layer port map (EXTRACTED 2026-09-03 from `For Claude Wiring Shapes`)
+
+John's reference puts every logic/virtual/transmission building on one
+`Foundation_1x2`, each with `ConstantSignal`s on its inputs and `Display`s on its
+outputs. All coordinates below are relative to the building's own cell and `R`
+(its facing); "left" = the `R-1` side, "right" = `R+1`.
+
+**All virtual buildings are 1x1** except the halves-swapper.
+
+| Building | Inputs | Outputs |
+|---|---|---|
+| `VirtualRotatorDefault` / `CCW` | behind | forward |
+| `VirtualPinPusherDefault` | behind | forward |
+| `VirtualHalfCutterDefault` | behind | forward |
+| `VirtualAnalyzerDefault` | behind | **forward + left** (two) |
+| `VirtualUnstackerDefault` | behind | **forward + left** (two) |
+| `VirtualPainterDefault` | shape behind, **colour from left** | forward |
+| `VirtualCrystalGeneratorDefault` | shape behind, **colour from left** | forward |
+| `VirtualStackerDefault` | behind + **left** | forward |
+| `VirtualHalvesSwapperDefault` | **2 wide**, one input per column, from behind | one per column, forward |
+| `LogicGateNot` | behind | forward |
+| `LogicGateCompare` / `And` / `Or` / `XOr` | **left and right sides** | forward |
+| `LogicGateIf` | value behind, **condition from the side** | forward |
+
+`LogicGateCompare` carries a config byte (`01` in the reference) — presumably the
+comparison mode.
+
+**Confirms the 3x3 signal-building geometry** derived earlier: in this reference
+`ControlledSignalReceiver` at `(-5,7)` R3 has its channel constant at `(-7,7)`
+(origin-2, left) and its display at `(-5,5)` (origin-2, forward);
+`ControlledSignalTransmitter` at `(-5,12)` R3 takes its shape from `(-5,14)`
+(origin+2, behind) and its channel from `(-7,12)`. `WireGlobalTransmitterReceiver`
+is the same 3x3 shape. **The channel here is 1111** (`03 57 04 00 00`), vs 123 in
+the goal-driven filter — so the channel number is per-link, not a global constant.
+
 ## Virtual (wire-layer) processing semantics (inferred 2026-09-03)
 
 - `VirtualAnalyzerDefaultInternalVariant` — given a shape signal, yields that

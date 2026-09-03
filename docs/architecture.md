@@ -537,13 +537,29 @@ bank used to be.
 For Phase 2 the same painter gives the colour signal the physical `Painter`s need;
 for Phase 3 the unstacker chain feeds one conditioner per layer engine.
 
-### !! Needed before this can be authored: one minimal reference
-We do not know the footprints or port layouts of `VirtualPainter`,
-`VirtualUnstacker` or `VirtualAnalyzer`, and inferring them from in-situ copies has
-already cost two round-trips. **Ask John for ONE blueprint** containing those three
-buildings, each with a `ConstantSignal` on every input and a `Display` on every
-output, and each boxed with belt on the floor above (his own trick). That single
-file unblocks Phases 1, 2 and 3 at once.
+### Port map: RESOLVED — `For Claude Wiring Shapes.spz2bp` (John, 2026-09-03)
+Every logic/virtual/transmission building on one `Foundation_1x2`, constants on the
+inputs and displays on the outputs. Full table in conventions.md. The three that
+matter here, all **1x1**:
+
+- **`VirtualPainter`** — shape from **behind**, colour from the **left**, out **forward**.
+- **`VirtualUnstacker`** — in from behind, **two** outputs: **forward + left**.
+- **`VirtualAnalyzer`** — in from behind, **two** outputs: **forward + left**
+  (the second output is what the existing fan never uses).
+- **`LogicGateCompare`** — inputs **left and right**, out forward, config byte `01`.
+- **`LogicGateIf`** — value from **behind**, condition from the **side**, out forward.
+
+### Verified insertion point for the colour normaliser
+The painter goes **in the receiver's own wire column**: John's goal-driven filter
+runs a wire north up X4 from the receiver output at `(4,20)`. Replace the wire cell
+at **`(4,18)` with `VirtualPainter` R3** — its shape input is then the wire below at
+`(4,19)`, its output feeds the existing `(4,17)` junction — and put the colour
+`ConstantSignal` at **`(3,18)` R0**, which is free. **A two-cell change.**
+
+The four per-band `Compare`/`If` blocks (16 cells) go in the contiguous free block at
+**X2-12 x Y24-26**. *Authoring detail still to settle:* exactly where to tap each of
+the four band signals out of John's fan-to-transmitter routing — four cuts, to be
+chosen when the blueprint is written, not guessed now.
 
 ### Cheaper alternative worth weighing: pure-type lanes, merged before the stacker
 Instead of one mixed belt into four independent lanes, give each lane a **pure**
