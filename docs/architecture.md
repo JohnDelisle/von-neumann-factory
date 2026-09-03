@@ -272,6 +272,84 @@ already built, full-belt, and mostly validated.
   (see the open question below).
 - **Step 5 — multi-layer.**
 
+---
+
+## What VN-12 actually is: a ONE-LAYER engine (analysis 2026-09-03)
+
+John asked the two right questions: what feeds the Quad Splitters, and does this
+only make one layer? Traced from the island topology of `Full Belt Any Shape Maker`.
+
+### The four lanes share ONE input — they are throughput parallelism, not type
+The machine has a **single** full-belt entry point at island `(12,-6)` heading west.
+It turns north up X11, west along Y-11, then south down the **X9 distribution
+column**, which peels off one lane at each `SpaceBelt_RightFwdSplitter`
+(`(9,-10)`, `(9,-4)`, `(9,2)`) with the tail turning at `(9,8)` into the fourth.
+Outputs mirror this on the west side: three `SpaceBelt_TripleMerger`s recombine the
+four lanes into one belt, which in this blueprint runs into 4 `Trash` platforms —
+test scaffolding, like VN-07's sinks.
+
+**So "one shape type per Quad Splitter" is not how it works, and would not work.**
+Each lane is a complete, independent shape maker: its own splitter, demuxer,
+filter and stacker cluster. There is **no cross-lane path**, so a lane fed only
+circles can only ever emit shapes built from circle quadrants. Every Quad Splitter
+must therefore receive a stream containing **every type the target needs** — a
+mixed belt.
+
+### The consumption ratio = the number of DISTINCT types in the target layer
+A base shape is uniform, so one circle yields a `Cu` quadrant at all four
+positions. The target needs `Cu` at some subset S of positions, so one circle
+contributes |S| useful quadrants and the rest go to the `Overflow` sinks. Summing
+over types, the subsets partition the 4 positions — so:
+
+| Target layer | Inputs per output | Example |
+|---|---|---|
+| 1 distinct type | **1:1** | `CuCuCuCu` — a pass-through |
+| 2 distinct types | **2:1** | `CuCuRuRu` |
+| 3 distinct types | 3:1 | `CuCuRuSu` |
+| 4 distinct types | **4:1** | `CuRuSuWu` |
+
+This is **inherent to decompose-then-select**, not a flaw in the design. Full belt
+in gives between a full belt and a quarter belt out, depending on the goal.
+
+### YES — it builds exactly ONE LAYER
+One Quad Splitter decomposes one shape into 4 quadrants; the stacker merges 4
+**disjoint** single-quadrant pieces, and by the rigid-body rule disjoint pieces
+merge into the **same** layer. Nothing in VN-12 ever stacks a full layer onto
+another full layer, so the output is strictly single-layer.
+
+### Proposed multi-layer architecture
+The rigid-body rule also gives the answer: stacking two **overlapping** shapes puts
+the top one on a NEW layer. So a full MAM is
+
+```
+  goal -> layer 1 target -> [VN-12 engine] --+
+          layer 2 target -> [VN-12 engine] --+-> stack L2 on L1 -> stack L3 -> ...
+          layer 3 target -> [VN-12 engine] --+
+          layer 4 target -> [VN-12 engine] --+
+```
+
+**N single-layer engines + a layer-stacking chain**, where the chain is plain
+2-input stackers (John's `Stacker`) fed two complete layers that overlap.
+
+Two consequences worth deciding on:
+1. **Cost scales with layers.** A 4-layer goal needs 4 engines, each eating up to a
+   full belt: up to 16 belts of base shapes per belt of output.
+2. **The brain needs a layer-extract.** Each engine must be told *layer k of the
+   goal*, not the whole goal. Today the `Quaded Filter` decomposes one shape signal
+   into 4 quadrant signals; we need to feed it one layer at a time. **Open: which
+   in-game virtual building isolates a layer?** John's library only uses
+   `VirtualRotator` and `VirtualAnalyzer`; the game may have more we haven't seen.
+
+### Cheaper alternative worth weighing: pure-type lanes, merged before the stacker
+Instead of one mixed belt into four independent lanes, give each lane a **pure**
+base type and merge the four lanes' surviving quadrant streams into **one** stacker.
+The ratio is unchanged (still 1:1 .. 4:1), but the supply is far easier — four
+single-type belts instead of one perfectly-mixed one — and each type's supply can
+be throttled to demand instead of mined and thrown away. Costs a re-plumb of the
+merge stage. **Worth John's opinion before either path is built.**
+
+---
+
 ### OUTCOME: built and validated in-game, 2026-09-03
 `VN-12 MAM goal driven` works. The constructive-vs-generate-and-filter debate this
 document opened with was the wrong axis: the machine is **constructive at the shape
