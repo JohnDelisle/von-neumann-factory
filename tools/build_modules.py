@@ -448,6 +448,111 @@ VN07_WIRING = [
     (10,  2, 0, 2, 'SpaceBelt_Forward'),
 ]
 
+# --- Fancy A+B Side Overflow: inner/outer lane-swap fix ---------------------
+# John's `Fancy A+B Side Overflow` (Foundation_2x4) carries a self-documented bug
+# ("SHIT - Mixes lanes up in both these"): a band's OUTER lanes overflow to the
+# "A+B Overflow" port as the INNER lanes, and the INNER lanes come out as OUTER.
+#
+# Cause (traced 2026-09-03): within each 4-lane band, the two OUTER rows tap their
+# overflow at splitter column X=9 (In B) / X=8 (In A), while the two INNER rows tap
+# at X=7 / X=6. The downstream weave delivers the X=9/X=8 taps to the INNER final
+# output columns and the X=7/X=6 taps to the OUTER ones -- hence the crossover.
+#
+# Fix: swap the splitter columns between each band's outer and inner rows, and shift
+# each outer row's launcher hop one cell east so it flies over the cell the inner
+# row's overflow now needs (launchers fly OVER belts -- John's original relies on
+# that too). No belt crossings required; every downstream cell is untouched, and the
+# primary (non-overflow) pass-through stays lane-preserving.
+_F  = 'BeltDefaultForwardInternalVariant'
+_SM = 'SplitterOverflowLInternalVariantMirrored'
+_SP = 'SplitterOverflowLInternalVariant'
+_TX = 'BeltPortSenderInternalVariant'
+_RX = 'BeltPortReceiverInternalVariant'
+
+# (X,Y): ((expected_type, expected_R), (new_type, new_R))
+FANCY_AB_LANE_FIX = {
+    # In B band, rows 8-11
+    ( 6,  8): ((_RX, 2), (_F,  2)),   # row 8 OUTER: splitter X9->X7, hop (8->6)->(10->8)
+    ( 7,  8): ((_F,  3), (_SM, 2)),
+    ( 8,  8): ((_TX, 2), (_RX, 2)),
+    ( 9,  8): ((_SM, 2), (_F,  3)),   # now row 9's northbound overflow belt
+    (10,  8): ((_F,  2), (_TX, 2)),
+    ( 7,  9): ((_SM, 2), (_F,  2)),   # row 9 INNER: splitter X7->X9
+    ( 9,  9): ((_F,  2), (_SM, 2)),
+    ( 7, 10): ((_SP, 2), (_F,  2)),   # row 10 INNER: splitter X7->X9
+    ( 9, 10): ((_F,  2), (_SP, 2)),
+    ( 6, 11): ((_RX, 2), (_F,  2)),   # row 11 OUTER: splitter X9->X7, hop (8->6)->(10->8)
+    ( 7, 11): ((_F,  1), (_SP, 2)),
+    ( 8, 11): ((_TX, 2), (_RX, 2)),
+    ( 9, 11): ((_SP, 2), (_F,  1)),   # now row 10's southbound overflow belt
+    (10, 11): ((_F,  2), (_TX, 2)),
+    # In A band, rows 28-31 (their splitter sections sit in rows 27/28/31/32)
+    ( 5, 27): ((_RX, 2), (_F,  2)),   # row 28 OUTER: splitter X8->X6, hop (7->5)->(9->7)
+    ( 6, 27): ((_F,  3), (_SM, 2)),
+    ( 7, 27): ((_TX, 2), (_RX, 2)),
+    ( 8, 27): ((_SM, 2), (_F,  3)),   # now row 29's northbound overflow belt
+    ( 9, 27): ((_F,  2), (_TX, 2)),
+    ( 6, 28): ((_SM, 2), (_F,  2)),   # row 29 INNER: splitter X6->X8
+    ( 8, 28): ((_F,  2), (_SM, 2)),
+    ( 6, 31): ((_SP, 2), (_F,  2)),   # row 30 INNER: splitter X6->X8
+    ( 8, 31): ((_F,  2), (_SP, 2)),
+    ( 5, 32): ((_RX, 2), (_F,  2)),   # row 31 OUTER: splitter X8->X6, hop (7->5)->(9->7)
+    ( 6, 32): ((_F,  1), (_SP, 2)),
+    ( 7, 32): ((_TX, 2), (_RX, 2)),
+    ( 8, 32): ((_SP, 2), (_F,  1)),   # now row 30's southbound overflow belt
+    ( 9, 32): ((_F,  2), (_TX, 2)),
+}
+
+def apply_fancy_ab_lane_fix(island_entry, floors=(0, 1, 2)):
+    """Apply FANCY_AB_LANE_FIX to every floor of a `Fancy A+B Side Overflow`
+    island entry, in place. Asserts the pre-edit state matches exactly, so a
+    changed upstream reference fails loudly instead of silently mis-patching."""
+    buildings = gv(island_entry["B"]["Entries"])
+    index = {(e["X"], e["Y"], e["L"]): e for e in buildings}
+    changed = 0
+    for (x, y), ((et, er), (nt, nr)) in FANCY_AB_LANE_FIX.items():
+        for L in floors:
+            e = index.get((x, y, L))
+            if e is None:
+                raise AssertionError(f"lane-fix: missing cell X={x} Y={y} L={L}")
+            if e["T"] != et or e["R"] != er:
+                raise AssertionError(
+                    f"lane-fix: X={x} Y={y} L={L} is {e['T']} R={e['R']}, expected {et} R={er}")
+            e["T"], e["R"] = nt, nr
+            changed += 1
+    return changed
+
+
+def vn08_fancy_ab_lane_fixed():
+    """John's `Fancy A+B Side Overflow` with the inner/outer lane-swap bug fixed.
+
+    Standalone component (Foundation_2x4), for side-by-side comparison against the
+    original. Verified by tracing every lane's overflow branch: all 8 lanes (both
+    bands) now land outer->outer and inner->inner, and all 24 primary pass-through
+    paths (8 rows x 3 floors) remain lane-preserving. See FANCY_AB_LANE_FIX above.
+    """
+    ref = load_reference_island("Fancy A+B Side Overflow.spz2bp")
+    assert ref["T"] == "Foundation_2x4"
+    apply_fancy_ab_lane_fix(ref)
+    isl = island(ref["T"], X=0, Y=0, Z=0, R=ref["R"])
+    isl["B"] = ref["B"]
+    return blueprint_islands([isl])
+
+
+def vn09_stacker_empty_quadrants_fixed():
+    """`Stacker supporting empty quadrants` with both embedded `Fancy A+B Side
+    Overflow` units lane-fixed (see FANCY_AB_LANE_FIX). Drop-in replacement for the
+    stock component; everything else is byte-identical to John's original."""
+    islands = load_reference_islands("Stacker supporting empty quadrants.spz2bp")
+    patched = 0
+    for isl in islands:
+        if isl["T"] == "Foundation_2x4" and isl.get("B"):
+            apply_fancy_ab_lane_fix(isl)
+            patched += 1
+    assert patched == 2, f"expected 2 Fancy A+B units, patched {patched}"
+    return blueprint_islands(islands)
+
+
 def vn07_reassembly_test():
     """Quarter-scale reassembly test: Quad Splitter -> Demuxer -> Stacker supporting
     empty quadrants -> (test-rig) Trash. Reproduces, from code, John's tested and
@@ -505,6 +610,8 @@ MODULES = {
     "VN-05 assembler 1lane 4quad": vn05_assembler_1lane_4quad,
     "VN-06 quad splitter test": vn06_quad_splitter_test,
     "VN-07 reassembly test": vn07_reassembly_test,
+    "VN-08 fancy A+B lane fixed": vn08_fancy_ab_lane_fixed,
+    "VN-09 stacker empty quadrants fixed": vn09_stacker_empty_quadrants_fixed,
 }
 
 if __name__ == "__main__":

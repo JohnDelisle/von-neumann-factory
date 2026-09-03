@@ -111,8 +111,10 @@ Belts: `BeltDefaultForwardInternalVariant`, `BeltDefaultLeftInternalVariant`,
   game treats a port as a launcher/catcher when it sits **mid-platform** (not on the
   Y2/Y17 edge). No config (`C`=null); `R` = launch direction (R3 = north).
 - A launcher throws to the nearest catcher **ahead in its column**, across a **1-4 tile
-  gap** (leave the gap cells empty). Same items/min as belts -- they cut **traversal
-  time**, not throughput.
+  gap**. Same items/min as belts -- they cut **traversal time**, not throughput.
+  **The gap cells need NOT be empty** -- items fly over whatever is beneath, and John's
+  own `Fancy A+B Side Overflow` fires a launcher across a cell holding a crossing belt.
+  This is the standard trick for routing one lane across another on a single floor.
 - Use them to replace **straight belt runs** only; the dense butterfly (turns, splits,
   cutters) stays as belts. See `VN-02` (John's launcher pass): middle lanes X9/X10 use
   the full 4-tile hop, outer lanes the shorter hops.
@@ -257,8 +259,36 @@ this is what should sit downstream of `Quad Splitter`'s 4-band output.
 The "Fancy A+B Side Overflow" component (also shipped standalone as its own
 reference file) merges two streams with overflow-to-side logic; John left himself
 a `"SHIT - Mixes lanes up in both these"` label on a known bug in its lane-merge
-stage — flagged as a target for the "refactor into better components" work, not
-yet root-caused.
+stage. **Root-caused and fixed 2026-09-03** — see below.
+
+## Fancy A+B Side Overflow: the inner/outer lane-swap bug (fixed)
+
+**Symptom** (John): a band's OUTER lanes overflow to the "A+B Overflow" port as the
+INNER lanes, and the INNER lanes come out as the OUTER lanes. Inconsequential in
+practice (a given space belt always carries the same shape in the same orientation),
+but real.
+
+**Root cause** (traced by walking the belt graph, not by eye): within each 4-lane
+band, the two OUTER rows tap their overflow at splitter column **X=9** (In B) /
+**X=8** (In A), while the two INNER rows tap at **X=7** / **X=6**. The downstream
+weave delivers the X=9/X=8 taps to the INNER final output columns and the X=7/X=6
+taps to the OUTER ones — so the classes cross over. The primary (non-overflow)
+pass-through is unaffected and was always lane-preserving.
+
+**Fix**: swap the splitter columns between each band's outer and inner rows, and
+shift each outer row's launcher hop one cell east so it flies over the cell the
+inner row's overflow now needs. 28 cells per floor x 3 floors = 84 retyped cells;
+no buildings added or removed, no belt crossings introduced, every downstream cell
+untouched. Encoded as `FANCY_AB_LANE_FIX` + `apply_fancy_ab_lane_fix()` in
+`build_modules.py` (asserts the exact pre-edit state, so a changed upstream
+reference fails loudly rather than silently mis-patching). Shipped as
+`VN-08 fancy A+B lane fixed` (standalone component) and
+`VN-09 stacker empty quadrants fixed` (both embedded copies patched).
+
+**Launchers fly OVER belts.** The gap cells between a `BeltPortSender` and its
+`BeltPortReceiver` do NOT have to be empty — John's original design already fires
+a launcher across a cell occupied by a crossing belt, and the fix relies on the
+same trick. (Earlier note in this file claiming the gap must be empty was wrong.)
 
 **CONFIRMED WORKING, wired by John in-game (2026-09-03).** `Quad Splitter`'s 4
 outputs need a **`Demuxer`** (`Foundation_2x4_Flipped`, from `Demuxer.spz2bp`)

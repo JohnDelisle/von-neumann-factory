@@ -57,13 +57,29 @@ components into something cleaner and build a genuinely working MAM"):
 1. **Continue the MAM pipeline**: 2-type mix -> brain-driven type-select per
    position -> `Painter` for color -> the brain (Goal Receiver decode). Then tile
    quarter -> full belt.
-2. **Refactor pass on known-buggy components**: the "Fancy A+B Side Overflow"
-   unit (used twice inside `Stacker supporting empty quadrants`) has a
-   self-documented bug — John's own label reads "SHIT - Mixes lanes up in both
-   these" at its lane-merge stage. Root-cause and fix/replace it. This is the kind
-   of "sub-optimal, help me refactor" work John flagged as the broader goal beyond
-   any single milestone — worth scoping with him directly rather than guessing at
-   priority.
+2. ~~**Refactor pass on known-buggy components**: the "Fancy A+B Side Overflow"
+   unit's self-documented lane-swap bug.~~ **DONE 2026-09-03** — root-caused and
+   fixed; see below and conventions.md "Fancy A+B Side Overflow: the inner/outer
+   lane-swap bug (fixed)". **Awaiting John's in-game confirmation.**
+
+## Fancy A+B lane-swap bug: FIXED (2026-09-03, needs in-game confirmation)
+- **Symptom** (John): outer lanes of In A / In B overflow to "A+B Overflow" as the
+  inner lanes, and vice versa. Inconsequential in practice, fixed for cleanliness.
+- **Root cause**: each band's OUTER rows tap overflow at splitter column X=9 (In B)
+  / X=8 (In A); INNER rows tap at X=7 / X=6. The downstream weave sends the X=9/X=8
+  taps to the INNER final outputs and X=7/X=6 to the OUTER ones.
+- **Fix**: swap the splitter columns between outer and inner rows in each band, and
+  shift each outer row's launcher hop one cell east (launchers fly over belts — a
+  trick John's own design already uses). 84 retyped cells, no buildings added or
+  removed, no crossings introduced.
+- **Verified by graph-walking the belts** (not by eye): all 8 lanes now map
+  outer->outer / inner->inner, and all 24 primary pass-through paths (8 rows x 3
+  floors) stay lane-preserving. Building counts byte-identical to the original.
+- **Shipped**: `VN-08 fancy A+B lane fixed` (standalone, for side-by-side compare)
+  and `VN-09 stacker empty quadrants fixed` (both embedded copies patched;
+  drop-in replacement for the stock component used by `VN-07`).
+- **If it tests good**, rebuild `VN-07` on top of `VN-09` so the reassembly test
+  uses the fixed stacker.
 
 ---
 
@@ -165,6 +181,11 @@ components into something cleaner and build a genuinely working MAM"):
   verbatim/black-box) + 5 SpaceBelt stub tiles (1 input east, 4 outputs west, one per
   quadrant row). Structurally validated (round-tripped, building count intact); NOT
   yet in-game confirmed. See PROGRESS "NEXT SESSION OBJECTIVE" for status.
+- `VN-08 fancy A+B lane fixed` — John's `Fancy A+B Side Overflow` with the
+  inner/outer lane-swap bug fixed (see above). Trace-verified; NOT yet in-game.
+- `VN-09 stacker empty quadrants fixed` — `Stacker supporting empty quadrants`
+  with both embedded Fancy A+B units lane-fixed. Drop-in replacement; everything
+  else byte-identical to John's original. Trace-verified; NOT yet in-game.
 - `VN-07 reassembly test` — `Quad Splitter` -> `Demuxer` -> `Stacker supporting
   empty quadrants` -> test-rig `Trash` sinks. **VALIDATED IN-GAME by John**
   (2026-09-03): full round-trip, reassembles the original shape, tolerates one
