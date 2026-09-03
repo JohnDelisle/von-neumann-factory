@@ -11,7 +11,7 @@ Conventions (see docs/conventions.md):
   1x1 platform = 20x20 grid, buildable ~[2,17], floors L0-2.
   Standard bus = 4 cols (X8-11) x 3 floors = 12 lanes, south-in(Y17)/north-out(Y2).
 """
-import os, sys
+import base64, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from shapez_bp import encode_bp, decode_bp
 
@@ -39,6 +39,23 @@ def load_reference_islands(filename):
     path = os.path.join(REF_DIR, filename)
     ver, d = decode_bp(path)
     return gv(d["BP"]["Entries"])
+
+def label_texts(island_entry):
+    """Every `LabelDefaultInternalVariant` text inside an island entry.
+    Label config is base64(<len:u16 LE> + UTF-8) -- see docs/conventions.md.
+    Reading John's own labels is how we identify a platform's function; never
+    guess it from building counts or coordinates."""
+    out = []
+    for e in gv((island_entry.get("B") or {}).get("Entries")):
+        if e.get("T") != "LabelDefaultInternalVariant" or not e.get("C"):
+            continue
+        c = e["C"]
+        raw = base64.b64decode(c["$value"] if isinstance(c, dict) else c)
+        try:
+            out.append(raw[2:].decode("utf-8"))
+        except UnicodeDecodeError:
+            pass
+    return out
 
 def translate_islands(islands, dx, dy, dz=0):
     """Return a deep-enough copy of `islands` with every entry's X/Y/Z shifted by
@@ -656,6 +673,186 @@ def vn07_reassembly_test():
     return blueprint_islands(islands)
 
 
+def vn10_any_shape_maker_lane_fixed():
+    """`Full Belt Any Shape Maker` with all EIGHT embedded `Fancy A+B Side
+    Overflow` units lane-fixed (see FANCY_AB_LANE_FIX / VN-08).
+
+    This is John's full-belt single-layer any-shape synthesizer, unchanged except
+    for the lane fix -- 4 identical lanes of
+
+        mixed base shapes (1/4 belt)
+          -> Quad Splitter -> Demuxer -> Quaded Filter
+          -> Stacker supporting empty quadrants -> the requested shape
+
+    plus 20 `Overflow` 1x1 sinks and 4 `Trash` 1x1. `MAM working.spz2bp` is the
+    same machine translated +1 in X; this supersedes both.
+
+    The `Quaded Filter` platforms are left untouched here -- swapping their button
+    /ConstantSignal preset bank for the HUB Goal Receiver is VN-11.
+
+    Fancy A+B units are identified by John's own "Fancy" label, not by building
+    count: the two variants differ (1765 vs 1763 buildings, the stale bug-warning
+    labels), and the 2x4 Demuxers must NOT be patched.
+    """
+    islands = load_reference_islands("Full Belt Any Shape Maker.spz2bp")
+    patched = 0
+    for isl in islands:
+        if isl["T"] == "Foundation_2x4" and "Fancy" in label_texts(isl):
+            apply_fancy_ab_lane_fix(isl)
+            patched += 1
+    assert patched == 8, f"expected 8 Fancy A+B units, patched {patched}"
+
+    # sanity: nothing added or removed except the stale bug-warning labels
+    ref = load_reference_islands("Full Belt Any Shape Maker.spz2bp")
+    before = sum(len(gv((i.get("B") or {}).get("Entries"))) for i in ref)
+    after = sum(len(gv((i.get("B") or {}).get("Entries"))) for i in islands)
+    assert len(islands) == len(ref), "island count changed"
+    assert before - after == 8, f"building delta {before - after}, expected 8 stale labels"
+    return blueprint_islands(islands)
+
+
+# ---------------------------------------------------------------- VN-11 / VN-12
+# Making the `Quaded Filter` goal-driven.
+#
+# The Quaded Filter's logic block (local L0, X3-16, Y13-26) is a target-shape
+# decomposer: one shape signal in -> VirtualRotator/VirtualAnalyzer fan -> four
+# per-quadrant signals -> wire transmitters -> the 4 bands' 48 BeltFilters.
+# Its INPUT is a 6-slot preset bank -- a ButtonDefault gating a ConstantSignal
+# through a LogicGateIf, once per slot:
+#
+#   button (5,14) gates const (4,15) = null        "build nothing"
+#   button (5,16) gates const (4,17) = --CuCu--    (John's current selection)
+#   button (5,18) gates const (4,19) = RuRuRuRu
+#   button (5,20) gates const (4,21) = SuSuSuSu
+#   button (5,22) gates const (4,23) = WuWuWuWu
+#   button (5,24) gates const (4,25) = CuRuSuWu    <- the "arbitrary shape" slot
+#
+# (`--CuCu--` and `CuRuSuWu` are the proof this machine builds ARBITRARY
+# single-layer shapes -- empty quadrants and four different types at once.)
+#
+# VN-11 replaces the LAST slot's ConstantSignal with the HUB Goal Receiver and
+# moves the enabled button to that slot. All five shape presets survive as manual
+# overrides John can flip in-game; nothing else in the platform changes.
+GOAL_RECEIVER_T = "ControlledSignalReceiverInternalVariantMirrored"
+GOAL_SLOT_CONST = (4, 25, 0)      # the CuRuSuWu preset -- removed
+GOAL_RECEIVER_CELL = (3, 25, 0)   # receiver origin; see footprint note below
+GOAL_SLOT_BUTTON = (5, 24, 0)     # its gating button -- switched ON
+PRESET_BUTTONS = [(5, y, 0) for y in (14, 16, 18, 20, 22, 24)]
+BUTTON_ON, BUTTON_OFF = "AQ==", "AA=="
+
+# Footprint, extracted from John's two working instances (never guessed):
+#   `Shape Filter`: origin (4,35) R3 (north), wire consumer at (4,33), (4,34) empty
+#   `Smart Filter`: origin (13,19) R0 (east),  wire consumer at (15,19), (14,19) empty
+# => the receiver occupies its origin cell AND the next cell along R, and drives
+#    the wire cell at origin+2. So to drive the IF gate at (5,25) the origin goes
+#    at (3,25) R0, covering (3,25) and the vacated ConstantSignal cell (4,25).
+#    X2-X3 are empty across Y13-26 (Y25 is well clear of the port bands).
+
+
+def goal_receiver_config():
+    """The exact `C` blob from John's own Goal Receivers -- every one of the 18
+    instances across `Shape Filter` / `Smart Filter` / `Shitty Mam v1` uses the
+    same value (int32 `2` = the HUB goal slot). Copied verbatim rather than
+    re-encoded, so we inherit whatever the game actually means by it."""
+    ref = load_reference_island("Shape Filter.spz2bp")
+    for e in gv(ref["B"]["Entries"]):
+        if e["T"] == GOAL_RECEIVER_T:
+            return e["C"]
+    raise AssertionError("no ControlledSignalReceiver in Shape Filter.spz2bp")
+
+
+def make_quaded_filter_goal_driven(island_entry):
+    """Swap a `Quaded Filter` island's last preset slot for the HUB Goal Receiver,
+    in place. Asserts the whole preset bank is exactly where we expect first, so a
+    different Quaded Filter variant fails loudly instead of being mis-patched."""
+    buildings = gv(island_entry["B"]["Entries"])
+    index = {(e["X"], e["Y"], e["L"]): e for e in buildings}
+
+    for cell in PRESET_BUTTONS:
+        e = index.get(cell)
+        if e is None or e["T"] != "ButtonDefaultInternalVariant":
+            raise AssertionError(f"goal-drive: expected a Button at {cell}, got "
+                                 f"{e['T'] if e else 'nothing'}")
+    const = index.get(GOAL_SLOT_CONST)
+    if const is None or const["T"] != "ConstantSignalDefaultInternalVariant":
+        raise AssertionError(f"goal-drive: expected the CuRuSuWu ConstantSignal at "
+                             f"{GOAL_SLOT_CONST}, got {const['T'] if const else 'nothing'}")
+    if GOAL_RECEIVER_CELL in index:
+        raise AssertionError(f"goal-drive: {GOAL_RECEIVER_CELL} is not free "
+                             f"({index[GOAL_RECEIVER_CELL]['T']})")
+
+    # exactly one preset may be enabled: the goal slot
+    for cell in PRESET_BUTTONS:
+        e = index[cell]
+        e["C"] = {"$value": BUTTON_ON if cell == GOAL_SLOT_BUTTON else BUTTON_OFF} \
+            if isinstance(e.get("C"), dict) else (BUTTON_ON if cell == GOAL_SLOT_BUTTON else BUTTON_OFF)
+
+    kept = [e for e in buildings
+            if (e["X"], e["Y"], e["L"]) != GOAL_SLOT_CONST]
+    assert len(kept) == len(buildings) - 1
+    x, y, L = GOAL_RECEIVER_CELL
+    kept.append(be(GOAL_RECEIVER_T, X=x, Y=y, L=L, R=0, C=goal_receiver_config()))
+    island_entry["B"]["Entries"]["$values"] = kept
+    return island_entry
+
+
+def _goal_driven_quaded_filters(islands):
+    """Goal-drive every `Quaded Filter` platform in an island list. Identified by
+    John's own label, not by shape or building count."""
+    patched = 0
+    for isl in islands:
+        if isl["T"] == "Foundation_1x4" and "Quaded Filter" in label_texts(isl):
+            make_quaded_filter_goal_driven(isl)
+            patched += 1
+    return patched
+
+
+def vn11_quaded_filter_goal_driven():
+    """The `Quaded Filter` platform alone, driven by the HUB Goal Receiver instead
+    of its button/ConstantSignal preset bank. Component blueprint -- drop-in
+    replacement for the stock platform inside the Any Shape Maker.
+
+    Extracted from the copy embedded in `Full Belt Any Shape Maker.spz2bp` (6
+    preset slots), NOT from standalone `Filter.spz2bp` (5 slots, different
+    shapes), so this and VN-12 share one code path.
+    """
+    islands = load_reference_islands("Full Belt Any Shape Maker.spz2bp")
+    qf = [i for i in islands
+          if i["T"] == "Foundation_1x4" and "Quaded Filter" in label_texts(i)]
+    assert len(qf) == 4, f"expected 4 Quaded Filter platforms, found {len(qf)}"
+
+    # all four lanes must carry an identical filter platform
+    def cells(i):
+        return sorted((e["X"], e["Y"], e["L"], e["T"], e["R"]) for e in gv(i["B"]["Entries"]))
+    assert all(cells(i) == cells(qf[0]) for i in qf[1:]), \
+        "the 4 embedded Quaded Filters are not identical"
+
+    isl = island(qf[0]["T"], X=0, Y=0, Z=0, R=qf[0]["R"])
+    isl["B"] = qf[0]["B"]
+    make_quaded_filter_goal_driven(isl)
+    return blueprint_islands([isl])
+
+
+def vn12_mam_goal_driven():
+    """THE MAM: `Full Belt Any Shape Maker`, lane-fixed (VN-10) and with all four
+    `Quaded Filter` platforms driven by the HUB Goal Receiver (VN-11).
+
+    Full belt in (mixed uncoloured base shapes), full belt out of whatever
+    single-layer shape the HUB currently requests. Uncoloured, single-layer;
+    colour and layers are still to come.
+    """
+    islands = load_reference_islands("Full Belt Any Shape Maker.spz2bp")
+    fancy = 0
+    for isl in islands:
+        if isl["T"] == "Foundation_2x4" and "Fancy" in label_texts(isl):
+            apply_fancy_ab_lane_fix(isl)
+            fancy += 1
+    assert fancy == 8, f"expected 8 Fancy A+B units, patched {fancy}"
+    filters = _goal_driven_quaded_filters(islands)
+    assert filters == 4, f"expected 4 Quaded Filter platforms, patched {filters}"
+    return blueprint_islands(islands)
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
@@ -667,6 +864,9 @@ MODULES = {
     "VN-07 reassembly test": vn07_reassembly_test,
     "VN-08 fancy A+B lane fixed": vn08_fancy_ab_lane_fixed,
     "VN-09 stacker empty quadrants fixed": vn09_stacker_empty_quadrants_fixed,
+    "VN-10 any shape maker lane fixed": vn10_any_shape_maker_lane_fixed,
+    "VN-11 quaded filter goal driven": vn11_quaded_filter_goal_driven,
+    "VN-12 MAM goal driven": vn12_mam_goal_driven,
 }
 
 if __name__ == "__main__":

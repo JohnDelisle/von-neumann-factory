@@ -272,20 +272,22 @@ already built, full-belt, and mostly validated.
   (see the open question below).
 - **Step 5 — multi-layer.**
 
-### The open questions for John (decide before building)
-1. **Colour strategy.** (a) *Filter*: supply every base type in every colour and let
-   an extended `Quaded Color Filter` pick — trivially reuses what exists, but the
-   supply mix explodes (4 types x 8 colours) and waste goes way up. (b) *Paint*:
-   put a brain-controlled `Painter` on each quadrant stream after the `Quaded
-   Filter` and before the stacker — much less supply, but needs a signal-driven
-   paint selector we don't have. **Recommend (b)**, but John knows the paint
-   plumbing cost.
-2. **Supply mix vs waste.** A single mixed belt makes every band throw away ~3/4 of
-   what it sees. Alternative: a signal-driven type router upstream so each Quad
-   Splitter is fed the type that lane needs. Worth it, or is overflow-and-recycle
-   fine at this scale?
-3. **What does `ControlledSignalReceiver` config `2` select?** (Which HUB goal
-   slot / channel.) John built it — one sentence saves a session.
-4. **Multi-layer**: is v1 single-layer, or do we design the layer stack in now?
-5. **`Full Belt Any Shape Maker` vs `MAM working`** — which name survives? (They're
-   the same machine; we should keep one.)
+### Decisions taken (John, 2026-09-03)
+- **Build VN-10 then VN-11.** Both done, plus `VN-12` = the two combined = the MAM.
+- **Colour = paint per quadrant stream**, not filter-a-coloured-supply. A
+  brain-controlled `Painter` goes between the `Quaded Filter` and the stacker on
+  each quadrant stream. Needs a signal-driven paint selector, which doesn't exist
+  yet — that's the next real design problem. `Quaded Color Filter` stays as the
+  filter-based fallback if the paint selector turns out ugly.
+- **`ControlledSignalReceiver` config `2` = a HUB goal slot index.**
+
+### Still open
+- **Supply mix vs waste.** A single mixed belt makes every band throw away ~3/4 of
+  what it sees. Alternative: a signal-driven type router upstream so each Quad
+  Splitter is fed the type that lane needs. Worth it, or is overflow-and-recycle
+  fine at this scale?
+- **Multi-layer**: is v1 single-layer, or do we design the layer stack in now?
+- **`Full Belt Any Shape Maker` vs `MAM working`** — which name survives? (They're
+  the same machine; we should keep one.)
+- **Goal-change transient**: stale quadrants sit on the belts when the HUB request
+  changes. Tolerable, or does it need a purge?

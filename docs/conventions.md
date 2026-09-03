@@ -365,6 +365,22 @@ shape the HUB currently requests. Exact meaning of the `2` is unconfirmed — as
   `ConstantSignalDefault` = John's standard **priority-select / preset bank**
   (first enabled button wins).
 
+## Multi-cell buildings record only their ORIGIN cell (2026-09-03)
+
+A blueprint entry gives one `X,Y,L` even for buildings larger than 1x1 — the extra
+cells are implicit and simply absent from the entry list. Seen with
+`Display2x2*` and `ControlledSignalReceiver*`. **So an "empty" cell next to a big
+building may not be free.** Derive a footprint by finding the gap between a
+building's origin and the wire/belt cell that actually connects to it.
+
+**`ControlledSignalReceiver` (the Goal Receiver) footprint**, extracted from John's
+two working instances:
+- `Shape Filter`: origin `(4,35)` R3 (north), consumer wire at `(4,33)`, `(4,34)` absent.
+- `Smart Filter`: origin `(13,19)` R0 (east), consumer wire at `(15,19)`, `(14,19)` absent.
+
+=> it occupies **its origin cell and the next cell along R**, and drives the wire
+cell at **origin + 2 along R**. (Used by `VN-11`; not yet confirmed in-game.)
+
 ## `Quaded Filter` (`Filter.spz2bp` / `Quaded Filter.spz2bp`) port map
 
 `Foundation_1x4`, 1068-1096 buildings. **4 bands x 12 lanes = 48 lanes (full belt).**

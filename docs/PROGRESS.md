@@ -85,21 +85,51 @@ select** (r/g/b/null, independently per band).
 6. Goal-change transient — stale quadrants on the belts when the HUB request changes.
 7. Pins / crystals — out of scope for v1 (no crystals in the working save).
 
-### Proposed next steps (awaiting John's go-ahead)
-- **`VN-10`** — regenerate `Full Belt Any Shape Maker` from code on the lane-fixed
-  stacker (it still embeds 4 copies of the buggy `Fancy A+B Side Overflow`).
-  Mechanical, cheap, puts the whole machine under version control.
-- **`VN-11`** — goal-driven `Quaded Filter`: swap the button/`ConstantSignal` bank
-  for `ControlledSignalReceiver`, copying the exact wiring from `Shape Filter`.
-  **One platform changed = "Any Shape Maker" becomes a MAM.**
-- Then: validate uncoloured end-to-end against live HUB goals -> colour -> layers.
+### BUILT THIS SESSION — awaiting John's in-game test
+John's calls: **VN-10 then VN-11**; colour later via **paint-per-quadrant-stream**;
+`ControlledSignalReceiver` config `2` = **a HUB goal slot index**.
 
-### Open questions for John (blocking the colour/supply work, not VN-10/VN-11)
-- Colour: filter a fully-coloured supply, or paint each quadrant stream before the
-  stacker? (Recommend paint — far smaller supply, but needs a signal-driven paint
-  selector we don't have.)
-- Mixed supply and ~3/4 quadrant waste — acceptable, or add a type router upstream?
-- What does `ControlledSignalReceiver` config `2` actually select?
+- **`VN-10 any shape maker lane fixed`** — `Full Belt Any Shape Maker` with all
+  **eight** embedded `Fancy A+B Side Overflow` units lane-fixed. Nothing else
+  touched; asserted at build time that the island count is unchanged and exactly
+  the 8 stale bug-warning labels were dropped. Fancy A+B units are found by John's
+  own `"Fancy"` label so the 2x4 Demuxers are never patched by accident.
+- **`VN-11 quaded filter goal driven`** — the `Quaded Filter` platform alone, with
+  its **last preset slot replaced by the HUB Goal Receiver**. The five shape
+  presets survive as manual overrides; only the enabled button moved.
+- **`VN-12 MAM goal driven`** — VN-10 + VN-11 on all four lanes. **This is the MAM**:
+  full belt of mixed uncoloured base shapes in, full belt of whatever single-layer
+  shape the HUB requests out.
+
+**How the preset bank works** (embedded copy, 6 slots — decoded, not guessed):
+button `(5, 2k+14)` gates ConstantSignal `(4, 2k+15)` through a `LogicGateIf`:
+null / `--CuCu--` / `RuRuRuRu` / `SuSuSuSu` / `WuWuWuWu` / `CuRuSuWu`. **The
+`--CuCu--` and `CuRuSuWu` presets are the proof this machine builds arbitrary
+single-layer shapes** — empty quadrants, and four different types at once.
+VN-11 removes the `CuRuSuWu` constant and puts the Goal Receiver at `(3,25) R0`.
+
+**The one thing extracted-but-unconfirmed: the Goal Receiver's footprint.** Both of
+John's working instances (`Shape Filter` origin `(4,35)` R3 -> wire at `(4,33)`;
+`Smart Filter` origin `(13,19)` R0 -> wire at `(15,19)`) show it occupying its
+origin cell plus the next along R, driving the wire cell at origin+2. VN-11 places
+it accordingly. **If it red-X's, it's a one-cell footprint error — shift the origin
+and rebuild.** Everything else in VN-11/VN-12 is John's own verbatim.
+
+### TEST RECIPE for John
+1. Refresh the in-game blueprint folder; stamp **`VN-12 MAM goal driven`**.
+2. Feed its east input a full belt of **mixed uncoloured base shapes** (Cu/Ru/Su/Wu).
+3. Set a HUB goal to a single-layer uncoloured shape and watch the west output.
+4. Change the HUB goal; the output should follow (expect a transient while stale
+   quadrants clear the belts).
+5. Sanity fallback: switch the enabled button back to a preset slot (e.g.
+   `CuRuSuWu`) — the machine should behave exactly as John's original did.
+Screenshot of the output belt + any red X's, please.
+
+### Still open (not blocking the test)
+- Colour: **decided — paint each quadrant stream** between `Quaded Filter` and the
+  stacker. Needs a signal-driven paint selector (doesn't exist yet); `Quaded Color
+  Filter` stays available as the filter-based fallback.
+- Mixed supply and ~3/4 quadrant waste — acceptable, or a type router upstream?
 - Single-layer v1, or design the layer stack in now?
 - `Full Belt Any Shape Maker` vs `MAM working` — same machine; which name survives?
 
@@ -245,6 +275,12 @@ _John confirmed VN-08, VN-09 and VN-07 all working in-game._
 - `VN-09 stacker empty quadrants fixed` — `Stacker supporting empty quadrants`
   with both embedded Fancy A+B units lane-fixed. Drop-in replacement; everything
   else byte-identical to John's original. **VALIDATED IN-GAME.**
+- `VN-10 any shape maker lane fixed` — John's `Full Belt Any Shape Maker` with all
+  8 embedded `Fancy A+B` units lane-fixed. **NOT yet in-game confirmed.**
+- `VN-11 quaded filter goal driven` — `Quaded Filter` platform with its last preset
+  slot replaced by the HUB Goal Receiver. **NOT yet in-game confirmed.**
+- `VN-12 MAM goal driven` — VN-10 + VN-11 x4 lanes. **The MAM.** **NOT yet
+  in-game confirmed** — see the test recipe above.
 - `VN-07 reassembly test` — `Quad Splitter` -> `Demuxer` -> `Stacker supporting
   empty quadrants` (LANE-FIXED) -> test-rig `Trash` sinks. **VALIDATED IN-GAME by
   John**, both before and after the lane fix
