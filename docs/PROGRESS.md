@@ -32,14 +32,36 @@ quarter-scale **reassembly test**.
   verbatim from `blueprints/reference/Quad Splitter.spz2bp`, black-box) + 5 stub
   SpaceBelt tiles (1 input, 4 outputs) so John can extend supply/sinks and confirm
   the quadrant split visually. **Waiting on John's screenshot/test result.**
-- **BLOCKED on `Stacker`**: decoding `Stacker.spz2bp` revealed it is NOT a single
-  platform — it's a **28-island assembly** (4 chained foundations: 2x2->2x2->2x3->2x4,
-  ~6300 buildings) with an internal binary-tree-like mux structure. Static tracing of
-  its SpaceBelt turn/splitter connectivity to find the true Bottom/Top/Stacked
-  external interface was inconclusive (turn-piece in/out geometry unknown without
-  in-game/visual confirmation). **Asked John to open it in-game and report which
-  edge is Bottom-in / Top-in / Stacked-out — waiting on that answer before wiring
-  the 3-stacker chain.** Reference copy saved at `blueprints/reference/Stacker.spz2bp`.
+- **RESOLVED — labels, not guessing.** `LabelDefaultInternalVariant` buildings carry
+  real base64-encoded text (decode: `raw = base64.b64decode(C["$value"]);
+  text = raw[2:].decode("utf-8")` — 2-byte length prefix then UTF-8). John's
+  reference blueprints are fully annotated ("Bottom", "Top", "Stacked",
+  "Passthrough", "USE ONE INPUT ONLY", even a "SHIT - Mixes lanes up in both these"
+  bug note). Pairing labels to nearest ports gave exact, ground-truth port
+  positions — see conventions.md "Stacker is NOT a single platform" and "Stacker
+  supporting empty quadrants" for the full extracted port maps.
+- **Plan corrected (per John, 2026-09-03):** `Stacker.spz2bp` (the plain 4-platform
+  chain) is ALREADY the complete 4-quadrant stack as one unit — no need to chain 3
+  copies as originally assumed. But for OUR reassembly test, John pointed to the
+  better primitive: **`Stacker supporting empty quadrants.spz2bp`** (38 islands,
+  ~7.7k buildings) — takes 4 distinct quadrant inputs via 4 west-side ports (order
+  irrelevant), tolerates empty quadrants, emits one full space belt of output.
+  Vendored to `blueprints/reference/Stacker supporting empty quadrants.spz2bp`.
+- **Shipped `VN-07 reassembly test`**: `Quad Splitter` + `Stacker supporting empty
+  quadrants`, both verbatim/black-box, placed with a 7-cell gap — **not yet wired**.
+  The west-boundary input cluster's exact SpaceBelt turn/merger connection geometry
+  couldn't be pinned down statically (turn-piece in/out sides are ambiguous from
+  raw coordinates — confirmed via a graph-adjacency script that produced
+  self-contradictory "open on both sides" results). **Waiting on John to hand-wire
+  the 4 connector belts in-game and confirm/screenshot**, then bake the exact
+  wiring back into `build_modules.py`.
+- **Also flagged (not yet actioned):** the "Fancy A+B Side Overflow" component
+  (used twice inside `Stacker supporting empty quadrants`) has a self-documented
+  bug — John's own label reads "SHIT - Mixes lanes up in both these" at its
+  lane-merge stage. John's closing ask this session: help refactor these
+  sub-optimal components into something cleaner and build a genuinely working MAM
+  — broader than just this one reassembly test. Worth root-causing that bug once
+  the reassembly test validates.
 - **After it validates:** 2-type mix -> brain-driven type-select per position ->
   `Painter` for color -> the brain (Goal Receiver decode). Then tile quarter -> full belt.
 
@@ -143,6 +165,9 @@ quarter-scale **reassembly test**.
   verbatim/black-box) + 5 SpaceBelt stub tiles (1 input east, 4 outputs west, one per
   quadrant row). Structurally validated (round-tripped, building count intact); NOT
   yet in-game confirmed. See PROGRESS "NEXT SESSION OBJECTIVE" for status.
+- `VN-07 reassembly test` — `Quad Splitter` + `Stacker supporting empty quadrants`
+  (both verbatim/black-box), placed with a 7-cell gap, NOT auto-wired (see NEXT
+  SESSION OBJECTIVE — waiting on John to hand-wire the 4 connectors in-game).
 
 ## Key reverse-engineered facts (full detail in conventions.md)
 - Blueprint = `SHAPEZ2-5-<base64(gzip(JSON))>[]_2$`; our verbose encoder imports fine.

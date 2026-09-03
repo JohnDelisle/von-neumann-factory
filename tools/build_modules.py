@@ -33,6 +33,26 @@ def load_reference_island(filename, index=0):
     islands = gv(d["BP"]["Entries"])
     return islands[index]
 
+def load_reference_islands(filename):
+    """Decode a reference .spz2bp and return its full list of raw island entries
+    (for multi-island assemblies like 'Stacker supporting empty quadrants')."""
+    path = os.path.join(REF_DIR, filename)
+    ver, d = decode_bp(path)
+    return gv(d["BP"]["Entries"])
+
+def translate_islands(islands, dx, dy, dz=0):
+    """Return a deep-enough copy of `islands` with every entry's X/Y/Z shifted by
+    (dx,dy,dz). Building-local coords (inside each entry's 'B') are untouched --
+    only island-grid placement moves, so the whole group stays rigid internally."""
+    out = []
+    for isl in islands:
+        moved = dict(isl)
+        moved["X"] = isl["X"] + dx
+        moved["Y"] = isl["Y"] + dy
+        moved["Z"] = isl["Z"] + dz
+        out.append(moved)
+    return out
+
 SB = "Game.Core.Blueprint.Serialization."
 
 def be(T, X=0, Y=0, L=0, R=0, C=None):
@@ -412,6 +432,39 @@ def vn06_quad_splitter_test():
     return blueprint_islands(islands)
 
 
+def vn07_reassembly_test():
+    """First reassembly-test assembly: John's `Quad Splitter` (Foundation_2x4) feeding
+    John's `Stacker supporting empty quadrants` (38-island, 6 platforms, ~7.7k buildings)
+    -- both reused verbatim/black-box, placed with a clear gap between them.
+
+    Per John (2026-09-03): 'Stacker supporting empty quadrants' is a complete unit (not
+    3 chained plain Stackers) that takes 4 distinct quadrant inputs via 4 west-side ports
+    (order irrelevant -- it just needs one NE/SE/SW/NW each) and emits a full space belt
+    of stacked output. Quad Splitter's 4 quadrant outputs (see conventions.md) are a
+    natural match for those 4 inputs.
+
+    NOT auto-wired: label-pairing nailed down every port's building-local position, but
+    the exact SpaceBelt turn/merger connection geometry at the empty-quadrant stacker's
+    west boundary couldn't be verified statically (turn-piece in/out sides are ambiguous
+    from coordinates alone -- see conventions.md "Stacker is NOT a single platform").
+    Rather than guess and burn a build/test cycle, this ships both components pre-placed
+    with a gap for John to hand-wire the 4 connector belts in-game, where the port
+    sockets are visible. Once confirmed, bake the exact wiring back into this function.
+    """
+    quad_ref = load_reference_island("Quad Splitter.spz2bp")
+    assert quad_ref["T"] == "Foundation_2x4"
+    quad_splitter = island("Foundation_2x4", X=0, Y=0, Z=0, R=quad_ref["R"])
+    quad_splitter["B"] = quad_ref["B"]
+
+    # 'Stacker supporting empty quadrants' spans island X[-6,6] Y[-3,3] in its own
+    # frame; place its origin 10 cells east of Quad Splitter's west-edge outputs
+    # (X=-1) so there's open space for John to lay the 4 connector belts by hand.
+    stacker_islands = load_reference_islands("Stacker supporting empty quadrants.spz2bp")
+    stacker_islands = translate_islands(stacker_islands, dx=15, dy=0, dz=0)
+
+    return blueprint_islands([quad_splitter] + stacker_islands)
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
@@ -420,6 +473,7 @@ MODULES = {
     "VN-04 stacker 2in 1lane": vn04_stacker_2in_1lane,
     "VN-05 assembler 1lane 4quad": vn05_assembler_1lane_4quad,
     "VN-06 quad splitter test": vn06_quad_splitter_test,
+    "VN-07 reassembly test": vn07_reassembly_test,
 }
 
 if __name__ == "__main__":

@@ -215,8 +215,59 @@ connecting each source platform's output port band to the next platform's input 
 `Foundation_2x4`/1918, ~6300 buildings total) wired together with `SpaceBelt_*`
 routing tiles. Each successive platform's internal port structure roughly doubles
 in complexity (binary-tree-like mux/demux), suggesting this is full 48-lane-scale
-merge infrastructure, not a simple pluggable 2-input stacker cell. **Do not treat
-this as a simple foundation-sized primitive** — its true external I/O (which edge
-carries Bottom, Top, Stacked) has not been confirmed; static SpaceBelt turn/splitter
-connectivity tracing was inconclusive (turn-piece in/out side geometry is unknown
-without an in-game/visual check). Confirm with John before wiring against it.
+merge infrastructure, not a simple pluggable 2-input stacker cell.
+
+**Blueprints carry real labels — read them before guessing.** Building type
+`LabelDefaultInternalVariant` has a `C` config: `base64(2-byte-LE-length-prefix +
+UTF-8 text)`. Decode with `raw = base64.b64decode(C["$value"]); text =
+raw[2:].decode("utf-8")`. John annotates every hand-built module this way
+(`"Bottom"`, `"Top"`, `"Stacked"`, `"Passthrough"`, `"USE ONE INPUT ONLY"`, even
+`"SHIT - Mixes lanes up in both these"` on a known-buggy spot). **Always check for
+labels before reverse-engineering port semantics from coordinates alone** — it
+turns guessing into reading. Pair a label to its port by nearest-neighbor distance
+on the same floor (labels sit right next to the port/cluster they describe).
+
+Per John (confirmed 2026-09-03), each of the 4 chained platforms in `Stacker.spz2bp`
+is one incremental stage that stacks in one quadrant:
+- **Bottom** input: EAST edge, one 12-lane band, floor 0.
+- **Top** input: NORTH-ish edge, with a redundant second entry point right next to
+  a `"USE ONE INPUT ONLY"` label — use exactly one.
+- **Stacked** output: WEST edge, floor **1** (not floor 0).
+- **Passthrough** bands (WEST and EAST edges, same Y, floor 0): a full-belt supply
+  of "Bottom" shapes enters at the EAST edge of the most-eastern (last) platform (4
+  ports = 1 full space belt); each stage peels off its own 12-lane share and passes
+  the rest further down the chain (P4 has 3 passthrough bands, P3 has 2, P2 has 1,
+  P1 has 0 — a clean 4-way peel-off). Each platform's own Top comes from an
+  independent external supply on its north edge. Output of one stage's Stacked port
+  feeds the next stage's Bottom via the connecting `SpaceBelt_*` run.
+- **This works only when every quadrant has a shape** — an empty quadrant blocks
+  the stack (physical jam, not a soft failure).
+
+## Stacker supporting empty quadrants (better primitive, confirmed 2026-09-03)
+
+`Stacker supporting empty quadrants.spz2bp` (38 islands, ~7.7k buildings: a
+`Foundation_1x1`/315 "Overflow" sink + 3 plain-Stacker `Foundation_2x2` cells (one
+`_Flipped`) + 2 `Foundation_2x4` "**Fancy A+B Side Overflow**" merge units) is the
+version John actually recommends for composing shapes from independent quadrant
+supplies. Per John: **takes 4 distinct quadrant inputs via 4 west-side ports (order
+irrelevant — just needs one NE/SE/SW/NW, any assignment)** and emits **one full
+space belt of stacked output**. Tolerates empty quadrants (that's the whole point);
+this is what should sit downstream of `Quad Splitter`'s 4-band output.
+
+The "Fancy A+B Side Overflow" component (also shipped standalone as its own
+reference file) merges two streams with overflow-to-side logic; John left himself
+a `"SHIT - Mixes lanes up in both these"` label on a known bug in its lane-merge
+stage — flagged as a target for the "refactor into better components" work, not
+yet root-caused.
+
+**Not yet auto-wired.** Label-pairing gives exact building-local port positions,
+but the SpaceBelt turn/merger connection geometry at the west-boundary input
+cluster (a `LeftTurn`/`Forward`/`TripleMerger`/`RightTurn` group) couldn't be
+verified statically — repeated attempts to infer turn-piece in/out sides from
+coordinates alone were inconclusive (see `graph.py`-style adjacency check in
+session scratch history: every turn tile reported spuriously "open" on both sides,
+meaning the R-offset assumption for turns is wrong and unverified). Shipped
+`VN-07 reassembly test`: `Quad Splitter` + `Stacker supporting empty quadrants`
+placed with a 7-cell gap, both verbatim/black-box, **not connected** — John wires
+the 4 connector belts by hand in-game (where the port sockets are visible), then
+we bake the confirmed wiring back into `build_modules.py`.
