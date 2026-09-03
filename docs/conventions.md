@@ -180,3 +180,43 @@ entries are:
 
 To build an assembly: place the function foundations, then lay `SpaceBelt_*` tiles
 connecting each source platform's output port band to the next platform's input band.
+
+## Multi-unit foundation footprint & port bands (extracted 2026-09-03, `Quad Splitter.spz2bp`)
+
+- **Island footprint = literal `WxH` from the type name, NOT rotated by `R`.** A
+  `Foundation_2x4` island entry at `(ix,iy,iz,R)` occupies island cells
+  `X∈[ix,ix+1], Y∈[iy,iy+3]` regardless of R (confirmed: adjacent SpaceBelt tiles in
+  John's `Full Belt Quad Splitter.spz2bp` sit exactly 2 columns east of a `2x4`'s `ix`).
+- **A multi-tall foundation repeats the 1x1 port-band pattern once per island-row.**
+  Building-local coordinates run continuously across the whole foundation (NOT
+  reset per row): row `k` (0-indexed from `iy`) occupies local `Y ∈ [k*20-38, k*20-38+19]`
+  when the foundation is vertically centered around local Y≈0 (John's `Quad Splitter`
+  is 4 rows: local Y bands `[-38,-21]`,`[-18,-1]`,`[2,17]`,`[22,37]`, i.e. row0..row3 =
+  island rows `iy+0..iy+3`). Local edge-band convention (X/Y 8-11 within a row, at the
+  row's own local 2/17 boundary) still applies per-row.
+- **`Quad Splitter` (`Foundation_2x4`, 3097 buildings) port map** — confirmed by
+  decoding John's reference (treat internals as a black box; only ports matter):
+  - **Input**: EAST edge (local X=37), **row3 only** (island row `iy+3`, local Y
+    28-31), `BeltPortReceiverInternalVariant`, R=2 (flows west into the platform).
+    12 lanes (4 cols x 3 floors) = one quarter-belt in, matching "1/4-belt in".
+  - **Output**: WEST edge (local X=2), **all 4 rows** (island rows `iy+0..iy+3`,
+    local Y bands as above), `BeltPortSenderInternalVariant`, R=2 (flows west out).
+    Each row = its own independent 12-lane band = one quadrant's output (4 x 12 =
+    48 lanes total, spread across 4 separate island cells on the shared west edge).
+  - So in island terms: input arrives at `(ix+2, iy+3, iz)` heading west; the 4
+    outputs depart from `(ix-1, iy+0..iy+3, iz)` heading west, one quadrant per row.
+  - Internal receivers at local Y 5/7 (interior, not on-edge) are launcher/catcher
+    pairs, not cross-platform ports — ignore them; they're inside the black box.
+
+## Stacker is NOT a single platform (discovered 2026-09-03)
+
+`Stacker.spz2bp` is itself a **28-island assembly**: 4 chained foundations
+(`Foundation_2x2`/1361 bldgs -> `Foundation_2x2`/1386 -> `Foundation_2x3`/1652 ->
+`Foundation_2x4`/1918, ~6300 buildings total) wired together with `SpaceBelt_*`
+routing tiles. Each successive platform's internal port structure roughly doubles
+in complexity (binary-tree-like mux/demux), suggesting this is full 48-lane-scale
+merge infrastructure, not a simple pluggable 2-input stacker cell. **Do not treat
+this as a simple foundation-sized primitive** — its true external I/O (which edge
+carries Bottom, Top, Stacked) has not been confirmed; static SpaceBelt turn/splitter
+connectivity tracing was inconclusive (turn-piece in/out side geometry is unknown
+without an in-game/visual check). Confirm with John before wiring against it.

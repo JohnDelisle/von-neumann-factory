@@ -13,7 +13,25 @@ Conventions (see docs/conventions.md):
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from shapez_bp import encode_bp
+from shapez_bp import encode_bp, decode_bp
+
+REF_DIR = os.path.join(os.path.dirname(__file__), "..", "blueprints", "reference")
+
+def gv(container):
+    """Unwrap a SerializableXEntry[] container's $values list."""
+    if container is None:
+        return []
+    v = container.get("$values")
+    return v if v is not None else (container if isinstance(container, list) else [])
+
+def load_reference_island(filename, index=0):
+    """Decode a reference .spz2bp from blueprints/reference/ and return its Nth
+    raw island entry dict (used as a black box: we reuse its 'B' verbatim and
+    only change the island entry's own X/Y/Z when placing it in our assembly)."""
+    path = os.path.join(REF_DIR, filename)
+    ver, d = decode_bp(path)
+    islands = gv(d["BP"]["Entries"])
+    return islands[index]
 
 SB = "Game.Core.Blueprint.Serialization."
 
@@ -367,6 +385,33 @@ def vn05_assembler_1lane_4quad():
     return blueprint_islands([island("Foundation_1x1", buildings=b)])
 
 
+def vn06_quad_splitter_test():
+    """Standalone validation assembly for John's real `Quad Splitter` (Foundation_2x4,
+    reused verbatim/black-box from blueprints/reference/Quad Splitter.spz2bp).
+
+    Port map extracted by decoding the reference (see conventions.md "Multi-unit
+    foundation footprint & port bands"): footprint is island X[ix,ix+1] Y[iy,iy+3]
+    (literal 2x4, not rotated by R). Input = EAST edge, row3 only (island cell
+    ix+1,iy+3), 12 lanes, flows west. Output = WEST edge, ALL 4 rows (ix,iy+0..3),
+    12 lanes each (one quadrant per row), flows west.
+
+    This assembly places the component at island (0,0,0) with its original R=3,
+    plus one input stub (island X=2,Y=3, feeding west into the east-edge port) and
+    four output stubs (island X=-1,Y=0..3, continuing west out of each west-edge
+    port) so John can extend real supply/sinks and watch the quadrant split.
+    """
+    ref = load_reference_island("Quad Splitter.spz2bp")
+    assert ref["T"] == "Foundation_2x4"
+    quad_splitter = island("Foundation_2x4", X=0, Y=0, Z=0, R=ref["R"])
+    quad_splitter["B"] = ref["B"]  # reuse verbatim, black-box
+
+    islands = [quad_splitter]
+    islands.append(island("SpaceBelt_Forward", X=2, Y=3, Z=0, R=2))          # input stub (east side)
+    for row in range(4):                                                     # 4 output stubs (west side)
+        islands.append(island("SpaceBelt_Forward", X=-1, Y=row, Z=0, R=2))
+    return blueprint_islands(islands)
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
@@ -374,6 +419,7 @@ MODULES = {
     "VN-03 rotate90CW 12lane": vn03_rotate90cw_12lane,
     "VN-04 stacker 2in 1lane": vn04_stacker_2in_1lane,
     "VN-05 assembler 1lane 4quad": vn05_assembler_1lane_4quad,
+    "VN-06 quad splitter test": vn06_quad_splitter_test,
 }
 
 if __name__ == "__main__":

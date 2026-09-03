@@ -24,8 +24,22 @@ quarter-scale **reassembly test**.
 - **How:** a single multi-island Island blueprint that PLACES the `Quad Splitter` and
   three `Stacker` foundation-platforms and wires them with `SpaceBelt_*` tiles
   (see conventions.md "Assemblies"). Ship BOTH the component blueprints and the assembly.
-- **First steps:** extract the exact port positions of `Quad Splitter` (its 4 quadrant
-  outputs) and `Stacker` (Bottom / Top / Stacked ports), then lay space belts between them.
+- **STATUS (2026-09-03): `Quad Splitter` port map extracted & validated structurally.**
+  It's one `Foundation_2x4` (3097 buildings); input = 12-lane band on the EAST edge
+  row3 only, output = 4 independent 12-lane bands on the WEST edge (one per row =
+  one quadrant). Full detail in conventions.md "Multi-unit foundation footprint &
+  port bands". Shipped `VN-06 quad splitter test` — the real component (copied
+  verbatim from `blueprints/reference/Quad Splitter.spz2bp`, black-box) + 5 stub
+  SpaceBelt tiles (1 input, 4 outputs) so John can extend supply/sinks and confirm
+  the quadrant split visually. **Waiting on John's screenshot/test result.**
+- **BLOCKED on `Stacker`**: decoding `Stacker.spz2bp` revealed it is NOT a single
+  platform — it's a **28-island assembly** (4 chained foundations: 2x2->2x2->2x3->2x4,
+  ~6300 buildings) with an internal binary-tree-like mux structure. Static tracing of
+  its SpaceBelt turn/splitter connectivity to find the true Bottom/Top/Stacked
+  external interface was inconclusive (turn-piece in/out geometry unknown without
+  in-game/visual confirmation). **Asked John to open it in-game and report which
+  edge is Bottom-in / Top-in / Stacked-out — waiting on that answer before wiring
+  the 3-stacker chain.** Reference copy saved at `blueprints/reference/Stacker.spz2bp`.
 - **After it validates:** 2-type mix -> brain-driven type-select per position ->
   `Painter` for color -> the brain (Goal Receiver decode). Then tile quarter -> full belt.
 
@@ -125,6 +139,10 @@ quarter-scale **reassembly test**.
   **mechanic proofs; SUPERSEDED** by composing John's `Stacker` module. (VN-05's earlier
   bugs taught us: stacker top-feed needs a lift; platform ports only exist on the 4-lane
   edge bands — see conventions.md.) Keep for reference; don't build on them.
+- `VN-06 quad splitter test` — John's real `Quad Splitter` (Foundation_2x4, reused
+  verbatim/black-box) + 5 SpaceBelt stub tiles (1 input east, 4 outputs west, one per
+  quadrant row). Structurally validated (round-tripped, building count intact); NOT
+  yet in-game confirmed. See PROGRESS "NEXT SESSION OBJECTIVE" for status.
 
 ## Key reverse-engineered facts (full detail in conventions.md)
 - Blueprint = `SHAPEZ2-5-<base64(gzip(JSON))>[]_2$`; our verbose encoder imports fine.
