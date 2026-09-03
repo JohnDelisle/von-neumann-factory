@@ -340,6 +340,83 @@ Two consequences worth deciding on:
    in-game virtual building isolates a layer?** John's library only uses
    `VirtualRotator` and `VirtualAnalyzer`; the game may have more we haven't seen.
 
+## AGREED DIRECTION (John, 2026-09-03): pure-type lanes, merged per position
+
+John's proposal, confirmed correct: feed `CuCuCuCu` / `RuRuRuRu` / `SuSuSuSu` /
+`WuWuWuWu` into four separate Quad Splitters, let each lane's `Quaded Filter` match
+the goal layer, then **merge the four lanes into ONE stacker**.
+
+**Note this is a re-plumb, not just a supply change.** VN-12 as built has ONE input
+(split four ways down the X9 column) and ONE output (merged by three
+`TripleMerger`s). The new unit needs four *separate* inputs and a per-position
+merge before a single stacker.
+
+### The merge is the elegant part — and it's cheap
+Merge **band-by-band, not lane-by-lane**: every lane's NE band into the stacker's NE
+input, every lane's SE band into SE, and so on. For any goal, exactly **one** lane
+passes on a given band (the lane whose type the goal wants at that position) and the
+other three are silent — so each merged stream carries exactly the right quadrant at
+full rate, with no arbitration and **no dependence on the goal**. Four 4-way merges
+of 12-lane space belts = ~12 merger tiles. The `Quaded Filter` platforms need **no
+change at all** — they already all read the same goal on channel 123.
+
+### Yes — FOUR units per layer for full-belt output
+Each `Stacker supporting empty quadrants` consumes 4 x 12 lanes of quadrants and
+emits **12 lanes (1/4 belt)** of assembled shapes. (Confirmed by VN-12's own
+topology: four stacker clusters merge into one output belt.) So a full belt of one
+layer = **4 units**, each eating 1/4 belt of each of the four base types => **4 full
+belts of base shapes in, 1 full belt of single-layer output**.
+
+### Cost, from real building counts
+Per unit (1/4 belt of one layer, uncoloured):
+
+| Component | x | Buildings | Cells |
+|---|---|---|---|
+| `Quad Splitter` | 4 | 12,388 | 32 |
+| `Demuxer` | 4 | 10,956 | 32 |
+| `Quaded Filter` | 4 | 4,328 | 16 |
+| `Stacker supporting empty quadrants` | 1 | 7,926 | 29 |
+| `Overflow` sinks | ~20 | 6,300 | 20 |
+| **Total** | | **~41,900** | **~129** |
+
+**vs VN-12's 64,972 for the same 1/4 belt** on a 4-distinct-type goal — so the
+re-plumb is **~1.55x cheaper**. The whole saving is using **one** saturated stacker
+instead of four running at quarter utilisation; the splitter/demuxer/filter front
+end (27.7k) is identical either way and is **irreducible** — a 4-type layer
+fundamentally needs four source streams, whether taken in parallel (John's design)
+or interleaved in time (VN-12's mixed belt).
+
+Scaling out:
+
+| Target | Buildings |
+|---|---|
+| 1/4 belt, 1 layer | ~42k |
+| Full belt, 1 layer | ~168k |
+| Full belt, 4 layers + layer-stacking chain | ~765k |
+| **+ paint (4 painters/unit @ 3,041)** | **~960k** |
+| **1/4 belt, 4 layers, painted** | **~240k** |
+
+**The dominant lever is throughput, not cleverness.** Full-belt 4-layer coloured is
+~960k buildings; the same machine at 1/4 belt is ~240k — 4x smaller, and 1/4 belt of
+4-layer shapes is still a lot of product. **Recommend sizing for demand and scaling
+later**; the design tiles cleanly either way.
+
+### !! Paint has a brain problem, not just a plumbing problem
+Painting per position **after** the merge and before the stacker is the cheap
+placement — 4 `Painter`s per unit, each needing one colour signal, and the goal is
+already decomposed into 4 quadrant signals.
+
+**But the `Quaded Filter` matches the goal quadrant INCLUDING its colour.** With an
+uncoloured supply and a goal of `Cr` (red circle), every band would reject `Cu` and
+the machine would output nothing. So the filter must be fed a **colour-stripped**
+goal while the painters get the colour.
+
+=> **Open question: how do we strip colour from a shape signal in the wire layer?**
+If no virtual building does it, the fallback is the filter-based route (a
+pre-coloured supply + `Quaded Color Filter`), which multiplies the supply by the
+number of colours. **This decides the colour architecture — worth checking the
+in-game virtual building list before committing.**
+
 ### Cheaper alternative worth weighing: pure-type lanes, merged before the stacker
 Instead of one mixed belt into four independent lanes, give each lane a **pure**
 base type and merge the four lanes' surviving quadrant streams into **one** stacker.
