@@ -401,6 +401,38 @@ Scaling out:
 4-layer shapes is still a lot of product. **Recommend sizing for demand and scaling
 later**; the design tiles cleanly either way.
 
+### The scale-up: replicate the WHOLE machine, not the single-layer engine
+Confirmed: one unit emits a **saturated 1/4 belt**, so **4 replicas = one full space
+belt**, fed by 4 full belts of base shapes (one belt per type). Note the difference
+between plumbing and saturation — VN-12 already has full-belt output *plumbing*, but
+on a 4-distinct-type goal it runs at 25% density. The redesign's win is a saturated
+1/4 belt from one stacker instead of a quarter-full belt from four.
+
+**Make the replication unit the complete painted, multi-layer machine** — not the
+single-layer engine. Stacking layers at 1/4 belt and then replicating 4x costs
+exactly the same as replicating each layer 4x and then stacking at full belt (12
+layer-stack stages either way), but it means we build and validate ONE complete
+~220k-building MAM end to end before committing to ~880k. That is the PLAYBOOK's
+"validate narrow, then scale" applied at the factory level.
+
+### Corrected cost: the layer-stack chain is cheap
+Earlier estimate used a whole `Stacker supporting empty quadrants` cluster (7,926)
+per layer join. Wrong — layer stacking only needs **2 inputs**, and a single
+`Foundation_2x2` stacker platform (**1,361 buildings**, `Bottom` east + `Top` north
+-> `Stacked` west) does that at 12 lanes. So joining 4 layers is **3 x 1,361 =
+~4,100**, not ~24k. (Not yet validated standalone — worth a small test blueprint.)
+
+Revised: **1/4 belt, 4 layers, painted ~= 220k buildings**
+(4 x 41.9k engines + 4 x 4 x 3,041 painters + 3 x 1,361 layer joins).
+
+### !! Layer stacking is only safe when the upper layer is supported
+Rigid-body again: an upper-layer quadrant with **no occupied quadrant beneath it**
+falls through and merges into the lower layer instead of forming a new one. So
+`CuCuCuCu` + `--Ru--Ru` stacks correctly (both Ru sit on Cu), but `Cu--Cu--` +
+`--Ru--Ru` would collapse into a single layer. This matches the game's own shape
+support rule, so real goal shapes should be safe — **but confirm with John before
+the layer chain is built.**
+
 ### !! Paint has a brain problem, not just a plumbing problem
 Painting per position **after** the merge and before the stacker is the cheap
 placement — 4 `Painter`s per unit, each needing one colour signal, and the goal is
