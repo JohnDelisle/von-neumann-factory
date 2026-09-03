@@ -90,3 +90,24 @@ Belts: `BeltDefaultForwardInternalVariant`, `BeltDefaultLeftInternalVariant`,
 `ControlledSignalReceiverInternalVariant`. Space: `SpaceBelt_Forward`,
 `SpaceBelt_LeftTurn`, `SpaceBelt_RightTurn`, `SpaceBelt_*Splitter/Merger`,
 `SpacePipe_*`, `Rail_*`.
+
+## Cutter / Half Destroyer mechanics (confirmed)
+
+- Cut is **always vertical (east/west)**; building rotation does NOT change which
+  halves are processed.
+- **Half Destroyer** (`CutterHalfInternalVariant`): destroys the **west** half,
+  keeps the **east** half. 1 in, 1 out, 1x1x1.
+- **Full Cutter** (`CutterDefaultInternalVariant`): east half -> main output,
+  west half -> secondary output. 1x2x1.
+- Quadrants NE,SE,SW,NW; east half = NE+SE, west half = SW+NW.
+- **Isolate one quadrant:** HalfDestroy (-> NE,SE) -> Rotate 90 CW -> HalfDestroy
+  (-> a single quadrant). Pre-rotate the shape to choose which original quadrant
+  survives.
+
+## Module widths vary in John's library (don't assume uniform)
+
+- **Rotator, Pin Setter**: full **12-lane bus** (cols X8-11, floors L0-2),
+  south-in (Y17, R3) / north-out (Y2, R3).
+- **Half Destroyer**: only **4 lanes, L0**, west-in on a 1x2 / south-out.
+- **Trash**: 12-lane sink, west-in (X2, R0).
+- Standard going forward: **12-lane bus (4x3), purpose-built modules**.
