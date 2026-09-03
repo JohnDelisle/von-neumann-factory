@@ -1,93 +1,142 @@
 # Project status & session handoff
 
-_Last updated: 2026-09-03. Read this first when resuming in a new session._
+_Last updated: 2026-09-03. **Read this first when resuming.** Then skim
+`docs/architecture.md` (design + ecosystem) and `docs/conventions.md` (file
+formats + reverse-engineered game mechanics)._
 
 ## What this is
 Co-building an elegant, symmetric **constructive Make Anything Machine (MAM)** in
-Shapez 2 with John (see README + docs/architecture.md). Blueprints are authored
-from code, John imports & tests them in-game, we iterate. GitHub is the source of
-truth; each change is committed + pushed.
+Shapez 2 with John. Claude authors blueprints from code (`tools/`); John imports &
+tests them in-game; we iterate. GitHub is the source of truth; every change is
+committed + pushed.
 
-## Done so far
-- Blueprint + savegame formats fully decoded (docs/conventions.md).
-- Encoder validated by in-game round-trip; **from-scratch authoring confirmed**
-  via `VN-00 coord test` (John verified: East-flow run turning South, single
-  layer, no offset).
-- Conventions locked: +X East / +Y South, R = 90 deg CW steps, 1x1 platform =
-  20x20 (buildable ~[2,17], floors L0-2), the **12-lane bus** interconnect,
-  cutter mechanics (Half Destroyer keeps EAST).
-- `tools/shapez_bp.py` (codec) + `tools/build_modules.py` (generator).
-- Repo set up and pushed.
-- **Cutter/Rotator footprints extracted** from John's blueprints: `CutterHalfInternalVariant`,
-  `RotatorOneQuadInternalVariant` (90 CW) and `RotatorOneQuadCCWInternalVariant` are all
-  **single-cell inline** buildings (no config), `R` = flow direction. `Clockwise`/`Counter
-  Clockwise` confirm CW/CCW; `Half Destroyer` confirms keep-east. NOTE: real-game exports use
-  a **terser schema** (plain `Entries` list, omitted default fields, `Icon`/`BinaryVersion`,
-  `V:1137/1138`); our verbose encoder still imports fine.
-- **`VN-01 quad isolator 1lane`** VALIDATED in-game (John): HalfDestroy -> Rotate90 CW ->
-  HalfDestroy on one lane (X9, L0, north-flow R3) correctly isolates the SE quadrant, and
-  the three single-cell transforms chain inline (adjacent Y14/Y13/Y12) with no belts between.
-  Lane geometry: X9 = **2nd input lane from the left** of the 4-lane space-belt input (X8-11);
-  X8 free to the left, X10-X11 spare to the right. NOTE: single building per stage is
-  throughput-limited (see below) - fine for the proof, must parallelize for full-speed.
+---
 
-## Environment / operational notes (IMPORTANT for resuming)
-- Device: `jmd-486-dx4` (Windows; device_bash runs in its Linux VM).
-- Game files: `C:\Users\jdeli\AppData\LocalLow\tobspr Games\shapez 2`
-  (mounted at `$HOME/mnt/shapez 2`). Grant folder access to this on resume.
-- **Working save**: `savegames/5589333c-...` ("Bullshitting") — fully unlocked
-  (Level 107, ~44% research; NO crystals), cleared to ~28.5k structures (just the
-  vortex + feeder belts). Blueprint cost = 0. `ResearchShapeCostMultiplier`=60.
-- **In-game blueprint folder**: `blueprints/The Von Neumann Factory/`.
-- **Repo working copy lives ON THE DEVICE** at `~/von-neumann-factory` (device VM
-  home), remote `github.com/JohnDelisle/von-neumann-factory` (private).
-  Git auth = a **fine-grained PAT** (Contents R/W on this repo) in `~/.git-credentials`
-  on the device VM (helper=store; `user.name/email` set globally). **VM recycling wipes
-  this** -> John generates a fresh fine-grained PAT and Claude re-stores it. (GitHub CLI
-  device flow does NOT work here: that app has no per-repo grant -> 403 on clone.)
-- **Cloud container CANNOT reach GitHub** (egress locked to configured repos):
-  do all git create/push **from the device** (device_bash), not the cloud.
-- Workflow per change: edit in repo -> `python3 tools/build_modules.py blueprints`
-  -> `cp` the .spz2bp into the in-game VN folder -> `git add/commit/push`.
-- Commit trailer: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
+## >>> NEXT SESSION OBJECTIVE <<<
+Build the first **assembly** ("blueprint of blueprints"): a fixed-recipe,
+quarter-scale **reassembly test**.
 
-## Design decisions
-- **Constructive interpreter** MAM (uses Goal Receiver + Virtual Processing),
-  NOT generate-and-filter.
-- **12-lane bus** standard; 1 space-belt input = 12 lanes (4x3); full space belt
-  = 4 inputs = 48 lanes. Build the 12-lane unit to tile x4.
-- **Clean/beautiful > tangled**; consistent module shapes. Use ramps to speed
-  shapes.
+- **What:** one base shape -> John's **`Quad Splitter`** platform (-> NE/SE/SW/NW)
+  -> a chain of **three `Stacker` platforms** (Bottom+Top->Stacked) -> back to the
+  original shape. If a circle goes in and a circle comes out, the compose-and-assemble
+  approach is proven.
+- **How:** a single multi-island Island blueprint that PLACES the `Quad Splitter` and
+  three `Stacker` foundation-platforms and wires them with `SpaceBelt_*` tiles
+  (see conventions.md "Assemblies"). Ship BOTH the component blueprints and the assembly.
+- **First steps:** extract the exact port positions of `Quad Splitter` (its 4 quadrant
+  outputs) and `Stacker` (Bottom / Top / Stacked ports), then lay space belts between them.
+- **After it validates:** 2-type mix -> brain-driven type-select per position ->
+  `Painter` for color -> the brain (Goal Receiver decode). Then tile quarter -> full belt.
 
-## Next steps
-1. **Stage 1 - Quadrant isolator**: 1-lane proof (`VN-01`) VALIDATED. 12-lane build (John:
-   full-12-lane-in-one-pass, per-lane selectable quadrant):
-   - **`VN-02 half-destroy 12lane`** BUILT + VALIDATED (John: "great"), then John added
-     **belt launchers** on the straights (traversal-speed, not throughput; launcher=sender/
-     catcher=receiver mid-platform, see conventions.md) -- folded back into `build_modules.py`
-     as the source of truth (186 bldgs, regen set-equal to John's saved file). Original note: `Clockwise`'s proven
-     split->op->merge butterfly is operation-agnostic (each item hits exactly 1 operator), so
-     we swapped its 24 RotatorOneQuad -> CutterHalf to get a 12-lane full-throughput pass-through
-     Half Destroyer (2 cutters/lane, south-in Y17/north-out Y2, island R=2). Keeps world-EAST half.
-   - **`VN-03 rotate90CW 12lane`** = launcher-optimized `Clockwise` (derived from VN-02's
-     validated launcher layout, cutter->rotator; rotator cells == Clockwise, launchers == VN-02).
-   - **Composition** (uniform, isolates orig-NE quadrant): `VN-02` -> `VN-03` -> `VN-02`
-     as 3 snap-together 1x1 modules on the bus (HalfDestroy -> Rotate90CW -> HalfDestroy).
-   - **Per-lane selectable quadrant** = add a SELECTABLE PRE-ROTATE stage before the isolator:
-     same butterfly, per-lane operator chosen by baked k in {0:belt-pass -> orig NE, 1:RotCW ->
-     orig NW, 2:RotHalf(180) -> orig SW, 3:RotCCW -> orig SE}. Needs the lane->operator-cell map
-     (derive by simulating flow through the butterfly). Build AFTER VN-02 validates.
-   - John TEST: import `VN-02` alone, feed any full shape on all 4 lanes x 3 floors; expect only
-     the world-EAST half (e.g. `CuCuCuCu` -> the two east quadrants) out on every lane.
-2. **Architecture agreed** (see architecture.md "Working design"): single-layer, 12-lane
-   quarter-scale, brain-driven color mixer. Per slot: shape-mux -> isolate -> fixed rotate ->
-   paint; stack 4 -> layer. NEXT = **assembler**: validate stacking single-quadrant pieces
-   into one layer (needs StackerStraight port layout - get a 2-in->1-out stacker ref from John).
-   Then painter+color-mixer, shape 4->1 mux, brain (Goal Receiver decode), then tile x4.
-3. Base supply: needs this world's shape-patch locations (circle/square/star/
-   windmill) + fluid patches — read from the save map or ask John.
+---
 
-## Reusable references in John's 2026 blueprint folder
-Rotator, Pin Setter, Half Destroyer, Painter/Painter Small, Trash, Shape Filter,
-Quad Splitter, Demuxer, Great Filter, "MAM working" (245 platforms / ~65k
-buildings, generate-and-filter style — reference only).
+## ACCESS / SETUP CHECKLIST (do these first on resume)
+
+1. **Device**: this session is linked to `jmd-486-dx4` (Windows; `device_bash` runs in
+   its Linux VM). If `mcp__remote-devices__*` tools are absent/failing, ask John to open
+   the Claude desktop app on that computer.
+
+2. **Folder access** (via `device_request_folder_access`):
+   - **Shapez 2 game folder** — `C:\Users\jdeli\AppData\LocalLow\tobspr Games\shapez 2`
+     (mounts at `$HOME/mnt/shapez 2`). Holds `blueprints/2026/` (John's reference library),
+     `blueprints/The Von Neumann Factory/` (our in-game folder), and `savegames/`.
+   - NOTE: the repo is NOT under `~/source/repos` (that's empty). Don't go hunting other
+     folders — John declined broad folder browsing before.
+
+3. **GitHub access** (this has been the recurring friction — do it right):
+   - The repo working copy lives ON THE DEVICE VM at `~/von-neumann-factory`, remote
+     `github.com/JohnDelisle/von-neumann-factory` (**private**).
+   - **The cloud container CANNOT reach GitHub** (egress locked). The **device VM CAN**.
+     => run ALL git (clone/pull/commit/push) via `device_bash`, never cloud `bash`.
+   - **VM recycling wipes the working copy + credentials.** If `~/von-neumann-factory` is
+     gone or `git` auth fails: ask John for a **fine-grained PAT** (Repository access =
+     only `von-neumann-factory`; Repository permission = **Contents: Read and write**;
+     Metadata auto-included). Then on the device VM:
+     ```
+     git config --global user.name "John Delisle"
+     git config --global user.email "jdelisle@gmail.com"
+     git config --global credential.helper store
+     umask 077; printf 'https://x-access-token:%s@github.com\n' "<PAT>" > ~/.git-credentials
+     git clone https://github.com/JohnDelisle/von-neumann-factory.git ~/von-neumann-factory
+     git -C ~/von-neumann-factory remote set-url origin https://github.com/JohnDelisle/von-neumann-factory.git
+     ```
+   - Do NOT use the GitHub CLI device flow: that app has no per-repo grant -> 403 on clone.
+   - The injected `GITHUB_TOKEN`/`GH_TOKEN` in the cloud container are invalid; ignore them.
+
+4. **Reading a private repo without a PAT** (fallback, read-only): John can log into GitHub
+   in the built-in browser pane; then blob pages are readable (raw.githubusercontent needs a
+   token). But for real work you need the PAT + device VM clone above.
+
+5. **Per-change workflow** (once set up):
+   ```
+   edit tools/build_modules.py  ->  python3 tools/build_modules.py blueprints
+   cp "blueprints/<name>.spz2bp" "$HOME/mnt/shapez 2/blueprints/The Von Neumann Factory/"
+   git add -A && git commit && git push        # all via device_bash
+   ```
+   Verify the copy landed (`cmp`). John must **force an in-game blueprint-folder refresh**
+   to see newly added files (the game scans on startup / panel reopen).
+   - Commit trailer: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
+     plus `Claude-Session: <session url>`.
+
+---
+
+## Working save & world
+- **`savegames/5589333c-...`** ("Bullshitting") — fully unlocked (Level 107, ~44%
+  research; **NO crystals**), cleared to ~28.5k structures (vortex + feeder belts).
+  Blueprint cost = 0. `ResearchShapeCostMultiplier`=60.
+- Base-supply shape/fluid patch locations in this world: still TBD (read the save map
+  or ask John) — needed once we wire real base supply.
+
+## Design decisions (see architecture.md for detail)
+- **Constructive interpreter** MAM (Goal Receiver + Virtual Processing), NOT
+  generate-and-filter.
+- **Single-layer first**, grow to multi-layer. **Quarter (12-lane) scale first**, tile
+  x4 to full 48-lane belt. **Brain-driven color** (really discrete N-select; build the
+  first version UNCOLORED).
+- **No isolator waste**: decompose base shapes with the `Quad Splitter` (use all 4
+  quadrants), do NOT isolate-and-discard 3/4.
+- **Discrete-function platforms** (one function per platform) + **blueprint-of-blueprints
+  assemblies**. Ship both component and assembly blueprints.
+- Clean/beautiful > tangled. Use launchers on straight runs (traversal speed). **Ask John
+  before trading elegance for performance.** Second-guess/critique his designs freely (he
+  asked for it).
+
+## John's proven ecosystem = the primitives to COMPOSE (in `blueprints/2026/`)
+- **`Quad Splitter`** (Foundation_2x4): shape -> NE/SE/SW/NW (1/4-belt in, 4 outs).
+- **`Demuxer`** (2x4_Flipped): normalizes NE-SE-SW-NW streams.
+- **`Stacker`** (multi-platform, SpaceBelt I/O): 2-input stacker, **Bottom + Top ->
+  Stacked** (also Passthrough / USE-ONE-INPUT-ONLY). Assembler = chain 3 of these.
+- **`Painter`** (2x4 + pipes): **Shapes + Paint -> Painted Shapes**.
+- **`Overflow`** (1x1): eats excess to keep belts compressed.
+- `Full Belt Quad Splitter` = 4 Quad Splitters + Demuxer + Overflow -> full belt
+  (reference for how John composes a full-throughput assembly).
+- Also: `Rotator`, `Clockwise`/`Counter Clockwise` (12-lane 90 CW/CCW), `Pin Setter`,
+  `Half Destroyer`, `Trash`, `Shape Filter`, `Paint Mixer`, `Lift*`. "MAM working" =
+  245-platform generate-and-filter MAM (reference only).
+
+## Our module inventory (`blueprints/`, generated by `tools/build_modules.py`)
+- `VN-00 coord test` — coordinate/rotation sanity check. VALIDATED.
+- `VN-01 quad isolator 1lane` — HalfDestroy->Rot90CW->HalfDestroy, isolates SE. VALIDATED.
+- `VN-02 half-destroy 12lane` — 12-lane launcher-optimized half-destroy (John's redesign,
+  186 bldgs; = `Clockwise` butterfly with cutters). VALIDATED.
+- `VN-03 rotate90CW 12lane` — launcher-optimized `Clockwise` (VN-02 layout, cut->rot).
+- `VN-04 stacker 2in 1lane`, `VN-05 assembler 1lane 4quad` — hand-built stacker/assembler
+  **mechanic proofs; SUPERSEDED** by composing John's `Stacker` module. (VN-05's earlier
+  bugs taught us: stacker top-feed needs a lift; platform ports only exist on the 4-lane
+  edge bands — see conventions.md.) Keep for reference; don't build on them.
+
+## Key reverse-engineered facts (full detail in conventions.md)
+- Blueprint = `SHAPEZ2-5-<base64(gzip(JSON))>[]_2$`; our verbose encoder imports fine.
+- +X East / +Y South; R = 90 CW steps (R0 E, R1 S, R2 W, R3 N). 1x1 = 20x20, buildable
+  ~[2,17], floors L0-2. Bus = 4 cols (X8-11) x 3 floors = 12 lanes, south-in/north-out.
+- Cutter/Rotator/Stacker are single-cell inline (no config). HalfDestroy keeps world-EAST.
+- **Stacking is rigid-body**: pieces merge into one layer only if DISJOINT quadrants;
+  any overlap puts the top shape on a new layer.
+- **StackerStraight ports**: bottom from behind (south), top from the cell ABOVE (L1) via
+  a `Lift1UpForward`(col+1,row+1)->L1->`BeltDefaultLeftMirrored` turn; output forward.
+- **Launchers** = `BeltPortSender`(launcher)/`BeltPortReceiver`(catcher) placed
+  mid-platform; span 1-4 tiles; same throughput as belts (cut travel time only).
+- **Edge ports only on the 4-lane band per edge**: N/S at X8-11, E/W at Y8-11, per floor.
+  Off-band ports won't stamp (red X).
+- **Assemblies** = Island blueprint of foundation-platforms (each carrying its `B`) +
+  `SpaceBelt_*` routing tiles at island X,Y,Z,R.
