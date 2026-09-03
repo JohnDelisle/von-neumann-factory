@@ -147,3 +147,24 @@ Compose these validated modules with connecting glue rather than rebuilding
 NOTE: my hand-built VN-04 (2-in stacker) and VN-05 (4-quad assembler) were mechanic
 proofs; SUPERSEDED by John's `Stacker` module for the real full-throughput build.
 Composition needs each module's foundation footprint + port map (extract next).
+
+
+---
+
+## Design philosophy: discrete-function platforms + blueprint-of-blueprints (John)
+
+- **One function per platform.** Each discrete function (quad-split, stack, rotate,
+  paint, demux, overflow, type-select, ...) is its own platform with its own
+  blueprint. Do NOT fuse two functions on one platform (e.g. rotate+stack) UNLESS
+  that fused function is itself a named MAM building-block.
+- **Assemblies are blueprints of blueprints.** A complex machine is a multi-island
+  blueprint that PLACES the discrete platforms and connects them with space belts
+  (like `Full Belt Quad Splitter` = 4 Quad Splitters + Demuxer + Overflow + belts).
+  Ship BOTH: the component-platform blueprints AND the assembled-machine blueprint.
+- **Result:** a reusable component library (single-function platforms) + assemblies
+  that compose them. Repo `blueprints/` holds both kinds; `build_modules.py` generates
+  components and assemblies.
+
+Capability needed for assemblies: place islands (foundation/space-belt tiles at
+island X,Y,Z,R) and route SpaceBelt_* tiles between module ports. (Studying John's
+multi-island blueprints to learn the island-grid + space-belt conventions.)

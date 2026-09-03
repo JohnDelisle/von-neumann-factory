@@ -162,3 +162,21 @@ of each edge, per floor:
 A blueprint with a port off these bands will NOT stamp (red X). Larger foundations
 have their own bands (TBD). => a 1x1 has at most 4 lanes x 3 floors = 12 port-lanes
 per edge-direction.
+## Assemblies: island grid + space belts (from John's Stacker module)
+
+A multi-platform machine ("blueprint of blueprints") is an **Island** blueprint whose
+entries are:
+- **Foundation platforms** (`Foundation_2x2`, `_2x3`, `_2x4`, `_1x1`, ... with `_Flipped`
+  variants), each a single island entry at island-grid `X,Y,Z,R` carrying its own
+  building blueprint `B` (the function's internals). A 2x2 foundation is ONE entry
+  occupying a 2x2 block of island cells.
+- **Space-belt tiles** routing between platform ports, 1x1 island tiles:
+  `SpaceBelt_Forward`, `SpaceBelt_LeftTurn`, `SpaceBelt_RightTurn`,
+  `SpaceBelt_LeftFwdSplitter`, `SpaceBelt_RightFwdSplitter`,
+  `SpaceBelt_LeftFwdMerger`, `SpaceBelt_RightFwdMerger`, each at island `X,Y,Z,R`.
+  (Fluids use `SpacePipe_*`; rails use `Rail_*`.)
+- Island coords are integer grid units (each unit = one 1x1 platform footprint);
+  `Z` is elevation (0 = ground). `R` orients the tile/platform.
+
+To build an assembly: place the function foundations, then lay `SpaceBelt_*` tiles
+connecting each source platform's output port band to the next platform's input band.
