@@ -432,37 +432,68 @@ def vn06_quad_splitter_test():
     return blueprint_islands(islands)
 
 
+# Pure SpaceBelt_* wiring extracted verbatim from John's tested, working assembly
+# "For Claude Splitter and Stacker.spz2bp" (2026-09-03): a splitter/trash disposal
+# stage on the west end (for a self-contained testable loop) and the 4 connector
+# belts between the Stacker cluster's east edge and the Demuxer. (X,Y,Z,R,T)
+VN07_WIRING = [
+    (-8, -1, 0, 3, 'SpaceBelt_LeftTurn'),
+    (-8,  0, 0, 3, 'SpaceBelt_LeftFwdSplitter'),
+    (-8,  1, 0, 2, 'SpaceBelt_TripleSplitter'),
+    (-8,  2, 0, 1, 'SpaceBelt_RightTurn'),
+    ( 5, -1, 0, 2, 'SpaceBelt_Forward'),
+    ( 5,  0, 0, 2, 'SpaceBelt_Forward'),
+    ( 5,  1, 0, 2, 'SpaceBelt_Forward'),
+    ( 5,  2, 0, 2, 'SpaceBelt_Forward'),
+    (10,  2, 0, 2, 'SpaceBelt_Forward'),
+]
+
 def vn07_reassembly_test():
-    """First reassembly-test assembly: John's `Quad Splitter` (Foundation_2x4) feeding
-    John's `Stacker supporting empty quadrants` (38-island, 6 platforms, ~7.7k buildings)
-    -- both reused verbatim/black-box, placed with a clear gap between them.
+    """Quarter-scale reassembly test: Quad Splitter -> Demuxer -> Stacker supporting
+    empty quadrants -> (test-rig) Trash. Reproduces, from code, John's tested and
+    CONFIRMED WORKING hand-built assembly "For Claude Splitter and Stacker.spz2bp"
+    (2026-09-03) -- one base shape splits into 4 quadrants, reassembles back into
+    the original shape (tested with one blank quadrant too, per John).
 
-    Per John (2026-09-03): 'Stacker supporting empty quadrants' is a complete unit (not
-    3 chained plain Stackers) that takes 4 distinct quadrant inputs via 4 west-side ports
-    (order irrelevant -- it just needs one NE/SE/SW/NW each) and emits a full space belt
-    of stacked output. Quad Splitter's 4 quadrant outputs (see conventions.md) are a
-    natural match for those 4 inputs.
+    Key fix vs. the first (untested) VN-07: Quad Splitter's 4 outputs need
+    NORMALIZING before they reach the Stacker -- each output belt must carry its
+    quadrant shape in its ORIGINAL orientation (don't let e.g. NW rotate into SW).
+    That's what `Demuxer` (Foundation_2x4_Flipped) does; it sits directly adjacent
+    to Quad Splitter's west edge (zero-gap, ports connect straight across the
+    island boundary -- no SpaceBelt tile needed between them).
 
-    NOT auto-wired: label-pairing nailed down every port's building-local position, but
-    the exact SpaceBelt turn/merger connection geometry at the empty-quadrant stacker's
-    west boundary couldn't be verified statically (turn-piece in/out sides are ambiguous
-    from coordinates alone -- see conventions.md "Stacker is NOT a single platform").
-    Rather than guess and burn a build/test cycle, this ships both components pre-placed
-    with a gap for John to hand-wire the 4 connector belts in-game, where the port
-    sockets are visible. Once confirmed, bake the exact wiring back into this function.
+    Also per John: the red X's this blueprint shows on stamp are EXPECTED/benign --
+    each Stacker platform's "Top" input has two alternate physical ports with a
+    "USE ONE INPUT ONLY" label between them (see conventions.md); the unused one's
+    adjacent empty SpaceBelt cell is what the game flags, not a real error.
+
+    All foundations reused verbatim/black-box from blueprints/reference/; only the
+    SpaceBelt_* routing tiles (VN07_WIRING above) are hand-authored, copied exactly
+    from John's tested layout.
     """
-    quad_ref = load_reference_island("Quad Splitter.spz2bp")
-    assert quad_ref["T"] == "Foundation_2x4"
-    quad_splitter = island("Foundation_2x4", X=0, Y=0, Z=0, R=quad_ref["R"])
-    quad_splitter["B"] = quad_ref["B"]
+    def placed(filename, X, Y, Z, R):
+        ref = load_reference_island(filename)
+        isl = island(ref["T"], X=X, Y=Y, Z=Z, R=R)
+        isl["B"] = ref["B"]
+        return isl
 
-    # 'Stacker supporting empty quadrants' spans island X[-6,6] Y[-3,3] in its own
-    # frame; place its origin 10 cells east of Quad Splitter's west-edge outputs
-    # (X=-1) so there's open space for John to lay the 4 connector belts by hand.
+    islands = []
+    # west-end test rig: 4x Trash sinks + a splitter stage feeding them
+    for i, y in enumerate((-1, 0, 1, 2)):
+        islands.append(placed("Trash.spz2bp", X=-9, Y=y, Z=0, R=3))
+    # Stacker supporting empty quadrants (38 islands), offset to match John's layout
+    # (original reference has its Overflow platform at X=-5,Y=0; here it's X=-6,Y=1)
     stacker_islands = load_reference_islands("Stacker supporting empty quadrants.spz2bp")
-    stacker_islands = translate_islands(stacker_islands, dx=15, dy=0, dz=0)
+    islands += translate_islands(stacker_islands, dx=-1, dy=1, dz=0)
+    # Demuxer (normalizes quadrant orientation) directly adjacent to Quad Splitter
+    islands.append(placed("Demuxer.spz2bp", X=6, Y=0, Z=0, R=1))
+    # Quad Splitter (the shape source for this test)
+    islands.append(placed("Quad Splitter.spz2bp", X=8, Y=1, Z=0, R=3))
+    # hand-authored SpaceBelt_* connector/test-rig wiring
+    for (X, Y, Z, R, T) in VN07_WIRING:
+        islands.append(island(T, X=X, Y=Y, Z=Z, R=R))
 
-    return blueprint_islands([quad_splitter] + stacker_islands)
+    return blueprint_islands(islands)
 
 
 MODULES = {

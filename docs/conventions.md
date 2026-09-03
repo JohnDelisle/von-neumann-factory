@@ -260,14 +260,28 @@ a `"SHIT - Mixes lanes up in both these"` label on a known bug in its lane-merge
 stage — flagged as a target for the "refactor into better components" work, not
 yet root-caused.
 
-**Not yet auto-wired.** Label-pairing gives exact building-local port positions,
-but the SpaceBelt turn/merger connection geometry at the west-boundary input
-cluster (a `LeftTurn`/`Forward`/`TripleMerger`/`RightTurn` group) couldn't be
-verified statically — repeated attempts to infer turn-piece in/out sides from
-coordinates alone were inconclusive (see `graph.py`-style adjacency check in
-session scratch history: every turn tile reported spuriously "open" on both sides,
-meaning the R-offset assumption for turns is wrong and unverified). Shipped
-`VN-07 reassembly test`: `Quad Splitter` + `Stacker supporting empty quadrants`
-placed with a 7-cell gap, both verbatim/black-box, **not connected** — John wires
-the 4 connector belts by hand in-game (where the port sockets are visible), then
-we bake the confirmed wiring back into `build_modules.py`.
+**CONFIRMED WORKING, wired by John in-game (2026-09-03).** `Quad Splitter`'s 4
+outputs need a **`Demuxer`** (`Foundation_2x4_Flipped`, from `Demuxer.spz2bp`)
+between them and the Stacker's input — each output belt must carry its quadrant
+shape in its ORIGINAL orientation (don't let e.g. NW rotate into SW when it exits
+Quad Splitter); Demuxer normalizes that. Demuxer sits with **zero gap** directly
+against Quad Splitter's west edge — adjacent platform edges connect straight
+across the island boundary with no `SpaceBelt_*` tile needed between them, as long
+as the ports line up. From there, 4 `SpaceBelt_Forward` tiles bridge Demuxer's
+west edge to the Stacker cluster's east-most extent (the `Foundation_2x4` "Fancy
+A+B" unit).
+
+John tested this end-to-end (including with one blank quadrant) and confirmed: one
+base shape → Quad Splitter → Demuxer → Stacker supporting empty quadrants →
+reassembled, matching the original input. The exact wiring is now baked into
+`vn07_reassembly_test()` in `build_modules.py` (`VN07_WIRING` for the hand-authored
+SpaceBelt tiles; all foundations loaded verbatim from `blueprints/reference/`) —
+diffed byte-for-byte against John's tested file, exact match on every foundation
+except the 4 disposal-only `Trash` sinks (same building count, trivially different
+internal content — harmless, they're test scaffolding, not reassembly logic).
+
+**Red X's on stamp are EXPECTED for this design, not errors.** Each Stacker
+platform's "Top" input has two alternate physical entry points with a
+`"USE ONE INPUT ONLY"` label between them (see above) — the game flags the unused
+one's adjacent empty `SpaceBelt` cell as a warning. That's intentional per John,
+not a bug.

@@ -13,57 +13,57 @@ committed + pushed.
 
 ---
 
-## >>> NEXT SESSION OBJECTIVE <<<
-Build the first **assembly** ("blueprint of blueprints"): a fixed-recipe,
-quarter-scale **reassembly test**.
+## >>> REASSEMBLY TEST: VALIDATED (2026-09-03) <<<
+The quarter-scale reassembly test is **done and confirmed working in-game by John**:
+one base shape -> `Quad Splitter` (-> NE/SE/SW/NW) -> `Demuxer` (normalizes
+orientation) -> `Stacker supporting empty quadrants` -> reassembled, matching the
+original input (tested with one blank quadrant too, per John). The
+compose-and-assemble approach is proven.
 
-- **What:** one base shape -> John's **`Quad Splitter`** platform (-> NE/SE/SW/NW)
-  -> a chain of **three `Stacker` platforms** (Bottom+Top->Stacked) -> back to the
-  original shape. If a circle goes in and a circle comes out, the compose-and-assemble
-  approach is proven.
-- **How:** a single multi-island Island blueprint that PLACES the `Quad Splitter` and
-  three `Stacker` foundation-platforms and wires them with `SpaceBelt_*` tiles
-  (see conventions.md "Assemblies"). Ship BOTH the component blueprints and the assembly.
-- **STATUS (2026-09-03): `Quad Splitter` port map extracted & validated structurally.**
-  It's one `Foundation_2x4` (3097 buildings); input = 12-lane band on the EAST edge
-  row3 only, output = 4 independent 12-lane bands on the WEST edge (one per row =
-  one quadrant). Full detail in conventions.md "Multi-unit foundation footprint &
-  port bands". Shipped `VN-06 quad splitter test` — the real component (copied
-  verbatim from `blueprints/reference/Quad Splitter.spz2bp`, black-box) + 5 stub
-  SpaceBelt tiles (1 input, 4 outputs) so John can extend supply/sinks and confirm
-  the quadrant split visually. **Waiting on John's screenshot/test result.**
-- **RESOLVED — labels, not guessing.** `LabelDefaultInternalVariant` buildings carry
-  real base64-encoded text (decode: `raw = base64.b64decode(C["$value"]);
-  text = raw[2:].decode("utf-8")` — 2-byte length prefix then UTF-8). John's
-  reference blueprints are fully annotated ("Bottom", "Top", "Stacked",
-  "Passthrough", "USE ONE INPUT ONLY", even a "SHIT - Mixes lanes up in both these"
-  bug note). Pairing labels to nearest ports gave exact, ground-truth port
-  positions — see conventions.md "Stacker is NOT a single platform" and "Stacker
-  supporting empty quadrants" for the full extracted port maps.
-- **Plan corrected (per John, 2026-09-03):** `Stacker.spz2bp` (the plain 4-platform
-  chain) is ALREADY the complete 4-quadrant stack as one unit — no need to chain 3
-  copies as originally assumed. But for OUR reassembly test, John pointed to the
-  better primitive: **`Stacker supporting empty quadrants.spz2bp`** (38 islands,
-  ~7.7k buildings) — takes 4 distinct quadrant inputs via 4 west-side ports (order
-  irrelevant), tolerates empty quadrants, emits one full space belt of output.
-  Vendored to `blueprints/reference/Stacker supporting empty quadrants.spz2bp`.
-- **Shipped `VN-07 reassembly test`**: `Quad Splitter` + `Stacker supporting empty
-  quadrants`, both verbatim/black-box, placed with a 7-cell gap — **not yet wired**.
-  The west-boundary input cluster's exact SpaceBelt turn/merger connection geometry
-  couldn't be pinned down statically (turn-piece in/out sides are ambiguous from
-  raw coordinates — confirmed via a graph-adjacency script that produced
-  self-contradictory "open on both sides" results). **Waiting on John to hand-wire
-  the 4 connector belts in-game and confirm/screenshot**, then bake the exact
-  wiring back into `build_modules.py`.
-- **Also flagged (not yet actioned):** the "Fancy A+B Side Overflow" component
-  (used twice inside `Stacker supporting empty quadrants`) has a self-documented
-  bug — John's own label reads "SHIT - Mixes lanes up in both these" at its
-  lane-merge stage. John's closing ask this session: help refactor these
-  sub-optimal components into something cleaner and build a genuinely working MAM
-  — broader than just this one reassembly test. Worth root-causing that bug once
-  the reassembly test validates.
-- **After it validates:** 2-type mix -> brain-driven type-select per position ->
-  `Painter` for color -> the brain (Goal Receiver decode). Then tile quarter -> full belt.
+- **The missing piece was `Demuxer`**: Quad Splitter's 4 outputs need normalizing
+  (each output belt must carry its quadrant shape in its ORIGINAL orientation, not
+  rotated) before they reach the Stacker. `Demuxer` (`Foundation_2x4_Flipped`) does
+  that, sitting with **zero gap** directly against Quad Splitter's west edge —
+  adjacent platform edges connect straight across the island boundary, no
+  `SpaceBelt_*` tile needed, as long as ports line up.
+- **`Stacker.spz2bp` (plain, 4-platform chain) is already the complete 4-quadrant
+  stack as one unit** — no need to chain 3 copies (that was a wrong assumption
+  from before we could read the game's own labels). For robustness (handles empty
+  quadrants), John pointed to **`Stacker supporting empty quadrants.spz2bp`** (38
+  islands, ~7.7k buildings, 4 distinct quadrant inputs via west-side ports, order
+  irrelevant) instead — that's what's wired into `VN-07`.
+- **Red X's on stamp are expected, not errors**: each Stacker platform's "Top"
+  input has two alternate physical ports with a "USE ONE INPUT ONLY" label between
+  them; the game flags the unused one's adjacent empty cell as a warning.
+- **`vn07_reassembly_test()` in `build_modules.py` reproduces John's tested layout
+  from code**, diffed byte-for-byte against his hand-built
+  `blueprints/The Von Neumann Factory/For Claude Splitter and Stacker.spz2bp` —
+  exact match on every foundation and every wiring tile except the 4 disposal-only
+  `Trash` sinks (same building count, trivially different internal content,
+  harmless — they're test scaffolding, not reassembly logic).
+- **Key technique unlocked this session: read the labels, don't guess.**
+  `LabelDefaultInternalVariant` buildings carry real base64-encoded text (decode:
+  `raw = base64.b64decode(C["$value"]); text = raw[2:].decode("utf-8")` — 2-byte
+  length prefix then UTF-8). John's reference blueprints are fully annotated
+  ("Bottom", "Top", "Stacked", "Passthrough", "USE ONE INPUT ONLY"). Pair a label
+  to its port by nearest-neighbor distance on the same floor. Use this on every
+  future reference blueprint before attempting to reverse-engineer ports from
+  coordinates alone.
+
+## >>> NEXT SESSION OBJECTIVE <<<
+Two threads, per John's closing ask this session ("help refactor these sub-optimal
+components into something cleaner and build a genuinely working MAM"):
+
+1. **Continue the MAM pipeline**: 2-type mix -> brain-driven type-select per
+   position -> `Painter` for color -> the brain (Goal Receiver decode). Then tile
+   quarter -> full belt.
+2. **Refactor pass on known-buggy components**: the "Fancy A+B Side Overflow"
+   unit (used twice inside `Stacker supporting empty quadrants`) has a
+   self-documented bug — John's own label reads "SHIT - Mixes lanes up in both
+   these" at its lane-merge stage. Root-cause and fix/replace it. This is the kind
+   of "sub-optimal, help me refactor" work John flagged as the broader goal beyond
+   any single milestone — worth scoping with him directly rather than guessing at
+   priority.
 
 ---
 
@@ -165,9 +165,11 @@ quarter-scale **reassembly test**.
   verbatim/black-box) + 5 SpaceBelt stub tiles (1 input east, 4 outputs west, one per
   quadrant row). Structurally validated (round-tripped, building count intact); NOT
   yet in-game confirmed. See PROGRESS "NEXT SESSION OBJECTIVE" for status.
-- `VN-07 reassembly test` — `Quad Splitter` + `Stacker supporting empty quadrants`
-  (both verbatim/black-box), placed with a 7-cell gap, NOT auto-wired (see NEXT
-  SESSION OBJECTIVE — waiting on John to hand-wire the 4 connectors in-game).
+- `VN-07 reassembly test` — `Quad Splitter` -> `Demuxer` -> `Stacker supporting
+  empty quadrants` -> test-rig `Trash` sinks. **VALIDATED IN-GAME by John**
+  (2026-09-03): full round-trip, reassembles the original shape, tolerates one
+  blank quadrant. All foundations verbatim/black-box from `blueprints/reference/`;
+  wiring in `VN07_WIRING`, diffed byte-for-byte against John's tested file.
 
 ## Key reverse-engineered facts (full detail in conventions.md)
 - Blueprint = `SHAPEZ2-5-<base64(gzip(JSON))>[]_2$`; our verbose encoder imports fine.
