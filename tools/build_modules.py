@@ -336,37 +336,34 @@ def vn04_stacker_2in_1lane():
 def vn05_assembler_1lane_4quad():
     """1-lane single-layer assembler: 4 separate quadrant inputs -> stacked layer.
 
-    Chain of 3 StackerStraight on L0, column X9, flowing north. Each stacker takes
-    its BOTTOM from behind (south, L0) and its TOP from the cell above it (L1).
-    Four SEPARATE inputs (no shape-mixing on one belt):
-      q1 (main)  : south edge, L0  (X9,Y17)
-      q2,q3,q4   : east edge, L1, one per stacker row, run west into the top port
-    Output: north edge, L0 (X9,Y2). Feed four DISJOINT single-quadrant pieces (one
-    per position NE/SE/SW/NW) -> one merged 4-quadrant layer out.
-    Chain: s1=q1+q2 -> p; s2=p+q3 -> p; s3=p+q4 -> layer.
+    3 StackerStraight chained up column X8 (L0, north flow). Each stacker takes its
+    BOTTOM from behind (south, L0) and its TOP from the cell above (L1), fed by John's
+    validated pattern: east-edge L0 input -> belts west -> Lift1UpForward (at col+1)
+    -> L1 -> BeltDefaultLeftMirrored turn -> north into the stacker's top port.
+      q1 (main)  : south edge L0 (X8,Y17) -> s1 bottom
+      q2/q3/q4   : east edge L0 (X17), rows Y15/Y12/Y9 -> lifted to each stacker top
+    Output: north edge L0 (X8,Y2). Chain s1=q1+q2, s2=+q3, s3=+q4. Feed 4 DISJOINT
+    single-quadrant pieces (distinct positions) -> one 4-quadrant layer out.
     """
-    X=9
-    rows=[14,11,8]   # stacker Y rows (s1,s2,s3)
+    SX=8
+    stackers=[14,11,8]            # s1,s2,s3 Y rows
     b=[]
-    # L0 main chain
-    b.append(be("BeltPortReceiverInternalVariant", X=X, Y=17, L=0, R=3))
-    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=16, L=0, R=3))
-    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=15, L=0, R=3))
-    b.append(be("StackerStraightInternalVariant", X=X, Y=14, L=0, R=3))  # s1
-    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=13, L=0, R=3))
-    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=12, L=0, R=3))
-    b.append(be("StackerStraightInternalVariant", X=X, Y=11, L=0, R=3))  # s2
-    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=10, L=0, R=3))
-    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=9, L=0, R=3))
-    b.append(be("StackerStraightInternalVariant", X=X, Y=8, L=0, R=3))   # s3
-    for y in range(7, 2, -1):
-        b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=y, L=0, R=3))
-    b.append(be("BeltPortSenderInternalVariant", X=X, Y=2, L=0, R=3))
-    # L1 top feeds: east edge receiver -> west belts -> into (X9,row,L1) top port (left empty)
-    for row in rows:
-        b.append(be("BeltPortReceiverInternalVariant", X=17, Y=row, L=1, R=2))  # east edge, faces west
-        for x in range(16, X, -1):   # X16..X10 belts west; X9 left empty = stacker top port
-            b.append(be("BeltDefaultForwardInternalVariant", X=x, Y=row, L=1, R=2))
+    # ---- main chain up column SX (L0) ----
+    b.append(be("BeltPortReceiverInternalVariant", X=SX, Y=17, L=0, R=3))
+    for y in range(16, 2, -1):
+        if y in stackers:
+            b.append(be("StackerStraightInternalVariant", X=SX, Y=y, L=0, R=3))
+        else:
+            b.append(be("BeltDefaultForwardInternalVariant", X=SX, Y=y, L=0, R=3))
+    b.append(be("BeltPortSenderInternalVariant", X=SX, Y=2, L=0, R=3))
+    # ---- top feed per stacker (replicates John's StackerStraight ref) ----
+    for sy in stackers:
+        fr=sy+1                                  # feed row (just south of stacker)
+        b.append(be("Lift1UpForwardInternalVariant", X=SX+1, Y=fr, L=0, R=2))       # up to (SX,fr,L1)
+        for x in range(SX+2, 17):                                                   # belts west X10..X16
+            b.append(be("BeltDefaultForwardInternalVariant", X=x, Y=fr, L=0, R=2))
+        b.append(be("BeltPortReceiverInternalVariant", X=17, Y=fr, L=0, R=2))       # east-edge top input
+        b.append(be("BeltDefaultLeftInternalVariantMirrored", X=SX, Y=fr, L=1, R=2))# L1 turn -> north into (SX,sy,L1)
     return blueprint_islands([island("Foundation_1x1", buildings=b)])
 
 

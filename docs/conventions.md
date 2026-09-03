@@ -146,3 +146,8 @@ Belts: `BeltDefaultForwardInternalVariant`, `BeltDefaultLeftInternalVariant`,
   Disjoint pieces (no shared occupied quadrant) merge into ONE layer; any overlap
   puts the whole top shape on a NEW layer above. => assemble a layer only from
   single-quadrant pieces at DISTINCT positions.
+- **Top-feed geometry (validated)**: to feed a stacker's top port at (sx,sy,L1),
+  route the top shape on L0 to the stacker's east, then `Lift1UpForwardInternalVariant`
+  at (sx+1, sy+1, L0, R2) lifts it to (sx, sy+1, L1), and a
+  `BeltDefaultLeftInternalVariantMirrored` at (sx, sy+1, L1, R2) turns it north into
+  (sx, sy, L1). Feeding the top port sideways on L1 (no lift) does NOT connect.
