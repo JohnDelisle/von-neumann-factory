@@ -50,18 +50,54 @@ compose-and-assemble approach is proven.
   future reference blueprint before attempting to reverse-engineer ports from
   coordinates alone.
 
-## >>> NEXT SESSION OBJECTIVE <<<
-The reassembly test AND the lane fix are both validated in-game. The composable
-toolkit is now proven end-to-end: `Quad Splitter` -> `Demuxer` -> lane-fixed
-`Stacker supporting empty quadrants` reassembles a shape, empty quadrants included.
+## >>> NEXT SESSION OBJECTIVE: ARCHITECTURE SESSION (John's call) <<<
+**This is a DESIGN session, not a build session.** John wants to sort out three
+things, together, before more blueprints get written:
+  1. **MAM architecture** — the end-to-end design, now that the composition
+     approach is proven.
+  2. **Missing building blocks** — what we still don't have (see inventory below).
+  3. **Logical next steps** — sequencing, and what to build first.
 
-**Next: make the recipe variable instead of fixed.** Today `VN-07` reassembles
-whatever it decomposes. The MAM needs to *choose* each quadrant:
+Do NOT start implementing the 2-type mix (or anything else) until that's settled.
+Come with opinions and a proposed architecture, not a blank page — John asked to be
+second-guessed, and he's the Shapez logistics expert, so bring trade-offs and let
+him steer.
 
-1. **2-type mix** — feed two different base shapes, select per quadrant position.
-   This is the first step where the machine builds something it wasn't given.
-2. Then: brain-driven type-select per position -> `Painter` for colour -> the brain
-   itself (Goal Receiver decode). Then tile quarter -> full belt.
+### Where we actually are
+Proven end-to-end and validated in-game: one base shape -> `Quad Splitter` ->
+`Demuxer` -> lane-fixed `Stacker supporting empty quadrants` -> the original shape
+back, empty quadrants tolerated. **Everything so far is a FIXED recipe** — the
+machine only reassembles what it just decomposed. Nothing yet *chooses* anything.
+
+### Building blocks we HAVE (validated, composable)
+- `Quad Splitter` (2x4) — shape -> 4 quadrant streams. 12-lane in, 4 x 12 out.
+- `Demuxer` (2x4_Flipped) — normalizes quadrant orientation. **Required** between
+  splitter and stacker, zero-gap against the splitter's west edge.
+- `Stacker supporting empty quadrants` (38-island, lane-fixed) — 4 distinct
+  quadrants (order irrelevant, blanks OK) -> assembled shape, full-belt out.
+- `Stacker` (plain 4-platform chain) — same but jams on an empty quadrant.
+- `Painter`, `Paint Mixer`, `Overflow`, `Trash`, `Rotator`, `Clockwise` /
+  `Counter Clockwise`, `Pin Setter`, `Half Destroyer`, `Shape Filter`, lifts,
+  `Full Belt Quad Splitter`, `Full Belt Any Shape Maker`, filters
+  (`Smart`/`Great`/`Quaded`/`Quaded Color`/`Paint 3`/`Paint 4`), miners, train
+  loader/unloader. Ours: `VN-02` half-destroy 12lane, `VN-03` rotate90CW 12lane.
+
+### Building blocks we're MISSING (the real gaps)
+- **The brain** — Goal Receiver decode: read the requested shape, emit per-quadrant
+  control signals. Nothing built, no design yet. *This is the big one.*
+- **Per-position type SELECT** — a signal-driven N-way router choosing which shape
+  type feeds each quadrant slot. The whole "constructive" idea hinges on it.
+- **Per-position colour select** — `Painter` exists; the selection logic doesn't.
+- **Multi-layer assembly** — design is single-layer first; layer stacking is unbuilt.
+- **Base supply** — shape/fluid patch locations in the working save still TBD.
+- **Scale-up path** — quarter (12-lane) -> full belt (48-lane) tiling, unproven.
+
+### Open questions worth deciding with John
+- How many distinct shape types must v1 support? (sets the type-select width)
+- Colour: paint quadrants *before* assembly, or the assembled shape *after*?
+- Are pins and crystals in scope for v1? (working save has **no crystals**)
+- Does the brain drive a true N-select, or do we generate-and-filter per quadrant
+  (architecture.md says constructive — worth re-confirming now it's concrete)?
 2. ~~**Refactor pass on known-buggy components**: the "Fancy A+B Side Overflow"
    unit's self-documented lane-swap bug.~~ **DONE 2026-09-03** — root-caused and
    fixed; see below and conventions.md "Fancy A+B Side Overflow: the inner/outer

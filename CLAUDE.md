@@ -21,11 +21,16 @@ Read these first, in order:
   (device_bash, folder mounts, fine-grained PAT, git-on-device).
 
 ## Active objective
-Build the first **assembly** ("blueprint of blueprints"): a fixed-recipe, quarter-scale
-**reassembly test** — one base shape -> John's `Quad Splitter` platform (NE/SE/SW/NW) ->
-a chain of three `Stacker` platforms (Bottom+Top->Stacked) -> back to the original shape,
-as one multi-island blueprint. Extract the `Quad Splitter` + `Stacker` port maps first,
-then wire `SpaceBelt_*` tiles between them. (See PROGRESS.md ">>> NEXT SESSION OBJECTIVE".)
+**An ARCHITECTURE session, not a build session.** The reassembly test is done and
+validated in-game (`VN-07`: `Quad Splitter` -> `Demuxer` -> lane-fixed
+`Stacker supporting empty quadrants`), as is the Fancy A+B lane fix (`VN-08`/`VN-09`).
+Everything built so far is a **fixed recipe** — nothing chooses anything yet.
+
+Next session John wants to settle, together: **MAM architecture, the missing building
+blocks, and logical next steps.** Don't start implementing (no 2-type mix, no new
+blueprints) until that's agreed. Read PROGRESS.md ">>> NEXT SESSION OBJECTIVE" first —
+it carries the have/missing inventory and the open questions. Bring a proposed
+architecture and trade-offs, not a blank page.
 
 ## Workflow per change
 Edit `tools/build_modules.py` -> regenerate -> copy the `.spz2bp` into the in-game
