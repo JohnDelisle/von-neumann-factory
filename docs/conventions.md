@@ -303,7 +303,9 @@ Zero differing cells — the build fails if that ever stops holding.
 and all 48 primary pass-through paths (16 lanes x 3 floors) stay lane-preserving.
 Shipped as `VN-08 fancy A+B lane fixed` (standalone) and
 `VN-09 stacker empty quadrants fixed` (both embedded copies patched); `VN-07`
-now builds on the fixed stacker.
+now builds on the fixed stacker. **All three VALIDATED IN-GAME by John
+(2026-09-03)** — the lane fix is the baseline from here on; build further stacker
+work on `load_fixed_stacker_islands()`, not the stock reference.
 
 **Launchers fly OVER belts.** The gap cells between a `BeltPortSender` and its
 `BeltPortReceiver` do NOT have to be empty — John's original design already fires

@@ -48,7 +48,35 @@ here the moment it recurs; keep it practical. Read this + PROGRESS on resume._
 - Mirror to the in-game VN folder and `cmp` to confirm the copy is identical.
 - Give John a crisp test recipe (what to feed, what to expect) + ask for a screenshot.
 
+## Reverse-engineering John's modules (method that works)
+1. **Read the labels first.** `LabelDefaultInternalVariant` buildings carry real
+   text: `raw = base64.b64decode(C["$value"]); text = raw[2:].decode("utf-8")`
+   (2-byte LE length prefix, then UTF-8). John annotates everything — "Bottom",
+   "Top", "Stacked", "Passthrough", "USE ONE INPUT ONLY", even a candid
+   "SHIT - Mixes lanes up in both these" on a known bug. Pair a label to its port
+   by nearest-neighbour distance on the same floor. This turns guessing into reading.
+2. **Walk the belt graph in code; never trace a dense maze by eye.** A ~60-line
+   walker (type+R -> output direction; launcher -> nearest catcher ahead in the
+   column with matching R) settles questions that hours of squinting won't. Turn
+   semantics: `BeltDefaultLeftInternalVariant` = CCW (out = R-1),
+   `...Mirrored` = CW (out = R+1); input direction = R for both.
+   `SplitterOverflowL` = primary out R, overflow out R-1 (plain) / R+1 (mirrored).
+3. **Map the component's FULL extent before generalizing.** Modules are often
+   symmetric or repeated N times, and a partial view reads as complete. The
+   `Fancy A+B Side Overflow` has FOUR bands (In A/In B x north/south, one per
+   island-row of its 2x4); the first fix pass covered only the two that carried
+   warning labels. **Absence of a label is not absence of the problem** — check the
+   whole Y/X range, then diff your patch against every repeat.
+4. **When patching a reference, assert the exact pre-edit state** of every cell you
+   touch, so an upstream change fails loudly instead of silently mis-patching. And
+   where John has fixed something himself, assert your generated result matches his
+   cell-for-cell — that turns his work into a regression test for yours.
+
 ## Hard-won gotchas (the game's non-obvious rules)
+- **Launchers fly OVER belts.** The gap cells between a `BeltPortSender` and its
+  `BeltPortReceiver` need NOT be empty. This is the standard trick for crossing one
+  lane over another on a single floor (belts can't cross otherwise), and John's own
+  designs rely on it.
 - **Stacker top-feed needs a lift**, not a sideways belt: east L0 input ->
   `Lift1UpForward`(col+1,row+1) -> L1 -> `BeltDefaultLeftMirrored` turn -> into the
   top-port cell above the stacker. Feeding the top port from the side does nothing.

@@ -51,18 +51,24 @@ compose-and-assemble approach is proven.
   coordinates alone.
 
 ## >>> NEXT SESSION OBJECTIVE <<<
-Two threads, per John's closing ask this session ("help refactor these sub-optimal
-components into something cleaner and build a genuinely working MAM"):
+The reassembly test AND the lane fix are both validated in-game. The composable
+toolkit is now proven end-to-end: `Quad Splitter` -> `Demuxer` -> lane-fixed
+`Stacker supporting empty quadrants` reassembles a shape, empty quadrants included.
 
-1. **Continue the MAM pipeline**: 2-type mix -> brain-driven type-select per
-   position -> `Painter` for color -> the brain (Goal Receiver decode). Then tile
-   quarter -> full belt.
+**Next: make the recipe variable instead of fixed.** Today `VN-07` reassembles
+whatever it decomposes. The MAM needs to *choose* each quadrant:
+
+1. **2-type mix** — feed two different base shapes, select per quadrant position.
+   This is the first step where the machine builds something it wasn't given.
+2. Then: brain-driven type-select per position -> `Painter` for colour -> the brain
+   itself (Goal Receiver decode). Then tile quarter -> full belt.
 2. ~~**Refactor pass on known-buggy components**: the "Fancy A+B Side Overflow"
    unit's self-documented lane-swap bug.~~ **DONE 2026-09-03** — root-caused and
    fixed; see below and conventions.md "Fancy A+B Side Overflow: the inner/outer
    lane-swap bug (fixed)". **Awaiting John's in-game confirmation.**
 
-## Fancy A+B lane-swap bug: FIXED, all 4 bands (2026-09-03, needs in-game confirmation)
+## Fancy A+B lane-swap bug: FIXED + VALIDATED IN-GAME (2026-09-03)
+_John confirmed VN-08, VN-09 and VN-07 all working in-game._
 - **Symptom** (John): outer lanes of In A / In B overflow to "A+B Overflow" as the
   inner lanes, and vice versa. Inconsequential in practice, fixed for cleanliness.
 - **Root cause**: each band's OUTER rows tap overflow at splitter column X=9 (In B)
@@ -83,11 +89,11 @@ components into something cleaner and build a genuinely working MAM"):
 - **Verified by graph-walking the belts**: all 16 lanes map outer->outer /
   inner->inner, and all 48 primary pass-through paths (16 lanes x 3 floors) stay
   lane-preserving.
-- **Shipped**: `VN-08 fancy A+B lane fixed` (standalone), `VN-09 stacker empty
-  quadrants fixed` (both embedded copies patched), and `VN-07` rebuilt on top of
-  the fixed stacker.
-- **`VN-07` wants a re-test**: its layout is unchanged from the version John
-  validated in-game, but its two embedded Fancy A+B units now differ.
+- **Shipped + VALIDATED IN-GAME**: `VN-08 fancy A+B lane fixed` (standalone),
+  `VN-09 stacker empty quadrants fixed` (both embedded copies patched), and
+  `VN-07` rebuilt on top of the fixed stacker — John confirmed all three working.
+- **The lane fix is now the baseline.** Build any further stacker work on
+  `load_fixed_stacker_islands()`, not the stock reference.
 
 ---
 
@@ -191,13 +197,13 @@ components into something cleaner and build a genuinely working MAM"):
   yet in-game confirmed. See PROGRESS "NEXT SESSION OBJECTIVE" for status.
 - `VN-08 fancy A+B lane fixed` — `Fancy A+B Side Overflow` with the inner/outer
   lane-swap bug fixed on all 4 bands (see above). Generated from the pre-fix
-  reference and asserted identical to John's own fixed version. Trace-verified.
+  reference and asserted identical to John's own fixed version. **VALIDATED IN-GAME.**
 - `VN-09 stacker empty quadrants fixed` — `Stacker supporting empty quadrants`
   with both embedded Fancy A+B units lane-fixed. Drop-in replacement; everything
-  else byte-identical to John's original. Trace-verified; NOT yet in-game.
+  else byte-identical to John's original. **VALIDATED IN-GAME.**
 - `VN-07 reassembly test` — `Quad Splitter` -> `Demuxer` -> `Stacker supporting
-  empty quadrants` (now LANE-FIXED, so re-test) -> test-rig `Trash` sinks.
-  Layout **VALIDATED IN-GAME by John**
+  empty quadrants` (LANE-FIXED) -> test-rig `Trash` sinks. **VALIDATED IN-GAME by
+  John**, both before and after the lane fix
   (2026-09-03): full round-trip, reassembles the original shape, tolerates one
   blank quadrant. All foundations verbatim/black-box from `blueprints/reference/`;
   wiring in `VN07_WIRING`, diffed byte-for-byte against John's tested file.
