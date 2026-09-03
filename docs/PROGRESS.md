@@ -122,6 +122,44 @@ file with a malformed config**. Rebuilt via `set_config()`, and `check_configs()
 now runs over every module in the build loop so it can't recur. Remember the
 diagnostic: **missing from the folder = malformed file, not a stale refresh.**
 
+## >>> BLOCKED: VN-11's Goal Receiver placement is wrong <<<
+John stamped VN-11 and got an **empty 1x4 platform** — the foundation places, every
+building on it is gone.
+
+**Diagnosed, not guessed**: the generated island is byte-identical to John's
+embedded original — same 1096 buildings, same `$type`s, same `Entries` container,
+zero differing cells — **except the one intended swap**, `ConstantSignal (4,25,L0)`
+-> `ControlledSignalReceiverInternalVariantMirrored (3,25,L0) R0`.
+
+=> **one invalid building entry makes the game discard EVERY building on that
+island** (the foundation still places). New failure mode, distinct from the
+malformed-config one: that killed the whole *file*, this kills one *island's*
+contents. Both are silent.
+
+Our footprint inference was read off two in-situ instances (`Shape Filter` origin
+`(4,35)` R3 -> wire `(4,33)`; `Smart Filter` origin `(13,19)` R0 -> wire `(15,19)`)
+and concluded "occupies origin + the next cell along R, drives origin+2". That is
+evidently wrong, and in-situ instances can't settle it — the surrounding cells are
+consistent with several footprints.
+
+**ASK JOHN**: export a **bare Goal Receiver on an otherwise empty 1x1 platform**
+(as with `StackerStraight.spz2bp` for the stacker ports). That gives the exact
+footprint, valid rotations and config in one shot. This is the PLAYBOOK's
+"extract, don't guess" rule — we broke it and it cost a round-trip.
+
+### Controls shipped to isolate it
+- **`VN-11a filter verbatim`** — the embedded `Quaded Filter` extracted and
+  re-placed at the origin, **zero edits**. Should stamp exactly like John's.
+  Proves extraction + placement are sound.
+- **`VN-11b filter preset CuRuSuWu`** — **only** the button flip (enabled preset
+  moves from `--CuCu--` to `CuRuSuWu`); ConstantSignal bank intact, no Goal
+  Receiver. If this stamps and builds a circle/rect/star/windmill shape, the
+  button edit and the arbitrary-shape claim are both proven and the fault is
+  isolated to the Goal Receiver building alone.
+
+`VN-11` and `VN-12` are **known broken** until the footprint is confirmed.
+`VN-10` is unaffected (it never touches a config or adds a building).
+
 ### TEST RECIPE for John
 1. Refresh the in-game blueprint folder; stamp **`VN-12 MAM goal driven`**.
 2. Feed its east input a full belt of **mixed uncoloured base shapes** (Cu/Ru/Su/Wu).

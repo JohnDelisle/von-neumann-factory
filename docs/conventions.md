@@ -394,8 +394,26 @@ two working instances:
 - `Shape Filter`: origin `(4,35)` R3 (north), consumer wire at `(4,33)`, `(4,34)` absent.
 - `Smart Filter`: origin `(13,19)` R0 (east), consumer wire at `(15,19)`, `(14,19)` absent.
 
-=> it occupies **its origin cell and the next cell along R**, and drives the wire
-cell at **origin + 2 along R**. (Used by `VN-11`; not yet confirmed in-game.)
+We inferred from those that it occupies **its origin cell and the next cell along
+R**, driving the wire cell at **origin + 2**. **That inference is WRONG** — VN-11
+placed one accordingly and the platform stamped completely empty. In-situ instances
+cannot settle a footprint: the cells around them are consistent with several.
+**Blocked on a minimal reference** (a bare Goal Receiver on an empty platform),
+the way `StackerStraight.spz2bp` settled the stacker ports.
+
+## One invalid building blanks the WHOLE island (2026-09-03)
+
+If a single building entry in an island's nested `B` blueprint is invalid, the game
+places the **foundation** and **silently discards every building on it** — you get
+a bare platform, not a red X on the offending cell. Distinct from the malformed-
+config failure above, which discards the whole *file*.
+
+**Two silent failure modes, two different symptoms:**
+| Symptom | Cause |
+|---|---|
+| Blueprint absent from the in-game folder | malformed file (e.g. a `C` without `$type`) |
+| Platform stamps but is completely empty | one invalid building entry on that island |
+| Platform stamps with red X's | placement conflicts — the file itself is fine |
 
 ## `Quaded Filter` (`Filter.spz2bp` / `Quaded Filter.spz2bp`) port map
 

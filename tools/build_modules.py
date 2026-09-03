@@ -842,15 +842,11 @@ def _goal_driven_quaded_filters(islands):
     return patched
 
 
-def vn11_quaded_filter_goal_driven():
-    """The `Quaded Filter` platform alone, driven by the HUB Goal Receiver instead
-    of its button/ConstantSignal preset bank. Component blueprint -- drop-in
-    replacement for the stock platform inside the Any Shape Maker.
-
-    Extracted from the copy embedded in `Full Belt Any Shape Maker.spz2bp` (6
-    preset slots), NOT from standalone `Filter.spz2bp` (5 slots, different
-    shapes), so this and VN-12 share one code path.
-    """
+def extract_quaded_filter():
+    """The `Quaded Filter` platform from `Full Belt Any Shape Maker.spz2bp`, placed
+    alone at the origin. Extracted from the embedded copy (6 preset slots), NOT
+    from standalone `Filter.spz2bp` (5 slots, different shapes), so every VN-11*
+    variant and VN-12 share one code path."""
     islands = load_reference_islands("Full Belt Any Shape Maker.spz2bp")
     qf = [i for i in islands
           if i["T"] == "Foundation_1x4" and "Quaded Filter" in label_texts(i)]
@@ -864,6 +860,48 @@ def vn11_quaded_filter_goal_driven():
 
     isl = island(qf[0]["T"], X=0, Y=0, Z=0, R=qf[0]["R"])
     isl["B"] = qf[0]["B"]
+    return isl
+
+
+def vn11a_quaded_filter_verbatim():
+    """CONTROL 1: the embedded `Quaded Filter` extracted and re-placed at the
+    origin with ZERO edits. If this stamps correctly, extraction + placement are
+    sound and any failure in VN-11 is caused by our edits alone."""
+    return blueprint_islands([extract_quaded_filter()])
+
+
+def vn11b_quaded_filter_preset_curusuwu():
+    """CONTROL 2: the embedded `Quaded Filter` with ONLY the button flip -- the
+    enabled preset moves from `--CuCu--` to `CuRuSuWu`, the ConstantSignal bank
+    left fully intact and no Goal Receiver added.
+
+    If this stamps and builds a circle/rect/star/windmill shape, then the button
+    edit and the whole arbitrary-shape claim are proven, and VN-11's blank
+    platform is down to the Goal Receiver building alone."""
+    isl = extract_quaded_filter()
+    index = {(e["X"], e["Y"], e["L"]): e for e in gv(isl["B"]["Entries"])}
+    for cell in PRESET_BUTTONS:
+        e = index[cell]
+        assert e["T"] == "ButtonDefaultInternalVariant", f"no button at {cell}"
+        set_config(e, BUTTON_ON if cell == GOAL_SLOT_BUTTON else BUTTON_OFF)
+    return blueprint_islands([isl])
+
+
+def vn11_quaded_filter_goal_driven():
+    """The `Quaded Filter` platform driven by the HUB Goal Receiver instead of its
+    button/ConstantSignal preset bank.
+
+    !! KNOWN BROKEN 2026-09-03 -- stamps as an EMPTY 1x4 platform. The generated
+    file is byte-identical to John's embedded original except the one intended
+    swap (ConstantSignal (4,25) -> ControlledSignalReceiver (3,25)), so the game
+    is rejecting that single building and discarding every building on the island
+    with it. Our footprint inference (origin + next cell along R, driving
+    origin+2) must be wrong -- it was read off two in-situ instances, never from
+    a minimal reference. Blocked on John exporting a bare Goal Receiver on an
+    empty platform, the way `StackerStraight.spz2bp` unblocked the stacker ports.
+    See VN-11a / VN-11b for the controls that isolate it.
+    """
+    isl = extract_quaded_filter()
     make_quaded_filter_goal_driven(isl)
     return blueprint_islands([isl])
 
@@ -900,6 +938,8 @@ MODULES = {
     "VN-08 fancy A+B lane fixed": vn08_fancy_ab_lane_fixed,
     "VN-09 stacker empty quadrants fixed": vn09_stacker_empty_quadrants_fixed,
     "VN-10 any shape maker lane fixed": vn10_any_shape_maker_lane_fixed,
+    "VN-11a filter verbatim": vn11a_quaded_filter_verbatim,
+    "VN-11b filter preset CuRuSuWu": vn11b_quaded_filter_preset_curusuwu,
     "VN-11 quaded filter goal driven": vn11_quaded_filter_goal_driven,
     "VN-12 MAM goal driven": vn12_mam_goal_driven,
 }

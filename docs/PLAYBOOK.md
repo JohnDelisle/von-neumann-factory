@@ -80,7 +80,14 @@ here the moment it recurs; keep it practical. Read this + PROGRESS on resume._
    island-row of its 2x4); the first fix pass covered only the two that carried
    warning labels. **Absence of a label is not absence of the problem** — check the
    whole Y/X range, then diff your patch against every repeat.
-4. **When patching a reference, assert the exact pre-edit state** of every cell you
+4. **An in-situ instance does NOT give you a footprint.** Reading a building's
+   size off two working blueprints by looking at which neighbouring cells are
+   empty is a guess wearing a costume — several footprints fit the same gaps.
+   For any building we have never placed ourselves, **ask John for a minimal
+   reference**: that building alone on an empty platform (as
+   `StackerStraight.spz2bp` did for the stacker ports). We broke this rule for the
+   Goal Receiver in VN-11 and burned a round-trip on a blank platform.
+5. **When patching a reference, assert the exact pre-edit state** of every cell you
    touch, so an upstream change fails loudly instead of silently mis-patching. And
    where John has fixed something himself, assert your generated result matches his
    cell-for-cell — that turns his work into a regression test for yours.
