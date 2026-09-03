@@ -86,7 +86,12 @@ here the moment it recurs; keep it practical. Read this + PROGRESS on resume._
    For any building we have never placed ourselves, **ask John for a minimal
    reference**: that building alone on an empty platform (as
    `StackerStraight.spz2bp` did for the stacker ports). We broke this rule for the
-   Goal Receiver in VN-11 and burned a round-trip on a blank platform.
+   Goal Receiver in VN-11 and burned a round-trip on a blank platform; the
+   reference (`For Claude Signal Receiver.spz2bp`) settled it in one read.
+   **Ask for the box trick**: John outlined the building with a belt rectangle on
+   the floor ABOVE, so the footprint is directly readable without interfering with
+   the building itself. Request that framing explicitly next time — it turns a
+   footprint question into a measurement.
 5. **When patching a reference, assert the exact pre-edit state** of every cell you
    touch, so an upstream change fails loudly instead of silently mis-patching. And
    where John has fixed something himself, assert your generated result matches his

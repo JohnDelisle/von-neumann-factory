@@ -122,7 +122,31 @@ file with a malformed config**. Rebuilt via `set_config()`, and `check_configs()
 now runs over every module in the build loop so it can't recur. Remember the
 diagnostic: **missing from the folder = malformed file, not a stale refresh.**
 
-## >>> BLOCKED: VN-11's Goal Receiver placement is wrong <<<
+## >>> Goal Receiver footprint: RESOLVED (2026-09-03) <<<
+John supplied `For Claude Signal Receiver.spz2bp` — a bare receiver on an empty
+1x1, with a belt box drawn around it **on L1** so its size is readable without
+interfering on L0. Now in `blueprints/reference/`.
+
+- The receiver is **3x3 CENTRED on its origin cell** (box outlines X7-11 x Y8-12
+  => interior X8-10 x Y9-11; origin `(9,10)`). Not the 2-cell shape we inferred.
+- **Its config `2` is not the channel.** The channel is a **wire input** from a
+  `ConstantSignal` integer (123 here, 11 in `Shape Filter`, 1000 in `Smart Filter`).
+- Output leaves centre-front into `origin + 2 along R`; the channel enters
+  centre-side from `origin + 2 across` (`R-1` plain, `R+1` mirrored).
+
+**VN-11/VN-12 rebuilt on this.** In the `Quaded Filter`, the receiver now sits at
+`(3,25)` R0 (3x3 over X2-4 x Y24-26, all verified free), emitting into the
+`LogicGateIf` at `(5,25)` that the removed `CuRuSuWu` constant used to drive, with
+its channel `ConstantSignal` at `(3,23)` facing south. The build now asserts the
+full 3x3 footprint is clear, and that our int-signal encoder reproduces John's
+channel-123 bytes exactly.
+
+**!! OPEN: which channel carries the HUB's requested shape?** `GOAL_CHANNEL` in
+`build_modules.py` is a placeholder of **123** (John's demo value). `Shape Filter`
+listens on 11 and `Smart Filter` on 1000, so this is per-network — only John knows
+it. Editable in-game on the `ConstantSignal` at `(3,23)`.
+
+### What went wrong the first time (kept as the lesson)
 John stamped VN-11 and got an **empty 1x4 platform** — the foundation places, every
 building on it is gone.
 

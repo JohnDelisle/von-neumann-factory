@@ -770,32 +770,68 @@ def vn10_any_shape_maker_lane_fixed():
 # VN-11 replaces the LAST slot's ConstantSignal with the HUB Goal Receiver and
 # moves the enabled button to that slot. All five shape presets survive as manual
 # overrides John can flip in-game; nothing else in the platform changes.
-GOAL_RECEIVER_T = "ControlledSignalReceiverInternalVariantMirrored"
+GOAL_RECEIVER_T = "ControlledSignalReceiverInternalVariant"
 GOAL_SLOT_CONST = (4, 25, 0)      # the CuRuSuWu preset -- removed
-GOAL_RECEIVER_CELL = (3, 25, 0)   # receiver origin; see footprint note below
+GOAL_RECEIVER_CELL = (3, 25, 0)   # receiver origin = CENTRE of its 3x3
+GOAL_CHANNEL_CELL = (3, 23, 0)    # the channel ConstantSignal feeding it
 GOAL_SLOT_BUTTON = (5, 24, 0)     # its gating button -- switched ON
 PRESET_BUTTONS = [(5, y, 0) for y in (14, 16, 18, 20, 22, 24)]
 BUTTON_ON, BUTTON_OFF = "AQ==", "AA=="
 
-# Footprint, extracted from John's two working instances (never guessed):
-#   `Shape Filter`: origin (4,35) R3 (north), wire consumer at (4,33), (4,34) empty
-#   `Smart Filter`: origin (13,19) R0 (east),  wire consumer at (15,19), (14,19) empty
-# => the receiver occupies its origin cell AND the next cell along R, and drives
-#    the wire cell at origin+2. So to drive the IF gate at (5,25) the origin goes
-#    at (3,25) R0, covering (3,25) and the vacated ConstantSignal cell (4,25).
-#    X2-X3 are empty across Y13-26 (Y25 is well clear of the port bands).
+# !! The channel the HUB's requested shape is broadcast on. John's minimal
+# reference uses 123 as a demo value; his `Shape Filter` listens on 11 and
+# `Smart Filter` on 1000, so this is per-network and only John knows the right
+# one. Editable in-game on the ConstantSignal at GOAL_CHANNEL_CELL.
+GOAL_CHANNEL = 123
+
+# Footprint, EXTRACTED from `For Claude Signal Receiver.spz2bp` -- John placed a
+# bare receiver on an empty 1x1 and drew a belt box around it on L1 so its size
+# is directly readable:
+#   L1 belt box outlines X 7-11 x Y 8-12  =>  interior X 8-10 x Y 9-11
+#   recorded origin (9,10) R3             =>  3x3 CENTRED on the origin cell
+#   output wire   at (9,8)  = origin - 2 along R (north)      -> emerges centre-front
+#   channel const at (7,10) = origin - 2 across (west, = R-1) -> enters centre-left
+# The "Mirrored" variant flips the channel side to R+1, which is exactly what
+# John's two in-situ instances show (`Shape Filter` mirrored R3: const to the
+# EAST at (6,35); `Smart Filter` mirrored R0: const to the SOUTH at (13,21)).
+#
+# So at R0 (facing east), non-mirrored, origin (3,25):
+#   footprint     X 2-4 x Y 24-26   (free once the CuRuSuWu const is removed)
+#   output        -> (5,25), the LogicGateIf the removed const used to drive
+#   channel input <- (3,23), where we place the channel ConstantSignal facing south
+#
+# The previous attempt guessed a 2-cell footprint from the in-situ instances
+# alone and stamped a blank platform -- see docs/PLAYBOOK.md.
+
+
+def int_signal_config(n):
+    """A `ConstantSignal` integer config: tag 0x03 + int32 little-endian.
+    Cross-checked below against John's own channel-123 constant."""
+    return config(base64.b64encode(b"\x03" + int(n).to_bytes(4, "little")).decode("ascii"))
+
+
+def _signal_receiver_reference():
+    """(receiver entry, channel-const entry) from John's minimal reference."""
+    ref = load_reference_island("For Claude Signal Receiver.spz2bp")
+    rx = cn = None
+    for e in gv(ref["B"]["Entries"]):
+        if e["T"] == GOAL_RECEIVER_T:
+            rx = e
+        elif e["T"] == "ConstantSignalDefaultInternalVariant":
+            cn = e
+    assert rx is not None and cn is not None, "minimal reference is not as described"
+    # our int encoder must reproduce John's channel-123 constant exactly
+    assert int_signal_config(123)["$value"] == cn["C"]["$value"], (
+        f"int signal encoding mismatch: ours {int_signal_config(123)['$value']!r} "
+        f"vs John's {cn['C']['$value']!r}")
+    return rx, cn
 
 
 def goal_receiver_config():
-    """The exact `C` blob from John's own Goal Receivers -- every one of the 18
-    instances across `Shape Filter` / `Smart Filter` / `Shitty Mam v1` uses the
-    same value (int32 `2` = the HUB goal slot). Copied verbatim rather than
-    re-encoded, so we inherit whatever the game actually means by it."""
-    ref = load_reference_island("Shape Filter.spz2bp")
-    for e in gv(ref["B"]["Entries"]):
-        if e["T"] == GOAL_RECEIVER_T:
-            return e["C"]
-    raise AssertionError("no ControlledSignalReceiver in Shape Filter.spz2bp")
+    """The receiver's own `C`, copied verbatim from John's minimal reference.
+    (Value `2`, identical in all 19 instances across his library -- it is NOT the
+    channel; the channel arrives on a wire from the ConstantSignal.)"""
+    return _signal_receiver_reference()[0]["C"]
 
 
 def make_quaded_filter_goal_driven(island_entry):
@@ -814,9 +850,22 @@ def make_quaded_filter_goal_driven(island_entry):
     if const is None or const["T"] != "ConstantSignalDefaultInternalVariant":
         raise AssertionError(f"goal-drive: expected the CuRuSuWu ConstantSignal at "
                              f"{GOAL_SLOT_CONST}, got {const['T'] if const else 'nothing'}")
-    if GOAL_RECEIVER_CELL in index:
-        raise AssertionError(f"goal-drive: {GOAL_RECEIVER_CELL} is not free "
-                             f"({index[GOAL_RECEIVER_CELL]['T']})")
+
+    # the receiver is 3x3 CENTRED on its origin -- every cell of it must be free
+    # (bar the ConstantSignal we are about to remove), and so must the channel cell
+    rx, ry, rL = GOAL_RECEIVER_CELL
+    occupied = []
+    for dx in (-1, 0, 1):
+        for dy in (-1, 0, 1):
+            cell = (rx + dx, ry + dy, rL)
+            e = index.get(cell)
+            if e is not None and cell != GOAL_SLOT_CONST:
+                occupied.append(f"{cell} {e['T']}")
+    if GOAL_CHANNEL_CELL in index:
+        occupied.append(f"{GOAL_CHANNEL_CELL} {index[GOAL_CHANNEL_CELL]['T']}")
+    if occupied:
+        raise AssertionError("goal-drive: receiver footprint/channel cells not free:\n  "
+                             + "\n  ".join(occupied))
 
     # exactly one preset may be enabled: the goal slot
     for cell in PRESET_BUTTONS:
@@ -825,8 +874,10 @@ def make_quaded_filter_goal_driven(island_entry):
     kept = [e for e in buildings
             if (e["X"], e["Y"], e["L"]) != GOAL_SLOT_CONST]
     assert len(kept) == len(buildings) - 1
-    x, y, L = GOAL_RECEIVER_CELL
-    kept.append(be(GOAL_RECEIVER_T, X=x, Y=y, L=L, R=0, C=goal_receiver_config()))
+    kept.append(be(GOAL_RECEIVER_T, X=rx, Y=ry, L=rL, R=0, C=goal_receiver_config()))
+    cx, cy, cL = GOAL_CHANNEL_CELL
+    kept.append(be("ConstantSignalDefaultInternalVariant", X=cx, Y=cy, L=cL, R=1,
+                   C=int_signal_config(GOAL_CHANNEL)))
     island_entry["B"]["Entries"]["$values"] = kept
     return island_entry
 
@@ -891,15 +942,14 @@ def vn11_quaded_filter_goal_driven():
     """The `Quaded Filter` platform driven by the HUB Goal Receiver instead of its
     button/ConstantSignal preset bank.
 
-    !! KNOWN BROKEN 2026-09-03 -- stamps as an EMPTY 1x4 platform. The generated
-    file is byte-identical to John's embedded original except the one intended
-    swap (ConstantSignal (4,25) -> ControlledSignalReceiver (3,25)), so the game
-    is rejecting that single building and discarding every building on the island
-    with it. Our footprint inference (origin + next cell along R, driving
-    origin+2) must be wrong -- it was read off two in-situ instances, never from
-    a minimal reference. Blocked on John exporting a bare Goal Receiver on an
-    empty platform, the way `StackerStraight.spz2bp` unblocked the stacker ports.
-    See VN-11a / VN-11b for the controls that isolate it.
+    Rebuilt 2026-09-03 on John's minimal reference `For Claude Signal Receiver`
+    after the first attempt stamped a blank platform: the receiver is **3x3
+    centred on its origin**, not the 2-cell shape inferred from in-situ copies.
+    Output leaves the centre-front cell into the LogicGateIf the removed
+    ConstantSignal used to drive; the channel arrives on a wire from a
+    ConstantSignal (GOAL_CHANNEL) two cells to the left of the facing direction.
+
+    GOAL_CHANNEL is still a placeholder -- see its definition.
     """
     isl = extract_quaded_filter()
     make_quaded_filter_goal_driven(isl)

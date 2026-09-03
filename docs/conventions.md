@@ -394,12 +394,28 @@ two working instances:
 - `Shape Filter`: origin `(4,35)` R3 (north), consumer wire at `(4,33)`, `(4,34)` absent.
 - `Smart Filter`: origin `(13,19)` R0 (east), consumer wire at `(15,19)`, `(14,19)` absent.
 
-We inferred from those that it occupies **its origin cell and the next cell along
-R**, driving the wire cell at **origin + 2**. **That inference is WRONG** — VN-11
-placed one accordingly and the platform stamped completely empty. In-situ instances
-cannot settle a footprint: the cells around them are consistent with several.
-**Blocked on a minimal reference** (a bare Goal Receiver on an empty platform),
-the way `StackerStraight.spz2bp` settled the stacker ports.
+We first inferred "origin + the next cell along R". **That was wrong** and stamped a
+blank platform. **RESOLVED** by John's minimal reference
+`For Claude Signal Receiver.spz2bp` — a bare receiver on an empty 1x1 with a belt
+box drawn around it on L1 so the footprint is directly readable:
+
+- **3x3, CENTRED on the recorded origin cell.** (L1 box outlines X7-11 x Y8-12 =>
+  interior X8-10 x Y9-11; origin recorded as `(9,10)` R3.)
+- **Output** leaves the centre-front cell into `origin + 2 along R` — the wire run
+  at `(9,8)/(9,7)/(9,6)`.
+- **Channel input** arrives at the centre-side cell from `origin + 2 across`, on
+  the **`R-1` side** for the plain variant (const at `(7,10)`, west of an R3
+  receiver) and the **`R+1` side** for `...Mirrored` — which is exactly what the
+  in-situ copies show (`Shape Filter` mirrored R3: const EAST at `(6,35)`;
+  `Smart Filter` mirrored R0: const SOUTH at `(13,21)`).
+- **The receiver's own `C` (`AAAAAg==`, value 2) is NOT the channel** — it is the
+  same in all 19 instances across John's library. **The channel is a wire input**
+  from a `ConstantSignal` integer: 123 in the reference, 11 in `Shape Filter`,
+  1000 in `Smart Filter`.
+
+Integer signal config = tag `03` + int32 **little-endian**; `int_signal_config()`
+in `build_modules.py` is asserted at build time to reproduce John's channel-123
+constant byte-for-byte.
 
 ## One invalid building blanks the WHOLE island (2026-09-03)
 
