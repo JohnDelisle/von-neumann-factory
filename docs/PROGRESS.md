@@ -85,212 +85,71 @@ select** (r/g/b/null, independently per band).
 6. Goal-change transient — stale quadrants on the belts when the HUB request changes.
 7. Pins / crystals — out of scope for v1 (no crystals in the working save).
 
-### BUILT THIS SESSION — awaiting John's in-game test
-John's calls: **VN-10 then VN-11**; colour later via **paint-per-quadrant-stream**;
-`ControlledSignalReceiver` config `2` = **a HUB goal slot index**.
+## >>> THE MAM IS VALIDATED IN-GAME (2026-09-03) <<<
+John confirmed: **`VN-11` good; `VN-12` both good** — the goal-driven MAM and the
+preset-driven A/B both work.
 
-- **`VN-10 any shape maker lane fixed`** — `Full Belt Any Shape Maker` with all
-  **eight** embedded `Fancy A+B Side Overflow` units lane-fixed. Nothing else
-  touched; asserted at build time that the island count is unchanged and exactly
-  the 8 stale bug-warning labels were dropped. Fancy A+B units are found by John's
-  own `"Fancy"` label so the 2x4 Demuxers are never patched by accident.
-- **`VN-11 quaded filter goal driven`** — the `Quaded Filter` platform alone, with
-  its **last preset slot replaced by the HUB Goal Receiver**. The five shape
-  presets survive as manual overrides; only the enabled button moved.
-- **`VN-12 MAM goal driven`** — VN-10 + VN-11 on all four lanes. **This is the MAM**:
-  full belt of mixed uncoloured base shapes in, full belt of whatever single-layer
-  shape the HUB requests out.
+**`VN-12 MAM goal driven` is the machine.** Full belt of mixed uncoloured base
+shapes in; full belt of whatever single-layer shape the HUB requests out. Four
+identical lanes of:
 
-**How the preset bank works** (embedded copy, 6 slots — decoded, not guessed):
-button `(5, 2k+14)` gates ConstantSignal `(4, 2k+15)` through a `LogicGateIf`:
-null / `--CuCu--` / `RuRuRuRu` / `SuSuSuSu` / `WuWuWuWu` / `CuRuSuWu`. **The
-`--CuCu--` and `CuRuSuWu` presets are the proof this machine builds arbitrary
-single-layer shapes** — empty quadrants, and four different types at once.
-VN-11 removes the `CuRuSuWu` constant and puts the Goal Receiver at `(3,25) R0`.
+```
+mixed base shapes (1/4 belt)
+  -> Quad Splitter -> Demuxer -> Quaded Filter (goal-driven)
+  -> Stacker supporting empty quadrants -> the requested shape
+```
 
-**The one thing extracted-but-unconfirmed: the Goal Receiver's footprint.** Both of
-John's working instances (`Shape Filter` origin `(4,35)` R3 -> wire at `(4,33)`;
-`Smart Filter` origin `(13,19)` R0 -> wire at `(15,19)`) show it occupying its
-origin cell plus the next along R, driving the wire cell at origin+2. VN-11 places
-it accordingly. **If it red-X's, it's a one-cell footprint error — shift the origin
-and rebuild.** Everything else in VN-11/VN-12 is John's own verbatim.
+- **The goal-driven `Quaded Filter` is John's own** —
+  `For Claude Filter with Signal.spz2bp`, used verbatim as a black box after our
+  two placement attempts failed. He tore out the preset bank and put a
+  `ControlledSignalReceiverMirrored` at `(4,22)` R3 (3x3 over X3-5 x Y21-23), its
+  channel `ConstantSignal` = **123** at `(6,22)`, a wire column north up X4 into a
+  `Compare`/`Not` stage. 1096 -> 1082 buildings.
+- **Channel 123 is the right one** — the goal-driven build works, so that is the
+  channel the HUB's requested shape rides on in this world.
+- Our generated `VN-12` swaps that payload into all four filter islands of the
+  lane-fixed Any Shape Maker; verified cell-identical to John's file, lane fix
+  intact, each island keeping its own X/Y/Z/R.
 
-**First cut of VN-11/VN-12 was a dud — fixed.** They didn't appear in the in-game
-folder at all: the button config had been rebuilt as `{"$value": ...}`, dropping
-`"$type": "System.Byte[], mscorlib"`, and the game **silently discards a blueprint
-file with a malformed config**. Rebuilt via `set_config()`, and `check_configs()`
-now runs over every module in the build loop so it can't recur. Remember the
-diagnostic: **missing from the folder = malformed file, not a stale refresh.**
-
-## >>> Goal Receiver footprint: RESOLVED (2026-09-03) <<<
-John supplied `For Claude Signal Receiver.spz2bp` — a bare receiver on an empty
-1x1, with a belt box drawn around it **on L1** so its size is readable without
-interfering on L0. Now in `blueprints/reference/`.
-
-- The receiver is **3x3 CENTRED on its origin cell** (box outlines X7-11 x Y8-12
-  => interior X8-10 x Y9-11; origin `(9,10)`). Not the 2-cell shape we inferred.
-- **Its config `2` is not the channel.** The channel is a **wire input** from a
-  `ConstantSignal` integer (123 here, 11 in `Shape Filter`, 1000 in `Smart Filter`).
-- Output leaves centre-front into `origin + 2 along R`; the channel enters
-  centre-side from `origin + 2 across` (`R-1` plain, `R+1` mirrored).
-
-**VN-11/VN-12 rebuilt on this.** In the `Quaded Filter`, the receiver now sits at
-`(3,25)` R0 (3x3 over X2-4 x Y24-26, all verified free), emitting into the
-`LogicGateIf` at `(5,25)` that the removed `CuRuSuWu` constant used to drive, with
-its channel `ConstantSignal` at `(3,23)` facing south. The build now asserts the
-full 3x3 footprint is clear, and that our int-signal encoder reproduces John's
-channel-123 bytes exactly.
-
-## >>> UNBLOCKED: John rebuilt the filter's input stage himself (2026-09-03) <<<
-`For Claude Filter with Signal.spz2bp` (now in `blueprints/reference/`) is the
-stock `Quaded Filter` with the whole preset bank torn out and replaced by a clean
-goal-driven front end. Diffed against the stock platform:
-
+### Module status
 | | |
 |---|---|
-| **+** | `ControlledSignalReceiverMirrored` at `(4,22)` R3 — 3x3 over X3-5 x Y21-23 |
-| **+** | `ConstantSignal` at `(6,22)` = **channel 123** — origin+2 east (`R+1`, mirrored) |
-| **+** | wire column north up X4 (Y16-20) from the receiver's output at `(4,20)` |
-| **+** | `LogicGateCompareMirrored` `(4,15)`, `LogicGateNot` `(5,16)`, null const `(4,14)` |
-| **+** | a `Display2x2` at `(9,22)` showing the received signal |
-| **−** | the entire preset bank: 6 buttons, 5 shape constants, 6 `IF` gates |
-| | net **1096 -> 1082** buildings |
+| `VN-10 any shape maker lane fixed` | VALIDATED — all 8 `Fancy A+B` units lane-fixed |
+| `VN-11 quaded filter goal driven` | VALIDATED — John's platform, component blueprint |
+| `VN-12 MAM goal driven` | **VALIDATED — the MAM** |
+| `VN-12 MAM preset CuRuSuWu` | VALIDATED — preset-driven A/B |
+| `VN-11a filter verbatim` | stock filter, known-good baseline |
 
-Note his receiver sits at **`(4,22)`**, well clear of the west edge — the placement
-our attempts kept colliding with — and its channel constant lands exactly where our
-derived `R+1`-for-mirrored rule predicted. The footprint rule was right; the
-*placement* was the problem, and it's his platform now.
+### Three silent failure modes we hit getting here (all in conventions.md)
+1. A building `C` without `$type` => the game discards the **whole file**; it never
+   appears in the folder, which reads like a failed refresh.
+2. One invalid building => the game places the foundation and discards **every
+   building on that island**. A bare platform, no red X.
+3. The **same** invalid building reports a normal placement warning in a
+   single-island blueprint but blanks the island in a multi-island assembly —
+   so isolate a suspect building on its own blueprint to get the real error.
 
-**We use it VERBATIM as a black box** (PLAYBOOK: reuse John's ecosystem, don't
-rebuild it). Our own placement code is deleted; what it taught lives in
-conventions.md.
+`check_configs()` now guards (1) over every module in the build loop.
 
-- **`VN-11 quaded filter goal driven`** = his platform, placed at the origin.
-- **`VN-12 MAM goal driven`** = lane-fixed Any Shape Maker with all four filter
-  islands' payloads swapped for his. Each island keeps its own X/Y/Z/R; asserted
-  same foundation + R, and all four verified cell-identical to his file.
-  **This is the MAM.**
-- **`VN-12 MAM preset CuRuSuWu`** kept as the known-good preset-driven A/B.
-- `VN-11b` dropped (its purpose — proving the button edit — is moot now that the
-  buttons are gone).
+## >>> WHAT'S LEFT (the single-layer uncoloured MAM is done) <<<
 
-**Still open: is channel 123 the real HUB goal channel?** John set it in his own
-file so it's presumably right, but `Shape Filter` uses 11 and `Smart Filter` 1000.
-It's the `ConstantSignal` at `(6,22)`, editable in-game.
+| # | Gap | Notes |
+|---|-----|-------|
+| 1 | **Colour** | **Decided: paint each quadrant stream** between `Quaded Filter` and the stacker. Needs a **signal-driven paint selector** — the one real unbuilt block. `Quaded Color Filter` (per-position r/g/b/null) is the filter-based fallback; it covers 3 of 8 colours. |
+| 2 | **Base supply** | A full belt of mixed uncoloured Cu/Ru/Su/Wu. Patch locations in the working save still TBD — read the save map or ask John. |
+| 3 | **Quadrant waste** | With a 4-type mixed supply each band rejects ~3/4 of arrivals. Acceptable, or add a signal-driven type router upstream? |
+| 4 | **Multi-layer** | Unbuilt. Needs layer decompose in the brain + a layer stacker chain. |
+| 5 | **Goal-change transient** | Stale quadrants sit on the belts when the HUB request changes. Tolerable, or purge? |
+| 6 | **Pins / crystals** | Out of scope for v1 (no crystals in the working save). |
 
-### What went wrong before John fixed it (kept as the lesson)
-## >>> was BLOCKED: where can the 3x3 receiver legally sit? <<<
-Footprint is settled; **placement is not.** Centred at `(3,25)` (footprint X2-4 x
-Y24-26, every cell verified free) the game rejected it as out of bounds — John:
-*"one unit too far towards the edge of the platform"*. In the multi-island VN-12
-the same building silently blanked the island instead of showing the warning.
+**Suggested next: (2) then (1).** Base supply makes the validated machine actually
+run on its own; colour is the next real design problem and the only one needing a
+new building block.
 
-**It is not a reserved-column rule.** Tested across John's whole library: **12,219
-non-port buildings sit on local X2/X17**, so those columns are ordinary. Some other
-constraint applies to a 3x3 near an edge, and no reference we have isolates it.
-
-**And one cell inward doesn't fit.** Centre X=4 => footprint X3-5, but the preset
-bank's **X5 column is solid buttons + IF gates from Y14 to Y25** and X4 holds the
-six shape constants. So the receiver cannot sit adjacent to the bank at all.
-
-Computed free 3x3 centres on L0 anywhere near the bank: **(8,23) (9,23) (8,24)
-(9,24) (8,25) (9,25) (10,25) (11,25)** — all east of the chain. Getting a wire from
-there back to the bank means crossing the **X6/X7 chain columns**, which carry the
-merged preset-bank output to the rotator/analyzer fan. Wires are shared nets, so a
-careless crossing merges nets and corrupts the logic — exactly the kind of thing
-worth one sentence from John rather than another blind stamp.
-
-### QUESTIONS FOR JOHN
-1. **What actually makes the 3x3 out of bounds at X2-4?** A margin rule for large
-   buildings? Something about that platform edge? (Cheap to see in-game.)
-2. **Where would you put it, and how would you route it in?** Our read: it has to
-   go at X8-11 / Y23-25 and reach the `LogicGateIf` at `(5,25)`, whose value input
-   is its west neighbour `(4,25)` — the cell the `CuRuSuWu` constant vacates.
-   Is a plain wire at `(4,25)` fed from `(4,26)` enough to drive that gate, or does
-   the gate need an emitter there?
-3. **Which channel carries the HUB's requested shape?** `GOAL_CHANNEL` is a
-   placeholder of **123** (your demo value); `Shape Filter` uses 11, `Smart Filter`
-   1000. Editable in-game on the `ConstantSignal` we place next to the receiver.
-
-**Goal-driven blueprints are deliberately NOT shipped** while this is open —
-`vn11_quaded_filter_goal_driven()` / `vn12_mam_goal_driven()` stay in the code,
-commented out of `MODULES`, and build the moment placement is settled. Shipping a
-blueprint we know the game rejects only costs John a stamp.
-
-### SHIPPED INSTEAD — testable right now
-**`VN-12 MAM preset CuRuSuWu`** — the lane-fixed full-belt machine with all four
-`Quaded Filter` platforms switched to the `CuRuSuWu` preset (circle / rect / star /
-windmill, one per quadrant). **Button edits only** — no Goal Receiver, no buildings
-added or removed, so it carries none of the risk that blanked the other build. If
-this makes `CuRuSuWu` at full belt, the arbitrary-single-layer-shape claim is proven
-in-game and only the goal wiring is left.
-
-### What went wrong the first time (kept as the lesson)
-John stamped VN-11 and got an **empty 1x4 platform** — the foundation places, every
-building on it is gone.
-
-**Diagnosed, not guessed**: the generated island is byte-identical to John's
-embedded original — same 1096 buildings, same `$type`s, same `Entries` container,
-zero differing cells — **except the one intended swap**, `ConstantSignal (4,25,L0)`
--> `ControlledSignalReceiverInternalVariantMirrored (3,25,L0) R0`.
-
-=> **one invalid building entry makes the game discard EVERY building on that
-island** (the foundation still places). New failure mode, distinct from the
-malformed-config one: that killed the whole *file*, this kills one *island's*
-contents. Both are silent.
-
-Our footprint inference was read off two in-situ instances (`Shape Filter` origin
-`(4,35)` R3 -> wire `(4,33)`; `Smart Filter` origin `(13,19)` R0 -> wire `(15,19)`)
-and concluded "occupies origin + the next cell along R, drives origin+2". That is
-evidently wrong, and in-situ instances can't settle it — the surrounding cells are
-consistent with several footprints.
-
-**ASK JOHN**: export a **bare Goal Receiver on an otherwise empty 1x1 platform**
-(as with `StackerStraight.spz2bp` for the stacker ports). That gives the exact
-footprint, valid rotations and config in one shot. This is the PLAYBOOK's
-"extract, don't guess" rule — we broke it and it cost a round-trip.
-
-### Controls shipped to isolate it
-- **`VN-11a filter verbatim`** — the embedded `Quaded Filter` extracted and
-  re-placed at the origin, **zero edits**. Should stamp exactly like John's.
-  Proves extraction + placement are sound.
-- **`VN-11b filter preset CuRuSuWu`** — **only** the button flip (enabled preset
-  moves from `--CuCu--` to `CuRuSuWu`); ConstantSignal bank intact, no Goal
-  Receiver. If this stamps and builds a circle/rect/star/windmill shape, the
-  button edit and the arbitrary-shape claim are both proven and the fault is
-  isolated to the Goal Receiver building alone.
-
-`VN-11` and `VN-12` are **known broken** until the footprint is confirmed.
-`VN-10` is unaffected (it never touches a config or adds a building).
-
-### TEST RECIPE for John
-1. Refresh the in-game blueprint folder; stamp **`VN-12 MAM goal driven`**.
-2. Feed its east input a full belt of **mixed uncoloured base shapes** (Cu/Ru/Su/Wu).
-3. Set a HUB goal to a single-layer uncoloured shape and watch the west output.
-4. Change the HUB goal; the output should follow (expect a transient while stale
-   quadrants clear the belts).
-5. If nothing comes out, check the channel constant at `(6,22)` on any filter
-   platform — 123 may not be the channel the HUB goal is broadcast on.
-6. A/B fallback: **`VN-12 MAM preset CuRuSuWu`** is the same machine driven by the
-   old preset bank; if that works and the goal-driven one doesn't, it's the
-   channel or the receiver, not the machine.
-Screenshot of the output belt + any red X's, please.
-
-### Still open (not blocking the test)
-- Colour: **decided — paint each quadrant stream** between `Quaded Filter` and the
-  stacker. Needs a signal-driven paint selector (doesn't exist yet); `Quaded Color
-  Filter` stays available as the filter-based fallback.
-- Mixed supply and ~3/4 quadrant waste — acceptable, or a type router upstream?
-- Single-layer v1, or design the layer stack in now?
-- `Full Belt Any Shape Maker` vs `MAM working` — same machine; which name survives?
-
-Reference blueprints for all of the above are now committed under
-`blueprints/reference/` (Full Belt Any Shape Maker, Filter, Quaded Filter, Quaded
-Color Filter, Smart Filter, Shape Filter, Painter, Overflow).
-2. ~~**Refactor pass on known-buggy components**: the "Fancy A+B Side Overflow"
-   unit's self-documented lane-swap bug.~~ **DONE 2026-09-03** — root-caused and
-   fixed; see below and conventions.md "Fancy A+B Side Overflow: the inner/outer
-   lane-swap bug (fixed)". **Awaiting John's in-game confirmation.**
+Reference blueprints are committed under `blueprints/reference/` (Full Belt Any
+Shape Maker, Filter, Quaded Filter, Quaded Color Filter, Smart Filter, Shape
+Filter, Painter, Overflow, For Claude Signal Receiver, For Claude Filter with
+Signal).
 
 ## Fancy A+B lane-swap bug: FIXED + VALIDATED IN-GAME (2026-09-03)
 _John confirmed VN-08, VN-09 and VN-07 all working in-game._

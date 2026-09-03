@@ -272,6 +272,18 @@ already built, full-belt, and mostly validated.
   (see the open question below).
 - **Step 5 — multi-layer.**
 
+### OUTCOME: built and validated in-game, 2026-09-03
+`VN-12 MAM goal driven` works. The constructive-vs-generate-and-filter debate this
+document opened with was the wrong axis: the machine is **constructive at the shape
+level** (it stacks the output from selected quadrants) and **filter-based at the
+quadrant level** (it picks the quadrants it needs out of a mixed supply), and that
+hybrid was already 85% built in John's library. What we actually contributed was
+the lane fix, the decode of how it works, and the composition — not a new design.
+
+The one platform John had to build himself was the goal-driven `Quaded Filter`
+front end (`For Claude Filter with Signal.spz2bp`), after two failed attempts on
+our side to place the 3x3 Goal Receiver.
+
 ### Decisions taken (John, 2026-09-03)
 - **Build VN-10 then VN-11.** Both done, plus `VN-12` = the two combined = the MAM.
 - **Colour = paint per quadrant stream**, not filter-a-coloured-supply. A

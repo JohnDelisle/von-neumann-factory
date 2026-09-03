@@ -26,13 +26,16 @@ validated in-game (`VN-07`: `Quad Splitter` -> `Demuxer` -> lane-fixed
 `Stacker supporting empty quadrants`), as is the Fancy A+B lane fix (`VN-08`/`VN-09`).
 Everything built so far is a **fixed recipe** — nothing chooses anything yet.
 
-**Architecture reviewed 2026-09-03**: decoding `Full Belt Any Shape Maker` showed
-John already has ~85% of the MAM built — the `Quaded Filter` platform IS the brain
-+ per-position type select, driven today by buttons instead of the Goal Receiver.
-Read PROGRESS.md ">>> ARCHITECTURE SESSION" and architecture.md ">>> BIG FINDING"
-first. Proposed next: `VN-10` (lane-fix the Any Shape Maker) then `VN-11` (swap the
-button bank for `ControlledSignalReceiver`). **Awaiting John's go-ahead and his
-answers to the open questions** before building.
+**THE MAM WORKS (validated in-game 2026-09-03).** `VN-12 MAM goal driven` — full
+belt of mixed uncoloured base shapes in, full belt of whatever single-layer shape
+the HUB requests out. Built by composing John's own platforms: `Quad Splitter` ->
+`Demuxer` -> goal-driven `Quaded Filter` -> `Stacker supporting empty quadrants`,
+x4 lanes, on the lane-fixed `Fancy A+B` baseline.
+
+Read PROGRESS.md ">>> THE MAM IS VALIDATED" and ">>> WHAT'S LEFT", plus
+architecture.md ">>> BIG FINDING". Next up (John's call): **base supply**, then
+**colour** — decided as paint-per-quadrant-stream, which needs a signal-driven
+paint selector, the one genuinely unbuilt block. Then multi-layer.
 
 ## Workflow per change
 Edit `tools/build_modules.py` -> regenerate -> copy the `.spz2bp` into the in-game
