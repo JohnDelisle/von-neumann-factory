@@ -289,10 +289,26 @@ def vn02_halfdestroy_12lane():
     b = [be(T, X=X, Y=Y, L=L, R=R) for (X, Y, L, R, T) in VN02_CELLS]
     return blueprint_islands([island("Foundation_1x1", R=2, buildings=b)])
 
+
+def vn03_rotate90cw_12lane():
+    """Launcher-optimized 12-lane 90-CW rotate stage (= John's `Clockwise`, sped up).
+
+    Derived from VN-02's VALIDATED launcher layout by swapping the operator cells
+    CutterHalf -> RotatorOneQuad. Same proven butterfly + same launcher/catcher
+    placement John hand-tuned on VN-02 (straight runs launched, 1-4 tile gaps,
+    butterfly untouched). Function is identical to `Clockwise` (each item rotated
+    90 CW exactly once); only traversal time improves. island R=2.
+    """
+    swap = {"CutterHalfInternalVariant": "RotatorOneQuadInternalVariant"}
+    b = [be(swap.get(T, T), X=X, Y=Y, L=L, R=R) for (X, Y, L, R, T) in VN02_CELLS]
+    return blueprint_islands([island("Foundation_1x1", R=2, buildings=b)])
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
     "VN-02 half-destroy 12lane": vn02_halfdestroy_12lane,
+    "VN-03 rotate90CW 12lane": vn03_rotate90cw_12lane,
 }
 
 if __name__ == "__main__":

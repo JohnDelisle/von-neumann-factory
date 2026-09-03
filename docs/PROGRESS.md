@@ -69,8 +69,10 @@ truth; each change is committed + pushed.
      split->op->merge butterfly is operation-agnostic (each item hits exactly 1 operator), so
      we swapped its 24 RotatorOneQuad -> CutterHalf to get a 12-lane full-throughput pass-through
      Half Destroyer (2 cutters/lane, south-in Y17/north-out Y2, island R=2). Keeps world-EAST half.
-   - **Composition** (uniform, isolates orig-NE quadrant): `VN-02` -> `Clockwise` -> `VN-02`
-     placed in series on the bus (HalfDestroy -> Rotate90CW -> HalfDestroy).
+   - **`VN-03 rotate90CW 12lane`** = launcher-optimized `Clockwise` (derived from VN-02's
+     validated launcher layout, cutter->rotator; rotator cells == Clockwise, launchers == VN-02).
+   - **Composition** (uniform, isolates orig-NE quadrant): `VN-02` -> `VN-03` -> `VN-02`
+     as 3 snap-together 1x1 modules on the bus (HalfDestroy -> Rotate90CW -> HalfDestroy).
    - **Per-lane selectable quadrant** = add a SELECTABLE PRE-ROTATE stage before the isolator:
      same butterfly, per-lane operator chosen by baked k in {0:belt-pass -> orig NE, 1:RotCW ->
      orig NW, 2:RotHalf(180) -> orig SW, 3:RotCCW -> orig SE}. Needs the lane->operator-cell map
