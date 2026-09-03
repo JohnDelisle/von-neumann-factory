@@ -24,8 +24,12 @@ truth; each change is committed + pushed.
   Clockwise` confirm CW/CCW; `Half Destroyer` confirms keep-east. NOTE: real-game exports use
   a **terser schema** (plain `Entries` list, omitted default fields, `Icon`/`BinaryVersion`,
   `V:1137/1138`); our verbose encoder still imports fine.
-- **`VN-01 quad isolator 1lane`** authored + mirrored to the in-game VN folder
-  (HalfDestroy -> Rotate90 CW -> HalfDestroy, one lane, X9 L0, north-flow R3). **Awaiting John's in-game test.**
+- **`VN-01 quad isolator 1lane`** VALIDATED in-game (John): HalfDestroy -> Rotate90 CW ->
+  HalfDestroy on one lane (X9, L0, north-flow R3) correctly isolates the SE quadrant, and
+  the three single-cell transforms chain inline (adjacent Y14/Y13/Y12) with no belts between.
+  Lane geometry: X9 = **2nd input lane from the left** of the 4-lane space-belt input (X8-11);
+  X8 free to the left, X10-X11 spare to the right. NOTE: single building per stage is
+  throughput-limited (see below) - fine for the proof, must parallelize for full-speed.
 
 ## Environment / operational notes (IMPORTANT for resuming)
 - Device: `jmd-486-dx4` (Windows; device_bash runs in its Linux VM).
@@ -56,12 +60,14 @@ truth; each change is committed + pushed.
   shapes.
 
 ## Next steps
-1. **Stage 1 - Quadrant isolator** (1-lane proof AUTHORED, awaiting test): `VN-01 quad
-   isolator 1lane` is built + mirrored. John: import it, feed a full single-layer shape
-   (e.g. `CuCuCuCu`), expect a single **SE / bottom-right** quadrant out. Verify each
-   transform chains inline (they're adjacent at Y14/Y13/Y12). If good -> **scale to the
-   12-lane bus** (4 cols x 3 floors; see `Clockwise` for the rotator bus routing pattern).
-   If the isolated quadrant is wrong, we adjust pre-rotation / cut order.
+1. **Stage 1 - Quadrant isolator**: 1-lane proof (`VN-01`) VALIDATED. NEXT = scale to the
+   **12-lane bus** (4 cols X8-11 x 3 floors L0-2). Throughput: a single CutterHalf/RotatorOneQuad
+   is slower than a full belt, so John's proven modules PARALLELIZE per lane -
+   **Half Destroyer = 3 cutters/lane**, **Clockwise = 2 rotators/lane** (split -> N buildings
+   -> merge). A full-speed isolator lane = HalfDestroy(x3) -> Rotate90(x2) -> HalfDestroy(x3).
+   Open design forks (ask John): (a) full-throughput parallelized now vs simpler 1-building/lane
+   12-wide geometry pass first; (b) all lanes isolate same quadrant vs per-lane pre-rotation to
+   select different quadrants (needed for the 4-base-shape constructive feed).
 2. Stage 2 painter tap, Stage 3 assembler (stackers), Stage 4 brain (Goal
    Receiver + Virtual Processing), Stage 5 parallelize x4.
 3. Base supply: needs this world's shape-patch locations (circle/square/star/
