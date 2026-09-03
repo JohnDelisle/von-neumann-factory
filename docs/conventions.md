@@ -124,3 +124,25 @@ Belts: `BeltDefaultForwardInternalVariant`, `BeltDefaultLeftInternalVariant`,
 - **Half Destroyer**: only **4 lanes, L0**, west-in on a 1x2 / south-out.
 - **Trash**: 12-lane sink, west-in (X2, R0).
 - Standard going forward: **12-lane bus (4x3), purpose-built modules**.
+
+## Belt launchers & catchers (reverse-engineered 2026-09-03)
+
+- A **belt launcher** is a `BeltPortSenderInternalVariant` and a **catcher** is a
+  `BeltPortReceiverInternalVariant` placed **mid-platform** (same building type as
+  the platform edge I/O ports). A launcher fires the shape across a gap to the
+  next catcher in line; **span 1-4 tiles** (never zero gap). Same throughput as a
+  belt (60-180/min by tier) - they cut **travel time**, not items/sec.
+- Use to replace straight belt runs. Keep layouts legible; avoid launcher webs
+  unless performance needs it (John's rule).
+
+## Stacker (`StackerStraightInternalVariant`) ports (from John's ref)
+
+- 1x1 building, R = facing (R3 = output North). Inputs:
+  - **Bottom (main)** shape: from directly **behind** (South when R3), same floor.
+  - **Top (stack)** shape: from the cell **directly above** it (floor L+1) - route
+    the second stream up one floor (Lift1UpForward) and over the stacker cell.
+  - **Output**: forward (North when R3), same floor = bottom stacked, top on top.
+- Stacking is rigid-body: the top shape descends until ANY quadrant collides.
+  Disjoint pieces (no shared occupied quadrant) merge into ONE layer; any overlap
+  puts the whole top shape on a NEW layer above. => assemble a layer only from
+  single-quadrant pieces at DISTINCT positions.
