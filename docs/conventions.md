@@ -151,3 +151,14 @@ Belts: `BeltDefaultForwardInternalVariant`, `BeltDefaultLeftInternalVariant`,
   at (sx+1, sy+1, L0, R2) lifts it to (sx, sy+1, L1), and a
   `BeltDefaultLeftInternalVariantMirrored` at (sx, sy+1, L1, R2) turns it north into
   (sx, sy, L1). Feeding the top port sideways on L1 (no lift) does NOT connect.
+
+
+## Platform edge port bands (1x1, confirmed)
+
+Edge ports (space-belt / platform-to-platform I/O) exist ONLY on the 4-lane band
+of each edge, per floor:
+- NORTH (Y2) and SOUTH (Y17): lanes at X = 8,9,10,11
+- EAST (X17) and WEST (X2): lanes at Y = 8,9,10,11
+A blueprint with a port off these bands will NOT stamp (red X). Larger foundations
+have their own bands (TBD). => a 1x1 has at most 4 lanes x 3 floors = 12 port-lanes
+per edge-direction.
