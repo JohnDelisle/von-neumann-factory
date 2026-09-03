@@ -141,10 +141,51 @@ its channel `ConstantSignal` at `(3,23)` facing south. The build now asserts the
 full 3x3 footprint is clear, and that our int-signal encoder reproduces John's
 channel-123 bytes exactly.
 
-**!! OPEN: which channel carries the HUB's requested shape?** `GOAL_CHANNEL` in
-`build_modules.py` is a placeholder of **123** (John's demo value). `Shape Filter`
-listens on 11 and `Smart Filter` on 1000, so this is per-network — only John knows
-it. Editable in-game on the `ConstantSignal` at `(3,23)`.
+## >>> BLOCKED: where can the 3x3 receiver legally sit? <<<
+Footprint is settled; **placement is not.** Centred at `(3,25)` (footprint X2-4 x
+Y24-26, every cell verified free) the game rejected it as out of bounds — John:
+*"one unit too far towards the edge of the platform"*. In the multi-island VN-12
+the same building silently blanked the island instead of showing the warning.
+
+**It is not a reserved-column rule.** Tested across John's whole library: **12,219
+non-port buildings sit on local X2/X17**, so those columns are ordinary. Some other
+constraint applies to a 3x3 near an edge, and no reference we have isolates it.
+
+**And one cell inward doesn't fit.** Centre X=4 => footprint X3-5, but the preset
+bank's **X5 column is solid buttons + IF gates from Y14 to Y25** and X4 holds the
+six shape constants. So the receiver cannot sit adjacent to the bank at all.
+
+Computed free 3x3 centres on L0 anywhere near the bank: **(8,23) (9,23) (8,24)
+(9,24) (8,25) (9,25) (10,25) (11,25)** — all east of the chain. Getting a wire from
+there back to the bank means crossing the **X6/X7 chain columns**, which carry the
+merged preset-bank output to the rotator/analyzer fan. Wires are shared nets, so a
+careless crossing merges nets and corrupts the logic — exactly the kind of thing
+worth one sentence from John rather than another blind stamp.
+
+### QUESTIONS FOR JOHN
+1. **What actually makes the 3x3 out of bounds at X2-4?** A margin rule for large
+   buildings? Something about that platform edge? (Cheap to see in-game.)
+2. **Where would you put it, and how would you route it in?** Our read: it has to
+   go at X8-11 / Y23-25 and reach the `LogicGateIf` at `(5,25)`, whose value input
+   is its west neighbour `(4,25)` — the cell the `CuRuSuWu` constant vacates.
+   Is a plain wire at `(4,25)` fed from `(4,26)` enough to drive that gate, or does
+   the gate need an emitter there?
+3. **Which channel carries the HUB's requested shape?** `GOAL_CHANNEL` is a
+   placeholder of **123** (your demo value); `Shape Filter` uses 11, `Smart Filter`
+   1000. Editable in-game on the `ConstantSignal` we place next to the receiver.
+
+**Goal-driven blueprints are deliberately NOT shipped** while this is open —
+`vn11_quaded_filter_goal_driven()` / `vn12_mam_goal_driven()` stay in the code,
+commented out of `MODULES`, and build the moment placement is settled. Shipping a
+blueprint we know the game rejects only costs John a stamp.
+
+### SHIPPED INSTEAD — testable right now
+**`VN-12 MAM preset CuRuSuWu`** — the lane-fixed full-belt machine with all four
+`Quaded Filter` platforms switched to the `CuRuSuWu` preset (circle / rect / star /
+windmill, one per quadrant). **Button edits only** — no Goal Receiver, no buildings
+added or removed, so it carries none of the risk that blanked the other build. If
+this makes `CuRuSuWu` at full belt, the arbitrary-single-layer-shape claim is proven
+in-game and only the goal wiring is left.
 
 ### What went wrong the first time (kept as the lesson)
 John stamped VN-11 and got an **empty 1x4 platform** — the foundation places, every

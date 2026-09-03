@@ -942,28 +942,33 @@ def vn11_quaded_filter_goal_driven():
     """The `Quaded Filter` platform driven by the HUB Goal Receiver instead of its
     button/ConstantSignal preset bank.
 
-    Rebuilt 2026-09-03 on John's minimal reference `For Claude Signal Receiver`
-    after the first attempt stamped a blank platform: the receiver is **3x3
-    centred on its origin**, not the 2-cell shape inferred from in-situ copies.
-    Output leaves the centre-front cell into the LogicGateIf the removed
-    ConstantSignal used to drive; the channel arrives on a wire from a
-    ConstantSignal (GOAL_CHANNEL) two cells to the left of the facing direction.
+    !! NOT SHIPPED 2026-09-03 -- blocked on WHERE the receiver can legally sit.
 
-    GOAL_CHANNEL is still a placeholder -- see its definition.
+    Footprint is settled (3x3 centred on the origin, from John's minimal
+    reference). Placing it centred at (3,25) -- footprint X2-4 x Y24-26, every
+    cell verified free -- was rejected in-game as out of bounds, "one unit too far
+    towards the edge". That is NOT a reserved-column rule: 12,219 non-port
+    buildings sit on local X2/X17 across John's library, so those columns are
+    ordinary. Some other placement constraint applies to 3x3 buildings near an
+    edge, and we have no reference that isolates it.
+
+    Moving one cell inward (centre X=4, footprint X3-5) collides with the preset
+    bank: the X5 column is solid buttons and IF gates from Y14 to Y25, and X4
+    holds the six shape constants. So the receiver cannot sit adjacent to the
+    bank at all -- the nearest legal 3x3 blocks are at X8-11, Y23-25, and a wire
+    from there back to the bank has to cross the X6/X7 chain columns.
+
+    => needs John's call on routing (see PROGRESS.md). Ship
+    vn12_mam_preset_curusuwu() meanwhile, which proves everything except the
+    goal wiring. GOAL_CHANNEL is also still a placeholder -- see its definition.
     """
     isl = extract_quaded_filter()
     make_quaded_filter_goal_driven(isl)
     return blueprint_islands([isl])
 
 
-def vn12_mam_goal_driven():
-    """THE MAM: `Full Belt Any Shape Maker`, lane-fixed (VN-10) and with all four
-    `Quaded Filter` platforms driven by the HUB Goal Receiver (VN-11).
-
-    Full belt in (mixed uncoloured base shapes), full belt out of whatever
-    single-layer shape the HUB currently requests. Uncoloured, single-layer;
-    colour and layers are still to come.
-    """
+def _lane_fixed_any_shape_maker():
+    """`Full Belt Any Shape Maker` islands with all 8 `Fancy A+B` units lane-fixed."""
     islands = load_reference_islands("Full Belt Any Shape Maker.spz2bp")
     fancy = 0
     for isl in islands:
@@ -971,6 +976,49 @@ def vn12_mam_goal_driven():
             apply_fancy_ab_lane_fix(isl)
             fancy += 1
     assert fancy == 8, f"expected 8 Fancy A+B units, patched {fancy}"
+    return islands
+
+
+def select_preset(island_entry, button_cell):
+    """Enable exactly one slot of a `Quaded Filter`'s preset bank."""
+    index = {(e["X"], e["Y"], e["L"]): e for e in gv(island_entry["B"]["Entries"])}
+    for cell in PRESET_BUTTONS:
+        e = index[cell]
+        assert e["T"] == "ButtonDefaultInternalVariant", f"no button at {cell}"
+        set_config(e, BUTTON_ON if cell == button_cell else BUTTON_OFF)
+    return island_entry
+
+
+def vn12_mam_preset_curusuwu():
+    """The lane-fixed `Full Belt Any Shape Maker` with all four `Quaded Filter`
+    platforms switched to the `CuRuSuWu` preset -- a circle, a rect, a star and a
+    windmill, one per quadrant.
+
+    Button edits only: no Goal Receiver, no buildings added or removed, so it
+    carries none of the risk that blanked the goal-driven build. This is the
+    strongest thing we can test today -- if it produces `CuRuSuWu` at full belt,
+    the whole arbitrary-single-layer-shape claim is proven in-game and only the
+    goal wiring is left.
+    """
+    islands = _lane_fixed_any_shape_maker()
+    n = 0
+    for isl in islands:
+        if isl["T"] == "Foundation_1x4" and "Quaded Filter" in label_texts(isl):
+            select_preset(isl, GOAL_SLOT_BUTTON)
+            n += 1
+    assert n == 4, f"expected 4 Quaded Filter platforms, switched {n}"
+    return blueprint_islands(islands)
+
+
+def vn12_mam_goal_driven():
+    """THE MAM: lane-fixed `Full Belt Any Shape Maker` with all four `Quaded
+    Filter` platforms driven by the HUB Goal Receiver.
+
+    !! NOT SHIPPED -- blocked on where the receiver can legally sit; see
+    vn11_quaded_filter_goal_driven(). Kept wired up so it builds the moment the
+    placement is settled.
+    """
+    islands = _lane_fixed_any_shape_maker()
     filters = _goal_driven_quaded_filters(islands)
     assert filters == 4, f"expected 4 Quaded Filter platforms, patched {filters}"
     return blueprint_islands(islands)
@@ -990,8 +1038,12 @@ MODULES = {
     "VN-10 any shape maker lane fixed": vn10_any_shape_maker_lane_fixed,
     "VN-11a filter verbatim": vn11a_quaded_filter_verbatim,
     "VN-11b filter preset CuRuSuWu": vn11b_quaded_filter_preset_curusuwu,
-    "VN-11 quaded filter goal driven": vn11_quaded_filter_goal_driven,
-    "VN-12 MAM goal driven": vn12_mam_goal_driven,
+    "VN-12 MAM preset CuRuSuWu": vn12_mam_preset_curusuwu,
+    # Goal-driven builds are BLOCKED on the receiver's legal placement -- see
+    # vn11_quaded_filter_goal_driven(). Deliberately not generated: shipping a
+    # blueprint we know the game rejects just costs John a stamp.
+    # "VN-11 quaded filter goal driven": vn11_quaded_filter_goal_driven,
+    # "VN-12 MAM goal driven": vn12_mam_goal_driven,
 }
 
 if __name__ == "__main__":

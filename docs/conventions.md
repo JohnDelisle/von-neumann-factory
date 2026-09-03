@@ -417,6 +417,23 @@ Integer signal config = tag `03` + int32 **little-endian**; `int_signal_config()
 in `build_modules.py` is asserted at build time to reproduce John's channel-123
 constant byte-for-byte.
 
+**Placement of the 3x3 is still an open constraint.** Centred at local `(3,25)` on
+a `Foundation_1x4` — footprint X2-4 x Y24-26, every cell verified empty — the game
+called it **out of bounds**, "one unit too far towards the edge". It is **not** a
+reserved-column rule: a census over John's whole library finds **12,219 non-port
+buildings on local X2/X17**, so those columns are ordinary for belts, pipes,
+rotators, cutters and mixers. Whatever the rule is (a margin for large buildings?),
+we have no reference that isolates it. **Do not assume local X2/X17 is usable by a
+multi-cell building.**
+
+## Same invalid building, two different symptoms
+
+The out-of-bounds receiver produced a **warning** in the single-island VN-11 but
+**silently blanked the island** in the multi-island VN-12. So the "platform stamps
+but is empty" symptom in a large assembly can be an ordinary placement error that a
+standalone blueprint would have reported properly. **Isolate a suspect building on
+its own single-island blueprint to get the real error message.**
+
 ## One invalid building blanks the WHOLE island (2026-09-03)
 
 If a single building entry in an island's nested `B` blueprint is invalid, the game
