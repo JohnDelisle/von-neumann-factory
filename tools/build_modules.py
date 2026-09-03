@@ -469,9 +469,15 @@ _SP = 'SplitterOverflowLInternalVariant'
 _TX = 'BeltPortSenderInternalVariant'
 _RX = 'BeltPortReceiverInternalVariant'
 
-# (X,Y): ((expected_type, expected_R), (new_type, new_R))
-FANCY_AB_LANE_FIX = {
-    # In B band, rows 8-11
+# The component is FOUR bands (In A / In B x north / south = 48 lanes), one per
+# island-row of the 2x4 foundation. Each band gets the same treatment; the two
+# band patterns below are stamped at the four Y offsets.
+#
+#   In B rows  8, 9,10,11 (north, offset 0) and -12,-11,-10,-9 (south, offset -20)
+#   In A rows 27,28,31,32 (north, offset 0) and -33,-32,-29,-28 (south, offset -60)
+#
+# (dX, dY): ((expected_type, expected_R), (new_type, new_R))
+_FIX_IN_B = {
     ( 6,  8): ((_RX, 2), (_F,  2)),   # row 8 OUTER: splitter X9->X7, hop (8->6)->(10->8)
     ( 7,  8): ((_F,  3), (_SM, 2)),
     ( 8,  8): ((_TX, 2), (_RX, 2)),
@@ -486,27 +492,45 @@ FANCY_AB_LANE_FIX = {
     ( 8, 11): ((_TX, 2), (_RX, 2)),
     ( 9, 11): ((_SP, 2), (_F,  1)),   # now row 10's southbound overflow belt
     (10, 11): ((_F,  2), (_TX, 2)),
-    # In A band, rows 28-31 (their splitter sections sit in rows 27/28/31/32)
-    ( 5, 27): ((_RX, 2), (_F,  2)),   # row 28 OUTER: splitter X8->X6, hop (7->5)->(9->7)
+}
+_FIX_IN_A = {
+    ( 5, 27): ((_RX, 2), (_F,  2)),   # outer lane: splitter X8->X6, hop (7->5)->(9->7)
     ( 6, 27): ((_F,  3), (_SM, 2)),
     ( 7, 27): ((_TX, 2), (_RX, 2)),
-    ( 8, 27): ((_SM, 2), (_F,  3)),   # now row 29's northbound overflow belt
+    ( 8, 27): ((_SM, 2), (_F,  3)),   # now the adjacent inner lane's overflow belt
     ( 9, 27): ((_F,  2), (_TX, 2)),
-    ( 6, 28): ((_SM, 2), (_F,  2)),   # row 29 INNER: splitter X6->X8
+    ( 6, 28): ((_SM, 2), (_F,  2)),   # inner lane: splitter X6->X8
     ( 8, 28): ((_F,  2), (_SM, 2)),
-    ( 6, 31): ((_SP, 2), (_F,  2)),   # row 30 INNER: splitter X6->X8
+    ( 6, 31): ((_SP, 2), (_F,  2)),   # inner lane: splitter X6->X8
     ( 8, 31): ((_F,  2), (_SP, 2)),
-    ( 5, 32): ((_RX, 2), (_F,  2)),   # row 31 OUTER: splitter X8->X6, hop (7->5)->(9->7)
+    ( 5, 32): ((_RX, 2), (_F,  2)),   # outer lane: splitter X8->X6, hop (7->5)->(9->7)
     ( 6, 32): ((_F,  1), (_SP, 2)),
     ( 7, 32): ((_TX, 2), (_RX, 2)),
-    ( 8, 32): ((_SP, 2), (_F,  1)),   # now row 30's southbound overflow belt
+    ( 8, 32): ((_SP, 2), (_F,  1)),   # now the adjacent inner lane's overflow belt
     ( 9, 32): ((_F,  2), (_TX, 2)),
 }
 
+def _build_lane_fix():
+    fix = {}
+    for dy in (0, -20):          # In B: north band, south band
+        for (x, y), v in _FIX_IN_B.items():
+            fix[(x, y + dy)] = v
+    for dy in (0, -60):          # In A: north band, south band
+        for (x, y), v in _FIX_IN_A.items():
+            fix[(x, y + dy)] = v
+    return fix
+
+FANCY_AB_LANE_FIX = _build_lane_fix()
+
+# The two "SHIT - Mixes lanes up in both these" warning labels document the bug;
+# once it's fixed they're stale, so the fix removes them (John did the same).
+FANCY_AB_STALE_LABELS = [(12, 14, 0), (13, 22, 0)]
+
 def apply_fancy_ab_lane_fix(island_entry, floors=(0, 1, 2)):
     """Apply FANCY_AB_LANE_FIX to every floor of a `Fancy A+B Side Overflow`
-    island entry, in place. Asserts the pre-edit state matches exactly, so a
-    changed upstream reference fails loudly instead of silently mis-patching."""
+    island entry, in place, and drop the now-stale bug-warning labels. Asserts the
+    pre-edit state matches exactly, so a changed upstream reference fails loudly
+    instead of silently mis-patching."""
     buildings = gv(island_entry["B"]["Entries"])
     index = {(e["X"], e["Y"], e["L"]): e for e in buildings}
     changed = 0
@@ -520,29 +544,49 @@ def apply_fancy_ab_lane_fix(island_entry, floors=(0, 1, 2)):
                     f"lane-fix: X={x} Y={y} L={L} is {e['T']} R={e['R']}, expected {et} R={er}")
             e["T"], e["R"] = nt, nr
             changed += 1
+    # drop stale warning labels (only present on the un-deduplicated copy)
+    stale = {k for k in FANCY_AB_STALE_LABELS
+             if (k in index and index[k]["T"] == "LabelDefaultInternalVariant")}
+    if stale:
+        kept = [e for e in buildings
+                if (e["X"], e["Y"], e["L"]) not in stale
+                or e["T"] != "LabelDefaultInternalVariant"]
+        island_entry["B"]["Entries"]["$values"] = kept
     return changed
 
 
 def vn08_fancy_ab_lane_fixed():
-    """John's `Fancy A+B Side Overflow` with the inner/outer lane-swap bug fixed.
+    """`Fancy A+B Side Overflow` with the inner/outer lane-swap bug fixed on all
+    FOUR bands (In A / In B x north / south = 48 lanes).
 
-    Standalone component (Foundation_2x4), for side-by-side comparison against the
-    original. Verified by tracing every lane's overflow branch: all 8 lanes (both
-    bands) now land outer->outer and inner->inner, and all 24 primary pass-through
-    paths (8 rows x 3 floors) remain lane-preserving. See FANCY_AB_LANE_FIX above.
+    Generated by applying FANCY_AB_LANE_FIX to the pre-fix reference. The result is
+    byte-identical to John's own hand-mirrored fix
+    (`blueprints/reference/Fancy A+B Side Overflow.spz2bp`) -- the build asserts
+    that below, so this doubles as a cross-check of the patch against his version.
+
+    Verified by tracing every lane's overflow branch: all 16 lanes (4 bands) land
+    outer->outer and inner->inner, and every primary pass-through path stays
+    lane-preserving.
     """
-    ref = load_reference_island("Fancy A+B Side Overflow.spz2bp")
+    ref = load_reference_island("Fancy A+B Side Overflow (pre-lane-fix).spz2bp")
     assert ref["T"] == "Foundation_2x4"
     apply_fancy_ab_lane_fix(ref)
     isl = island(ref["T"], X=0, Y=0, Z=0, R=ref["R"])
     isl["B"] = ref["B"]
+
+    # cross-check: our generated fix must match John's hand-mirrored version exactly
+    johns = load_reference_island("Fancy A+B Side Overflow.spz2bp")
+    ours_cells = {(e["X"], e["Y"], e["L"]): (e["T"], e["R"]) for e in gv(isl["B"]["Entries"])}
+    john_cells = {(e["X"], e["Y"], e["L"]): (e["T"], e["R"]) for e in gv(johns["B"]["Entries"])}
+    assert ours_cells == john_cells, (
+        f"lane-fix diverges from John's version: "
+        f"{len(set(ours_cells.items()) ^ set(john_cells.items()))} differing cells")
     return blueprint_islands([isl])
 
 
-def vn09_stacker_empty_quadrants_fixed():
-    """`Stacker supporting empty quadrants` with both embedded `Fancy A+B Side
-    Overflow` units lane-fixed (see FANCY_AB_LANE_FIX). Drop-in replacement for the
-    stock component; everything else is byte-identical to John's original."""
+def load_fixed_stacker_islands():
+    """`Stacker supporting empty quadrants` island list with both embedded
+    `Fancy A+B Side Overflow` units lane-fixed (see FANCY_AB_LANE_FIX)."""
     islands = load_reference_islands("Stacker supporting empty quadrants.spz2bp")
     patched = 0
     for isl in islands:
@@ -550,7 +594,14 @@ def vn09_stacker_empty_quadrants_fixed():
             apply_fancy_ab_lane_fix(isl)
             patched += 1
     assert patched == 2, f"expected 2 Fancy A+B units, patched {patched}"
-    return blueprint_islands(islands)
+    return islands
+
+
+def vn09_stacker_empty_quadrants_fixed():
+    """`Stacker supporting empty quadrants` with both embedded `Fancy A+B Side
+    Overflow` units lane-fixed. Drop-in replacement for the stock component;
+    everything else is byte-identical to John's original."""
+    return blueprint_islands(load_fixed_stacker_islands())
 
 
 def vn07_reassembly_test():
@@ -575,6 +626,11 @@ def vn07_reassembly_test():
     All foundations reused verbatim/black-box from blueprints/reference/; only the
     SpaceBelt_* routing tiles (VN07_WIRING above) are hand-authored, copied exactly
     from John's tested layout.
+
+    NOTE (2026-09-03): now built on the LANE-FIXED stacker (see FANCY_AB_LANE_FIX).
+    The layout is otherwise identical to the version John validated in-game, but the
+    two embedded `Fancy A+B Side Overflow` units differ from what he tested, so this
+    wants a re-test to confirm nothing regressed.
     """
     def placed(filename, X, Y, Z, R):
         ref = load_reference_island(filename)
@@ -586,10 +642,9 @@ def vn07_reassembly_test():
     # west-end test rig: 4x Trash sinks + a splitter stage feeding them
     for i, y in enumerate((-1, 0, 1, 2)):
         islands.append(placed("Trash.spz2bp", X=-9, Y=y, Z=0, R=3))
-    # Stacker supporting empty quadrants (38 islands), offset to match John's layout
-    # (original reference has its Overflow platform at X=-5,Y=0; here it's X=-6,Y=1)
-    stacker_islands = load_reference_islands("Stacker supporting empty quadrants.spz2bp")
-    islands += translate_islands(stacker_islands, dx=-1, dy=1, dz=0)
+    # Stacker supporting empty quadrants (38 islands), lane-fixed, offset to match
+    # John's layout (stock reference has its Overflow platform at X=-5,Y=0; here X=-6,Y=1)
+    islands += translate_islands(load_fixed_stacker_islands(), dx=-1, dy=1, dz=0)
     # Demuxer (normalizes quadrant orientation) directly adjacent to Quad Splitter
     islands.append(placed("Demuxer.spz2bp", X=6, Y=0, Z=0, R=1))
     # Quad Splitter (the shape source for this test)

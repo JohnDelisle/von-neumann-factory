@@ -62,7 +62,7 @@ components into something cleaner and build a genuinely working MAM"):
    fixed; see below and conventions.md "Fancy A+B Side Overflow: the inner/outer
    lane-swap bug (fixed)". **Awaiting John's in-game confirmation.**
 
-## Fancy A+B lane-swap bug: FIXED (2026-09-03, needs in-game confirmation)
+## Fancy A+B lane-swap bug: FIXED, all 4 bands (2026-09-03, needs in-game confirmation)
 - **Symptom** (John): outer lanes of In A / In B overflow to "A+B Overflow" as the
   inner lanes, and vice versa. Inconsequential in practice, fixed for cleanliness.
 - **Root cause**: each band's OUTER rows tap overflow at splitter column X=9 (In B)
@@ -70,16 +70,24 @@ components into something cleaner and build a genuinely working MAM"):
   taps to the INNER final outputs and X=7/X=6 to the OUTER ones.
 - **Fix**: swap the splitter columns between outer and inner rows in each band, and
   shift each outer row's launcher hop one cell east (launchers fly over belts — a
-  trick John's own design already uses). 84 retyped cells, no buildings added or
-  removed, no crossings introduced.
-- **Verified by graph-walking the belts** (not by eye): all 8 lanes now map
-  outer->outer / inner->inner, and all 24 primary pass-through paths (8 rows x 3
-  floors) stay lane-preserving. Building counts byte-identical to the original.
-- **Shipped**: `VN-08 fancy A+B lane fixed` (standalone, for side-by-side compare)
-  and `VN-09 stacker empty quadrants fixed` (both embedded copies patched;
-  drop-in replacement for the stock component used by `VN-07`).
-- **If it tests good**, rebuild `VN-07` on top of `VN-09` so the reassembly test
-  uses the fixed stacker.
+  trick John's own design already uses). 168 retyped cells across all four bands,
+  no buildings added or removed (bar 2 stale warning labels), no crossings introduced.
+- **The component has FOUR bands** (In A / In B x north / south = 48 lanes), one per
+  island-row of the 2x4 foundation. The first pass only fixed the north half,
+  because only that half carried the "SHIT" warning labels; **John caught this and
+  mirrored the fix to the south half.** The patch is now generated from two base
+  patterns stamped at four band offsets (In B: 0, -20; In A: 0, -60).
+- **Cross-validated against John's own fix**: the generated patch is asserted at
+  build time to be cell-for-cell identical to his hand-mirrored version. Zero
+  differing cells; the build breaks if that ever stops holding.
+- **Verified by graph-walking the belts**: all 16 lanes map outer->outer /
+  inner->inner, and all 48 primary pass-through paths (16 lanes x 3 floors) stay
+  lane-preserving.
+- **Shipped**: `VN-08 fancy A+B lane fixed` (standalone), `VN-09 stacker empty
+  quadrants fixed` (both embedded copies patched), and `VN-07` rebuilt on top of
+  the fixed stacker.
+- **`VN-07` wants a re-test**: its layout is unchanged from the version John
+  validated in-game, but its two embedded Fancy A+B units now differ.
 
 ---
 
@@ -181,13 +189,15 @@ components into something cleaner and build a genuinely working MAM"):
   verbatim/black-box) + 5 SpaceBelt stub tiles (1 input east, 4 outputs west, one per
   quadrant row). Structurally validated (round-tripped, building count intact); NOT
   yet in-game confirmed. See PROGRESS "NEXT SESSION OBJECTIVE" for status.
-- `VN-08 fancy A+B lane fixed` — John's `Fancy A+B Side Overflow` with the
-  inner/outer lane-swap bug fixed (see above). Trace-verified; NOT yet in-game.
+- `VN-08 fancy A+B lane fixed` — `Fancy A+B Side Overflow` with the inner/outer
+  lane-swap bug fixed on all 4 bands (see above). Generated from the pre-fix
+  reference and asserted identical to John's own fixed version. Trace-verified.
 - `VN-09 stacker empty quadrants fixed` — `Stacker supporting empty quadrants`
   with both embedded Fancy A+B units lane-fixed. Drop-in replacement; everything
   else byte-identical to John's original. Trace-verified; NOT yet in-game.
 - `VN-07 reassembly test` — `Quad Splitter` -> `Demuxer` -> `Stacker supporting
-  empty quadrants` -> test-rig `Trash` sinks. **VALIDATED IN-GAME by John**
+  empty quadrants` (now LANE-FIXED, so re-test) -> test-rig `Trash` sinks.
+  Layout **VALIDATED IN-GAME by John**
   (2026-09-03): full round-trip, reassembles the original shape, tolerates one
   blank quadrant. All foundations verbatim/black-box from `blueprints/reference/`;
   wiring in `VN07_WIRING`, diffed byte-for-byte against John's tested file.

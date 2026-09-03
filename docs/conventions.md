@@ -268,6 +268,15 @@ INNER lanes, and the INNER lanes come out as the OUTER lanes. Inconsequential in
 practice (a given space belt always carries the same shape in the same orientation),
 but real.
 
+**The component is FOUR bands, not two.** `In A` and `In B` each appear TWICE —
+north and south — one band per island-row of the 2x4 foundation, 4 x 12 = 48 lanes
+(a full space belt), with two separate "A+B Overflow" output bands (north at local
+Y=37, south at Y=-38). Band Y-offsets: In B north rows 8-11, In B south rows
+-12..-9 (offset -20); In A north lanes 28-31, In A south lanes -32..-29 (offset
+-60). **Only the north half carried the "SHIT" labels**, which is why the first
+pass at this fix covered just those two bands — John caught it and mirrored the
+fix to the south half.
+
 **Root cause** (traced by walking the belt graph, not by eye): within each 4-lane
 band, the two OUTER rows tap their overflow at splitter column **X=9** (In B) /
 **X=8** (In A), while the two INNER rows tap at **X=7** / **X=6**. The downstream
@@ -277,13 +286,24 @@ pass-through is unaffected and was always lane-preserving.
 
 **Fix**: swap the splitter columns between each band's outer and inner rows, and
 shift each outer row's launcher hop one cell east so it flies over the cell the
-inner row's overflow now needs. 28 cells per floor x 3 floors = 84 retyped cells;
-no buildings added or removed, no belt crossings introduced, every downstream cell
-untouched. Encoded as `FANCY_AB_LANE_FIX` + `apply_fancy_ab_lane_fix()` in
-`build_modules.py` (asserts the exact pre-edit state, so a changed upstream
-reference fails loudly rather than silently mis-patching). Shipped as
-`VN-08 fancy A+B lane fixed` (standalone component) and
-`VN-09 stacker empty quadrants fixed` (both embedded copies patched).
+inner row's overflow now needs. 28 cells per band-pair per floor, stamped at all
+four band offsets = 168 retyped cells; no buildings added or removed (bar the two
+now-stale "SHIT" labels), no belt crossings introduced, every downstream cell
+untouched. Encoded as `FANCY_AB_LANE_FIX` (generated from two base patterns x four
+band offsets) + `apply_fancy_ab_lane_fix()` in `build_modules.py`, which asserts
+the exact pre-edit state so a changed upstream reference fails loudly rather than
+silently mis-patching.
+
+**Cross-validated against John's own fix**: `vn08_fancy_ab_lane_fixed()` applies the
+patch to `Fancy A+B Side Overflow (pre-lane-fix).spz2bp` and asserts the result is
+cell-for-cell identical to John's hand-mirrored `Fancy A+B Side Overflow.spz2bp`.
+Zero differing cells — the build fails if that ever stops holding.
+
+**Verified by tracing**: all 16 lanes (4 bands) land outer->outer / inner->inner,
+and all 48 primary pass-through paths (16 lanes x 3 floors) stay lane-preserving.
+Shipped as `VN-08 fancy A+B lane fixed` (standalone) and
+`VN-09 stacker empty quadrants fixed` (both embedded copies patched); `VN-07`
+now builds on the fixed stacker.
 
 **Launchers fly OVER belts.** The gap cells between a `BeltPortSender` and its
 `BeltPortReceiver` do NOT have to be empty — John's original design already fires
