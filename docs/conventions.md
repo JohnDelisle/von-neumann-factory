@@ -351,6 +351,24 @@ base64. Decoded bytes are `<type-tag> <payload>`:
 `Smart Filter`, `Shitty Mam v1`). This is the **Goal Receiver** — it emits the
 shape the HUB currently requests. Exact meaning of the `2` is unconfirmed — ask John.
 
+## The game's complete building-id list (extracted 2026-09-03)
+
+`shapez 2_Data/resources.assets` contains all **98** `*InternalVariant` building
+ids as plain ASCII. To re-extract, regex `[A-Za-z0-9_]{3,60}InternalVariant` over
+that file (and `Managed/SPZGameAssembly.dll`). **Use this instead of assuming a
+building doesn't exist because John's library doesn't use it.**
+
+The **virtual (wire-layer)** family in full:
+`VirtualAnalyzerDefault`, `VirtualRotatorDefault`, `VirtualRotatorCCW`,
+`VirtualPainterDefault`, `VirtualStackerDefault`, `VirtualUnstackerDefault`,
+`VirtualHalfCutterDefault`, `VirtualHalvesSwapperDefault`,
+`VirtualPinPusherDefault`, `VirtualCrystalGeneratorDefault`.
+
+Other ids worth knowing that John's library never uses:
+`ControlledSignalTransmitterInternalVariant` (pairs with the Goal Receiver —
+presumably what puts a shape on channel 123), `WireGlobalTransmitterReceiver`,
+`LogicGateAnd/Or/XOr`, `WireDefault1Up/2Up Forward|Left` variants.
+
 ## Virtual (wire-layer) processing semantics (inferred 2026-09-03)
 
 - `VirtualAnalyzerDefaultInternalVariant` — given a shape signal, yields that

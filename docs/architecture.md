@@ -449,6 +449,102 @@ pre-coloured supply + `Quaded Color Filter`), which multiplies the supply by the
 number of colours. **This decides the colour architecture — worth checking the
 in-game virtual building list before committing.**
 
+---
+
+## PHASED BUILD PLAN (John, 2026-09-03) + the Phase 1 circuit
+
+**Phases**: 0 base supply -> 1 single-layer shape -> 2 single-layer paint ->
+3 multi-layer -> 4 pins/supports -> 5 scale 4x to full belt.
+(John proposed 1-4; **Phase 0 and Phase 5 added** — the machine can't run
+continuously without four uniform base-shape belts, and the 4x replication is real
+work. Cross-cutting, not a phase: the **goal-change flush** — stale quadrants sit on
+the belts when the HUB request changes.)
+
+### The complete virtual (wire-layer) building list
+Extracted from `shapez 2_Data/resources.assets` — 98 `*InternalVariant` building ids
+in total, of which the virtual ones are:
+
+| Building | Use to us |
+|---|---|
+| `VirtualUnstackerDefault` | **layer extract — Phase 3 unblocked** |
+| `VirtualPainterDefault` | **colour normalisation — Phase 2 unblocked** |
+| `VirtualAnalyzerDefault` | quadrant extract (already used by the filter) |
+| `VirtualRotatorDefault` / `CCW` | rotate a shape signal (already used) |
+| `VirtualHalfCutterDefault`, `VirtualHalvesSwapperDefault` | cut/swap halves |
+| `VirtualPinPusherDefault` | Phase 4 |
+| `VirtualCrystalGeneratorDefault` | out of scope (no crystals in this save) |
+
+Also present and not yet used: `ControlledSignalTransmitter` (the sender that pairs
+with our channel-123 receiver), `WireGlobalTransmitterReceiver`, and
+`LogicGateAnd/Or/XOr` alongside the `If/Not/Compare` John already uses.
+
+### >>> Phase 1 needs NO new circuit <<<
+With each lane fed a uniform uncoloured `TTTT`, band `P` of lane `T` carries exactly
+one thing: **"T at position P"**. The existing fan already drives that band with
+**Q_P = the goal's quadrant at position P**, as a single-quadrant shape. The
+`BeltFilter` passes on equality, so
+
+```
+band P of lane T passes  <=>  "T at P" == "goal[P] at P"  <=>  goal[P] == T
+```
+
+which is precisely the wanted behaviour, for all four lanes, from the **unmodified**
+goal-driven `Quaded Filter`. Phase 1 is therefore **pure space-belt re-plumbing**:
+cut the X9 distribution column into four separate inputs, and merge the filter
+outputs band-by-band into one stacker.
+
+**Caveat — that holds only for an uncoloured, single-layer goal.** A real level-107
+HUB goal is coloured and multi-layer, and then `Q_P` matches no uncoloured
+single-quadrant item and the machine emits nothing. So Phase 1 validates against a
+hand-set simple goal; running against the live HUB needs the conditioner below.
+
+### The GOAL CONDITIONER — one small block, serves Phases 1-3
+Sits between the Goal Receiver and the existing rotate/analyze fan.
+
+```
+   Vortex goal (ch.123)
+        |
+        v
+   [VirtualUnstacker] x k   -> isolate layer L          (Phase 3; pass-through in Phase 1)
+        |
+        v
+   [VirtualPainter] <- const colour X                   (colour normalisation)
+        |
+        v
+   existing rotate/analyze fan  ->  Q_P^X   (4 bands, all forced to colour X)
+        |
+        v   per band P:
+   Compare( Q_P^X , const "T at P painted X" )  ->  bool
+        |
+   If( bool ) -> const "T at P UNCOLOURED"      -> band P's BeltFilters
+```
+
+**Why painting both sides works:** the painter overwrites whatever colour the goal
+carries, so the comparison becomes colour-blind, while the value the `If` emits is
+the *uncoloured* constant the physical uncoloured items actually match. Empty goal
+quadrants paint to empty, fail the compare, and emit null — bands pass nothing,
+which the empty-tolerant stacker already handles.
+
+**Size: ~18 cells** — 1 `VirtualPainter` + 1 colour constant + 4 x (`Compare` +
+`If` + 2 constants). The eight shape constants are **fixed per lane** (`Cu`/`Ru`/
+`Su`/`Wu` at each of the 4 positions), so it is one generated blueprint parameterised
+by type — trivial from `build_modules.py`.
+
+**It fits.** John's goal-driven filter has a contiguous free block at
+**X2-12 x Y24-26 (33 cells)** on L0, plus X2-12 x Y13-14, exactly where the preset
+bank used to be.
+
+For Phase 2 the same painter gives the colour signal the physical `Painter`s need;
+for Phase 3 the unstacker chain feeds one conditioner per layer engine.
+
+### !! Needed before this can be authored: one minimal reference
+We do not know the footprints or port layouts of `VirtualPainter`,
+`VirtualUnstacker` or `VirtualAnalyzer`, and inferring them from in-situ copies has
+already cost two round-trips. **Ask John for ONE blueprint** containing those three
+buildings, each with a `ConstantSignal` on every input and a `Display` on every
+output, and each boxed with belt on the floor above (his own trick). That single
+file unblocks Phases 1, 2 and 3 at once.
+
 ### Cheaper alternative worth weighing: pure-type lanes, merged before the stacker
 Instead of one mixed belt into four independent lanes, give each lane a **pure**
 base type and merge the four lanes' surviving quadrant streams into **one** stacker.
