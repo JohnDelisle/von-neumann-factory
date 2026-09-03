@@ -104,6 +104,19 @@ Belts: `BeltDefaultForwardInternalVariant`, `BeltDefaultLeftInternalVariant`,
   (-> a single quadrant). Pre-rotate the shape to choose which original quadrant
   survives.
 
+## Belt launchers / catchers (speed, not throughput)
+
+- A **belt launcher** serializes as `BeltPortSenderInternalVariant` and a **catcher**
+  as `BeltPortReceiverInternalVariant` -- the SAME types as platform edge ports. The
+  game treats a port as a launcher/catcher when it sits **mid-platform** (not on the
+  Y2/Y17 edge). No config (`C`=null); `R` = launch direction (R3 = north).
+- A launcher throws to the nearest catcher **ahead in its column**, across a **1-4 tile
+  gap** (leave the gap cells empty). Same items/min as belts -- they cut **traversal
+  time**, not throughput.
+- Use them to replace **straight belt runs** only; the dense butterfly (turns, splits,
+  cutters) stays as belts. See `VN-02` (John's launcher pass): middle lanes X9/X10 use
+  the full 4-tile hop, outer lanes the shorter hops.
+
 ## Module widths vary in John's library (don't assume uniform)
 
 - **Rotator, Pin Setter**: full **12-lane bus** (cols X8-11, floors L0-2),

@@ -62,7 +62,10 @@ truth; each change is committed + pushed.
 ## Next steps
 1. **Stage 1 - Quadrant isolator**: 1-lane proof (`VN-01`) VALIDATED. 12-lane build (John:
    full-12-lane-in-one-pass, per-lane selectable quadrant):
-   - **`VN-02 half-destroy 12lane`** BUILT (awaiting isolation test): `Clockwise`'s proven
+   - **`VN-02 half-destroy 12lane`** BUILT + VALIDATED (John: "great"), then John added
+     **belt launchers** on the straights (traversal-speed, not throughput; launcher=sender/
+     catcher=receiver mid-platform, see conventions.md) -- folded back into `build_modules.py`
+     as the source of truth (186 bldgs, regen set-equal to John's saved file). Original note: `Clockwise`'s proven
      split->op->merge butterfly is operation-agnostic (each item hits exactly 1 operator), so
      we swapped its 24 RotatorOneQuad -> CutterHalf to get a 12-lane full-throughput pass-through
      Half Destroyer (2 cutters/lane, south-in Y17/north-out Y2, island R=2). Keeps world-EAST half.
