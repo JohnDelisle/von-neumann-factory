@@ -64,3 +64,57 @@ Each stage is validated in isolation before it feeds the next.
 - Base-shape supply: where the map's shape/fluid patches are in this world, and
   how the kept vortex feeder network is arranged.
 - Ramp/launcher mechanic specifics and where they most help.
+
+---
+
+## Working design — single-layer constructive MAM (agreed 2026-09-03)
+
+Decisions with John: **start single-layer** (grow to multi-layer later),
+**quarter throughput first** (12-lane / 1×1 unit, tile ×4 to 48 after it works),
+**brain-driven color mixer** (one configurable paint path, any color on demand).
+
+### Target
+Build any **single-layer** shape the HUB requests: 4 quadrant positions
+(NE/SE/SW/NW), each either empty or a (shape-type ∈ {circle, square, star,
+windmill}, color ∈ 8 non-crystal). No crystals, no pins yet.
+
+### Per-slot synthesis (4 slots, one per quadrant position)
+Because base shapes are uniform (every quadrant of a circle is a circle), each
+slot is simply:
+1. **Shape-type mux** — 4→1 select the base shape for this slot (brain-gated;
+   gate OFF if the slot is empty in the requested shape).
+2. **Isolate** one quadrant → a single-quadrant piece at the SE position
+   (our `VN-02` → `VN-03` → `VN-02` isolator).
+3. **Rotate to position** — fixed per slot (0/1/2/3 × 90°) so the piece lands in
+   this slot's target quadrant. (`VN-03`-style rotate; fixed, not brain-driven.)
+4. **Paint** — brain-mixed target color (reuse `Painter` + a controllable color
+   mixer). Uncolored = bypass paint.
+
+### Assemble
+Stack the 4 positioned+painted single-quadrant pieces → one full layer → deliver.
+Relies on the Shapez mechanic that **stacking single-quadrant pieces at different
+positions merges them into one layer** (each top quadrant falls to the empty
+column below it). THIS IS THE KEY UNVALIDATED ASSUMPTION — validate first.
+
+### The brain
+Goal Receiver → requested shape code. Virtual Processing / logic decodes it into,
+per slot: shape-type select (2 bits or gate) + color-mixer control. Drives the 4
+muxes and 4 mixers. Build after the mechanical stages work.
+
+### Throughput note
+Single layer = 4:1 assembly (4 quadrant-syntheses per output shape). A 12-lane
+output unit ⇒ ~48 lanes of internal quadrant synthesis. Build the quarter unit,
+validate, then tile ×4 for full space belt.
+
+### Module roadmap / status
+- [x] Quadrant isolator: `VN-01` (1-lane proof), `VN-02`/`VN-03` (12-lane,
+      launcher-optimized). Isolator = `VN-02` → `VN-03` → `VN-02`.
+- [ ] **Assembler** (NEXT): validate stacking single-quadrant pieces → one layer,
+      then a 4-quadrant layer assembler. Needs exact `StackerStraight` port layout
+      (main vs "top/stack" input) — get a minimal 2-in→1-out stacker reference
+      from John, like we did for launchers.
+- [ ] Positioning: fixed per-slot rotate (reuse `VN-03` mechanics).
+- [ ] Painter tap + controllable color mixer (reuse `Painter`/`Paint Mixer`).
+- [ ] Shape-type 4→1 mux (brain-gated).
+- [ ] Brain: Goal Receiver decode → per-slot type+color control.
+- [ ] Base supply: map shape/fluid patch locations (read save or ask John).

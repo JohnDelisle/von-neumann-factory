@@ -79,8 +79,11 @@ truth; each change is committed + pushed.
      (derive by simulating flow through the butterfly). Build AFTER VN-02 validates.
    - John TEST: import `VN-02` alone, feed any full shape on all 4 lanes x 3 floors; expect only
      the world-EAST half (e.g. `CuCuCuCu` -> the two east quadrants) out on every lane.
-2. Stage 2 painter tap, Stage 3 assembler (stackers), Stage 4 brain (Goal
-   Receiver + Virtual Processing), Stage 5 parallelize x4.
+2. **Architecture agreed** (see architecture.md "Working design"): single-layer, 12-lane
+   quarter-scale, brain-driven color mixer. Per slot: shape-mux -> isolate -> fixed rotate ->
+   paint; stack 4 -> layer. NEXT = **assembler**: validate stacking single-quadrant pieces
+   into one layer (needs StackerStraight port layout - get a 2-in->1-out stacker ref from John).
+   Then painter+color-mixer, shape 4->1 mux, brain (Goal Receiver decode), then tile x4.
 3. Base supply: needs this world's shape-patch locations (circle/square/star/
    windmill) + fluid patches — read from the save map or ask John.
 
