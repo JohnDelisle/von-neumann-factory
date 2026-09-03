@@ -141,7 +141,45 @@ its channel `ConstantSignal` at `(3,23)` facing south. The build now asserts the
 full 3x3 footprint is clear, and that our int-signal encoder reproduces John's
 channel-123 bytes exactly.
 
-## >>> BLOCKED: where can the 3x3 receiver legally sit? <<<
+## >>> UNBLOCKED: John rebuilt the filter's input stage himself (2026-09-03) <<<
+`For Claude Filter with Signal.spz2bp` (now in `blueprints/reference/`) is the
+stock `Quaded Filter` with the whole preset bank torn out and replaced by a clean
+goal-driven front end. Diffed against the stock platform:
+
+| | |
+|---|---|
+| **+** | `ControlledSignalReceiverMirrored` at `(4,22)` R3 — 3x3 over X3-5 x Y21-23 |
+| **+** | `ConstantSignal` at `(6,22)` = **channel 123** — origin+2 east (`R+1`, mirrored) |
+| **+** | wire column north up X4 (Y16-20) from the receiver's output at `(4,20)` |
+| **+** | `LogicGateCompareMirrored` `(4,15)`, `LogicGateNot` `(5,16)`, null const `(4,14)` |
+| **+** | a `Display2x2` at `(9,22)` showing the received signal |
+| **−** | the entire preset bank: 6 buttons, 5 shape constants, 6 `IF` gates |
+| | net **1096 -> 1082** buildings |
+
+Note his receiver sits at **`(4,22)`**, well clear of the west edge — the placement
+our attempts kept colliding with — and its channel constant lands exactly where our
+derived `R+1`-for-mirrored rule predicted. The footprint rule was right; the
+*placement* was the problem, and it's his platform now.
+
+**We use it VERBATIM as a black box** (PLAYBOOK: reuse John's ecosystem, don't
+rebuild it). Our own placement code is deleted; what it taught lives in
+conventions.md.
+
+- **`VN-11 quaded filter goal driven`** = his platform, placed at the origin.
+- **`VN-12 MAM goal driven`** = lane-fixed Any Shape Maker with all four filter
+  islands' payloads swapped for his. Each island keeps its own X/Y/Z/R; asserted
+  same foundation + R, and all four verified cell-identical to his file.
+  **This is the MAM.**
+- **`VN-12 MAM preset CuRuSuWu`** kept as the known-good preset-driven A/B.
+- `VN-11b` dropped (its purpose — proving the button edit — is moot now that the
+  buttons are gone).
+
+**Still open: is channel 123 the real HUB goal channel?** John set it in his own
+file so it's presumably right, but `Shape Filter` uses 11 and `Smart Filter` 1000.
+It's the `ConstantSignal` at `(6,22)`, editable in-game.
+
+### What went wrong before John fixed it (kept as the lesson)
+## >>> was BLOCKED: where can the 3x3 receiver legally sit? <<<
 Footprint is settled; **placement is not.** Centred at `(3,25)` (footprint X2-4 x
 Y24-26, every cell verified free) the game rejected it as out of bounds — John:
 *"one unit too far towards the edge of the platform"*. In the multi-island VN-12
@@ -231,8 +269,11 @@ footprint, valid rotations and config in one shot. This is the PLAYBOOK's
 3. Set a HUB goal to a single-layer uncoloured shape and watch the west output.
 4. Change the HUB goal; the output should follow (expect a transient while stale
    quadrants clear the belts).
-5. Sanity fallback: switch the enabled button back to a preset slot (e.g.
-   `CuRuSuWu`) — the machine should behave exactly as John's original did.
+5. If nothing comes out, check the channel constant at `(6,22)` on any filter
+   platform — 123 may not be the channel the HUB goal is broadcast on.
+6. A/B fallback: **`VN-12 MAM preset CuRuSuWu`** is the same machine driven by the
+   old preset bank; if that works and the goal-driven one doesn't, it's the
+   channel or the receiver, not the machine.
 Screenshot of the output belt + any red X's, please.
 
 ### Still open (not blocking the test)

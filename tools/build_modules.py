@@ -749,16 +749,15 @@ def vn10_any_shape_maker_lane_fixed():
 
 
 # ---------------------------------------------------------------- VN-11 / VN-12
-# Making the `Quaded Filter` goal-driven.
+# The goal-driven `Quaded Filter`.
 #
-# The Quaded Filter's logic block (local L0, X3-16, Y13-26) is a target-shape
-# decomposer: one shape signal in -> VirtualRotator/VirtualAnalyzer fan -> four
-# per-quadrant signals -> wire transmitters -> the 4 bands' 48 BeltFilters.
-# Its INPUT is a 6-slot preset bank -- a ButtonDefault gating a ConstantSignal
-# through a LogicGateIf, once per slot:
+# The stock filter's logic block is a target-shape decomposer: one shape signal in
+# -> VirtualRotator/VirtualAnalyzer fan -> four per-quadrant signals -> wire
+# transmitters -> the 4 bands' 48 BeltFilters. Its input was a 6-slot preset bank
+# (a ButtonDefault gating a ConstantSignal through a LogicGateIf):
 #
 #   button (5,14) gates const (4,15) = null        "build nothing"
-#   button (5,16) gates const (4,17) = --CuCu--    (John's current selection)
+#   button (5,16) gates const (4,17) = --CuCu--
 #   button (5,18) gates const (4,19) = RuRuRuRu
 #   button (5,20) gates const (4,21) = SuSuSuSu
 #   button (5,22) gates const (4,23) = WuWuWuWu
@@ -767,137 +766,58 @@ def vn10_any_shape_maker_lane_fixed():
 # (`--CuCu--` and `CuRuSuWu` are the proof this machine builds ARBITRARY
 # single-layer shapes -- empty quadrants and four different types at once.)
 #
-# VN-11 replaces the LAST slot's ConstantSignal with the HUB Goal Receiver and
-# moves the enabled button to that slot. All five shape presets survive as manual
-# overrides John can flip in-game; nothing else in the platform changes.
-GOAL_RECEIVER_T = "ControlledSignalReceiverInternalVariant"
-GOAL_SLOT_CONST = (4, 25, 0)      # the CuRuSuWu preset -- removed
-GOAL_RECEIVER_CELL = (3, 25, 0)   # receiver origin = CENTRE of its 3x3
-GOAL_CHANNEL_CELL = (3, 23, 0)    # the channel ConstantSignal feeding it
-GOAL_SLOT_BUTTON = (5, 24, 0)     # its gating button -- switched ON
+# JOHN REPLACED THAT INPUT STAGE HIMSELF (`For Claude Filter with Signal.spz2bp`,
+# 2026-09-03) after our own attempt failed twice. His version, vs the stock filter:
+#   + ControlledSignalReceiverMirrored (4,22) R3 -- 3x3 over X3-5 x Y21-23
+#   + ConstantSignal (6,22) = channel 123        -- origin+2 east (= R+1, mirrored)
+#   + wire column north up X4 (Y16-20) from the receiver's output at (4,20)
+#   + LogicGateCompareMirrored (4,15), LogicGateNot (5,16), null const (4,14)
+#   + a Display2x2 at (9,22) showing the received signal
+#   - the entire button/preset bank (6 buttons, 5 shape constants, 6 IF gates)
+#   net 1096 -> 1082 buildings
+#
+# We use his platform VERBATIM as a black box (PLAYBOOK: reuse John's ecosystem,
+# don't rebuild it). Our own placement attempts are gone; what they taught is in
+# docs/conventions.md (receiver footprint, the two silent failure modes) and
+# docs/PLAYBOOK.md (never infer a footprint from in-situ copies).
 PRESET_BUTTONS = [(5, y, 0) for y in (14, 16, 18, 20, 22, 24)]
+PRESET_SLOT_CURUSUWU = (5, 24, 0)   # the button gating the CuRuSuWu constant
 BUTTON_ON, BUTTON_OFF = "AQ==", "AA=="
-
-# !! The channel the HUB's requested shape is broadcast on. John's minimal
-# reference uses 123 as a demo value; his `Shape Filter` listens on 11 and
-# `Smart Filter` on 1000, so this is per-network and only John knows the right
-# one. Editable in-game on the ConstantSignal at GOAL_CHANNEL_CELL.
-GOAL_CHANNEL = 123
-
-# Footprint, EXTRACTED from `For Claude Signal Receiver.spz2bp` -- John placed a
-# bare receiver on an empty 1x1 and drew a belt box around it on L1 so its size
-# is directly readable:
-#   L1 belt box outlines X 7-11 x Y 8-12  =>  interior X 8-10 x Y 9-11
-#   recorded origin (9,10) R3             =>  3x3 CENTRED on the origin cell
-#   output wire   at (9,8)  = origin - 2 along R (north)      -> emerges centre-front
-#   channel const at (7,10) = origin - 2 across (west, = R-1) -> enters centre-left
-# The "Mirrored" variant flips the channel side to R+1, which is exactly what
-# John's two in-situ instances show (`Shape Filter` mirrored R3: const to the
-# EAST at (6,35); `Smart Filter` mirrored R0: const to the SOUTH at (13,21)).
-#
-# So at R0 (facing east), non-mirrored, origin (3,25):
-#   footprint     X 2-4 x Y 24-26   (free once the CuRuSuWu const is removed)
-#   output        -> (5,25), the LogicGateIf the removed const used to drive
-#   channel input <- (3,23), where we place the channel ConstantSignal facing south
-#
-# The previous attempt guessed a 2-cell footprint from the in-situ instances
-# alone and stamped a blank platform -- see docs/PLAYBOOK.md.
 
 
 def int_signal_config(n):
-    """A `ConstantSignal` integer config: tag 0x03 + int32 little-endian.
-    Cross-checked below against John's own channel-123 constant."""
+    """A `ConstantSignal` integer config: tag 0x03 + int32 little-endian."""
     return config(base64.b64encode(b"\x03" + int(n).to_bytes(4, "little")).decode("ascii"))
 
 
-def _signal_receiver_reference():
-    """(receiver entry, channel-const entry) from John's minimal reference."""
+def check_int_signal_encoding():
+    """Self-check: our integer encoder must reproduce John's channel-123 constant
+    from `For Claude Signal Receiver.spz2bp` byte-for-byte."""
     ref = load_reference_island("For Claude Signal Receiver.spz2bp")
-    rx = cn = None
-    for e in gv(ref["B"]["Entries"]):
-        if e["T"] == GOAL_RECEIVER_T:
-            rx = e
-        elif e["T"] == "ConstantSignalDefaultInternalVariant":
-            cn = e
-    assert rx is not None and cn is not None, "minimal reference is not as described"
-    # our int encoder must reproduce John's channel-123 constant exactly
-    assert int_signal_config(123)["$value"] == cn["C"]["$value"], (
-        f"int signal encoding mismatch: ours {int_signal_config(123)['$value']!r} "
-        f"vs John's {cn['C']['$value']!r}")
-    return rx, cn
+    const = [e for e in gv(ref["B"]["Entries"])
+             if e["T"] == "ConstantSignalDefaultInternalVariant"]
+    assert len(const) == 1, "minimal receiver reference is not as described"
+    ours, johns = int_signal_config(123)["$value"], const[0]["C"]["$value"]
+    assert ours == johns, f"int signal encoding mismatch: ours {ours!r} vs John's {johns!r}"
 
 
-def goal_receiver_config():
-    """The receiver's own `C`, copied verbatim from John's minimal reference.
-    (Value `2`, identical in all 19 instances across his library -- it is NOT the
-    channel; the channel arrives on a wire from the ConstantSignal.)"""
-    return _signal_receiver_reference()[0]["C"]
-
-
-def make_quaded_filter_goal_driven(island_entry):
-    """Swap a `Quaded Filter` island's last preset slot for the HUB Goal Receiver,
-    in place. Asserts the whole preset bank is exactly where we expect first, so a
-    different Quaded Filter variant fails loudly instead of being mis-patched."""
-    buildings = gv(island_entry["B"]["Entries"])
-    index = {(e["X"], e["Y"], e["L"]): e for e in buildings}
-
-    for cell in PRESET_BUTTONS:
-        e = index.get(cell)
-        if e is None or e["T"] != "ButtonDefaultInternalVariant":
-            raise AssertionError(f"goal-drive: expected a Button at {cell}, got "
-                                 f"{e['T'] if e else 'nothing'}")
-    const = index.get(GOAL_SLOT_CONST)
-    if const is None or const["T"] != "ConstantSignalDefaultInternalVariant":
-        raise AssertionError(f"goal-drive: expected the CuRuSuWu ConstantSignal at "
-                             f"{GOAL_SLOT_CONST}, got {const['T'] if const else 'nothing'}")
-
-    # the receiver is 3x3 CENTRED on its origin -- every cell of it must be free
-    # (bar the ConstantSignal we are about to remove), and so must the channel cell
-    rx, ry, rL = GOAL_RECEIVER_CELL
-    occupied = []
-    for dx in (-1, 0, 1):
-        for dy in (-1, 0, 1):
-            cell = (rx + dx, ry + dy, rL)
-            e = index.get(cell)
-            if e is not None and cell != GOAL_SLOT_CONST:
-                occupied.append(f"{cell} {e['T']}")
-    if GOAL_CHANNEL_CELL in index:
-        occupied.append(f"{GOAL_CHANNEL_CELL} {index[GOAL_CHANNEL_CELL]['T']}")
-    if occupied:
-        raise AssertionError("goal-drive: receiver footprint/channel cells not free:\n  "
-                             + "\n  ".join(occupied))
-
-    # exactly one preset may be enabled: the goal slot
-    for cell in PRESET_BUTTONS:
-        set_config(index[cell], BUTTON_ON if cell == GOAL_SLOT_BUTTON else BUTTON_OFF)
-
-    kept = [e for e in buildings
-            if (e["X"], e["Y"], e["L"]) != GOAL_SLOT_CONST]
-    assert len(kept) == len(buildings) - 1
-    kept.append(be(GOAL_RECEIVER_T, X=rx, Y=ry, L=rL, R=0, C=goal_receiver_config()))
-    cx, cy, cL = GOAL_CHANNEL_CELL
-    kept.append(be("ConstantSignalDefaultInternalVariant", X=cx, Y=cy, L=cL, R=1,
-                   C=int_signal_config(GOAL_CHANNEL)))
-    island_entry["B"]["Entries"]["$values"] = kept
-    return island_entry
-
-
-def _goal_driven_quaded_filters(islands):
-    """Goal-drive every `Quaded Filter` platform in an island list. Identified by
-    John's own label, not by shape or building count."""
-    patched = 0
-    for isl in islands:
-        if isl["T"] == "Foundation_1x4" and "Quaded Filter" in label_texts(isl):
-            make_quaded_filter_goal_driven(isl)
-            patched += 1
-    return patched
+def load_goal_driven_filter():
+    """John's goal-driven `Quaded Filter` island, used verbatim as a black box."""
+    isl = load_reference_island("For Claude Filter with Signal.spz2bp")
+    assert isl["T"] == "Foundation_1x4", f"unexpected foundation {isl['T']}"
+    assert "Quaded Filter" in label_texts(isl), "not a Quaded Filter platform"
+    types = {e["T"] for e in gv(isl["B"]["Entries"])}
+    assert "ControlledSignalReceiverInternalVariantMirrored" in types, "no Goal Receiver"
+    assert "ButtonDefaultInternalVariant" not in types, \
+        "preset buttons still present -- this is not the goal-driven version"
+    return isl
 
 
 def extract_quaded_filter():
-    """The `Quaded Filter` platform from `Full Belt Any Shape Maker.spz2bp`, placed
-    alone at the origin. Extracted from the embedded copy (6 preset slots), NOT
-    from standalone `Filter.spz2bp` (5 slots, different shapes), so every VN-11*
-    variant and VN-12 share one code path."""
+    """The stock (preset-driven) `Quaded Filter` from `Full Belt Any Shape
+    Maker.spz2bp`, placed alone at the origin. Extracted from the embedded copy
+    (6 preset slots), NOT from standalone `Filter.spz2bp` (5 slots, different
+    shapes)."""
     islands = load_reference_islands("Full Belt Any Shape Maker.spz2bp")
     qf = [i for i in islands
           if i["T"] == "Foundation_1x4" and "Quaded Filter" in label_texts(i)]
@@ -915,55 +835,24 @@ def extract_quaded_filter():
 
 
 def vn11a_quaded_filter_verbatim():
-    """CONTROL 1: the embedded `Quaded Filter` extracted and re-placed at the
-    origin with ZERO edits. If this stamps correctly, extraction + placement are
-    sound and any failure in VN-11 is caused by our edits alone."""
+    """CONTROL: the stock preset-driven `Quaded Filter` extracted and re-placed at
+    the origin with ZERO edits. Kept as the known-good baseline to A/B against."""
     return blueprint_islands([extract_quaded_filter()])
 
 
-def vn11b_quaded_filter_preset_curusuwu():
-    """CONTROL 2: the embedded `Quaded Filter` with ONLY the button flip -- the
-    enabled preset moves from `--CuCu--` to `CuRuSuWu`, the ConstantSignal bank
-    left fully intact and no Goal Receiver added.
-
-    If this stamps and builds a circle/rect/star/windmill shape, then the button
-    edit and the whole arbitrary-shape claim are proven, and VN-11's blank
-    platform is down to the Goal Receiver building alone."""
-    isl = extract_quaded_filter()
-    index = {(e["X"], e["Y"], e["L"]): e for e in gv(isl["B"]["Entries"])}
-    for cell in PRESET_BUTTONS:
-        e = index[cell]
-        assert e["T"] == "ButtonDefaultInternalVariant", f"no button at {cell}"
-        set_config(e, BUTTON_ON if cell == GOAL_SLOT_BUTTON else BUTTON_OFF)
-    return blueprint_islands([isl])
-
-
 def vn11_quaded_filter_goal_driven():
-    """The `Quaded Filter` platform driven by the HUB Goal Receiver instead of its
-    button/ConstantSignal preset bank.
+    """The goal-driven `Quaded Filter` platform -- John's own
+    `For Claude Filter with Signal.spz2bp`, used VERBATIM as a black box.
 
-    !! NOT SHIPPED 2026-09-03 -- blocked on WHERE the receiver can legally sit.
-
-    Footprint is settled (3x3 centred on the origin, from John's minimal
-    reference). Placing it centred at (3,25) -- footprint X2-4 x Y24-26, every
-    cell verified free -- was rejected in-game as out of bounds, "one unit too far
-    towards the edge". That is NOT a reserved-column rule: 12,219 non-port
-    buildings sit on local X2/X17 across John's library, so those columns are
-    ordinary. Some other placement constraint applies to 3x3 buildings near an
-    edge, and we have no reference that isolates it.
-
-    Moving one cell inward (centre X=4, footprint X3-5) collides with the preset
-    bank: the X5 column is solid buttons and IF gates from Y14 to Y25, and X4
-    holds the six shape constants. So the receiver cannot sit adjacent to the
-    bank at all -- the nearest legal 3x3 blocks are at X8-11, Y23-25, and a wire
-    from there back to the bank has to cross the X6/X7 chain columns.
-
-    => needs John's call on routing (see PROGRESS.md). Ship
-    vn12_mam_preset_curusuwu() meanwhile, which proves everything except the
-    goal wiring. GOAL_CHANNEL is also still a placeholder -- see its definition.
+    He rebuilt the input stage himself after our two attempts failed: receiver at
+    (4,22) R3 (3x3 over X3-5 x Y21-23), channel constant 123 at (6,22), a wire
+    column north up X4 into a Compare/Not stage, and the whole button/preset bank
+    removed. Component blueprint; VN-12 stamps four of these.
     """
-    isl = extract_quaded_filter()
-    make_quaded_filter_goal_driven(isl)
+    check_int_signal_encoding()
+    src = load_goal_driven_filter()
+    isl = island(src["T"], X=0, Y=0, Z=0, R=src["R"])
+    isl["B"] = src["B"]
     return blueprint_islands([isl])
 
 
@@ -1004,7 +893,7 @@ def vn12_mam_preset_curusuwu():
     n = 0
     for isl in islands:
         if isl["T"] == "Foundation_1x4" and "Quaded Filter" in label_texts(isl):
-            select_preset(isl, GOAL_SLOT_BUTTON)
+            select_preset(isl, PRESET_SLOT_CURUSUWU)
             n += 1
     assert n == 4, f"expected 4 Quaded Filter platforms, switched {n}"
     return blueprint_islands(islands)
@@ -1012,15 +901,26 @@ def vn12_mam_preset_curusuwu():
 
 def vn12_mam_goal_driven():
     """THE MAM: lane-fixed `Full Belt Any Shape Maker` with all four `Quaded
-    Filter` platforms driven by the HUB Goal Receiver.
+    Filter` platforms swapped for John's goal-driven version (VN-11).
 
-    !! NOT SHIPPED -- blocked on where the receiver can legally sit; see
-    vn11_quaded_filter_goal_driven(). Kept wired up so it builds the moment the
-    placement is settled.
+    Full belt of mixed uncoloured base shapes in; full belt of whatever
+    single-layer shape the HUB requests out. Each filter island keeps its own
+    X/Y/Z/R and only its building payload `B` is replaced -- building-local
+    coordinates are independent of island placement, and both foundations are
+    `Foundation_1x4` at the same R (asserted below).
     """
+    check_int_signal_encoding()
     islands = _lane_fixed_any_shape_maker()
-    filters = _goal_driven_quaded_filters(islands)
-    assert filters == 4, f"expected 4 Quaded Filter platforms, patched {filters}"
+    n = 0
+    for isl in islands:
+        if isl["T"] == "Foundation_1x4" and "Quaded Filter" in label_texts(isl):
+            src = load_goal_driven_filter()   # fresh copy per island, no aliasing
+            assert src["T"] == isl["T"] and src["R"] == isl["R"], (
+                f"filter mismatch: John's {src['T']} R{src['R']} vs "
+                f"embedded {isl['T']} R{isl['R']}")
+            isl["B"] = src["B"]
+            n += 1
+    assert n == 4, f"expected 4 Quaded Filter platforms, swapped {n}"
     return blueprint_islands(islands)
 
 
@@ -1037,13 +937,9 @@ MODULES = {
     "VN-09 stacker empty quadrants fixed": vn09_stacker_empty_quadrants_fixed,
     "VN-10 any shape maker lane fixed": vn10_any_shape_maker_lane_fixed,
     "VN-11a filter verbatim": vn11a_quaded_filter_verbatim,
-    "VN-11b filter preset CuRuSuWu": vn11b_quaded_filter_preset_curusuwu,
+    "VN-11 quaded filter goal driven": vn11_quaded_filter_goal_driven,
     "VN-12 MAM preset CuRuSuWu": vn12_mam_preset_curusuwu,
-    # Goal-driven builds are BLOCKED on the receiver's legal placement -- see
-    # vn11_quaded_filter_goal_driven(). Deliberately not generated: shipping a
-    # blueprint we know the game rejects just costs John a stamp.
-    # "VN-11 quaded filter goal driven": vn11_quaded_filter_goal_driven,
-    # "VN-12 MAM goal driven": vn12_mam_goal_driven,
+    "VN-12 MAM goal driven": vn12_mam_goal_driven,
 }
 
 if __name__ == "__main__":
