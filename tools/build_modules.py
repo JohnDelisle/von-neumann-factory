@@ -332,12 +332,51 @@ def vn04_stacker_2in_1lane():
     return blueprint_islands([island("Foundation_1x1", buildings=b)])
 
 
+
+def vn05_assembler_1lane_4quad():
+    """1-lane single-layer assembler: 4 separate quadrant inputs -> stacked layer.
+
+    Chain of 3 StackerStraight on L0, column X9, flowing north. Each stacker takes
+    its BOTTOM from behind (south, L0) and its TOP from the cell above it (L1).
+    Four SEPARATE inputs (no shape-mixing on one belt):
+      q1 (main)  : south edge, L0  (X9,Y17)
+      q2,q3,q4   : east edge, L1, one per stacker row, run west into the top port
+    Output: north edge, L0 (X9,Y2). Feed four DISJOINT single-quadrant pieces (one
+    per position NE/SE/SW/NW) -> one merged 4-quadrant layer out.
+    Chain: s1=q1+q2 -> p; s2=p+q3 -> p; s3=p+q4 -> layer.
+    """
+    X=9
+    rows=[14,11,8]   # stacker Y rows (s1,s2,s3)
+    b=[]
+    # L0 main chain
+    b.append(be("BeltPortReceiverInternalVariant", X=X, Y=17, L=0, R=3))
+    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=16, L=0, R=3))
+    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=15, L=0, R=3))
+    b.append(be("StackerStraightInternalVariant", X=X, Y=14, L=0, R=3))  # s1
+    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=13, L=0, R=3))
+    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=12, L=0, R=3))
+    b.append(be("StackerStraightInternalVariant", X=X, Y=11, L=0, R=3))  # s2
+    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=10, L=0, R=3))
+    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=9, L=0, R=3))
+    b.append(be("StackerStraightInternalVariant", X=X, Y=8, L=0, R=3))   # s3
+    for y in range(7, 2, -1):
+        b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=y, L=0, R=3))
+    b.append(be("BeltPortSenderInternalVariant", X=X, Y=2, L=0, R=3))
+    # L1 top feeds: east edge receiver -> west belts -> into (X9,row,L1) top port (left empty)
+    for row in rows:
+        b.append(be("BeltPortReceiverInternalVariant", X=17, Y=row, L=1, R=2))  # east edge, faces west
+        for x in range(16, X, -1):   # X16..X10 belts west; X9 left empty = stacker top port
+            b.append(be("BeltDefaultForwardInternalVariant", X=x, Y=row, L=1, R=2))
+    return blueprint_islands([island("Foundation_1x1", buildings=b)])
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
     "VN-02 half-destroy 12lane": vn02_halfdestroy_12lane,
     "VN-03 rotate90CW 12lane": vn03_rotate90cw_12lane,
     "VN-04 stacker 2in 1lane": vn04_stacker_2in_1lane,
+    "VN-05 assembler 1lane 4quad": vn05_assembler_1lane_4quad,
 }
 
 if __name__ == "__main__":
