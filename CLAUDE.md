@@ -26,11 +26,13 @@ validated in-game (`VN-07`: `Quad Splitter` -> `Demuxer` -> lane-fixed
 `Stacker supporting empty quadrants`), as is the Fancy A+B lane fix (`VN-08`/`VN-09`).
 Everything built so far is a **fixed recipe** — nothing chooses anything yet.
 
-Next session John wants to settle, together: **MAM architecture, the missing building
-blocks, and logical next steps.** Don't start implementing (no 2-type mix, no new
-blueprints) until that's agreed. Read PROGRESS.md ">>> NEXT SESSION OBJECTIVE" first —
-it carries the have/missing inventory and the open questions. Bring a proposed
-architecture and trade-offs, not a blank page.
+**Architecture reviewed 2026-09-03**: decoding `Full Belt Any Shape Maker` showed
+John already has ~85% of the MAM built — the `Quaded Filter` platform IS the brain
++ per-position type select, driven today by buttons instead of the Goal Receiver.
+Read PROGRESS.md ">>> ARCHITECTURE SESSION" and architecture.md ">>> BIG FINDING"
+first. Proposed next: `VN-10` (lane-fix the Any Shape Maker) then `VN-11` (swap the
+button bank for `ControlledSignalReceiver`). **Awaiting John's go-ahead and his
+answers to the open questions** before building.
 
 ## Workflow per change
 Edit `tools/build_modules.py` -> regenerate -> copy the `.spz2bp` into the in-game

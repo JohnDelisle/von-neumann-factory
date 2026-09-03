@@ -332,6 +332,53 @@ diffed byte-for-byte against John's tested file, exact match on every foundation
 except the 4 disposal-only `Trash` sinks (same building count, trivially different
 internal content — harmless, they're test scaffolding, not reassembly logic).
 
+## Wire-signal config encoding (decoded 2026-09-03)
+
+`ConstantSignalDefaultInternalVariant` (and friends) store their value in `C` as
+base64. Decoded bytes are `<type-tag> <payload>`:
+
+| tag | meaning | payload | example |
+|-----|---------|---------|---------|
+| `03` | integer | int32 LE | `03 e8 03 00 00` = 1000 |
+| `05` | null / empty signal | *(none)* | `05` |
+| `06` | shape | `01 01 <len:u16 LE> <ASCII shape code>` | `06 01 01 08 00 "CuCuCuCu"` |
+| `07` | colour | `01 <ASCII colour char>` | `07 01 72` = `r` |
+
+`ButtonDefaultInternalVariant`: `C` = single byte `00` (off) / `01` (on).
+`LabelDefaultInternalVariant`: `C` = `<len:u16 LE> <UTF-8 text>` (see above).
+`ControlledSignalReceiverInternalVariant(+Mirrored)`: `C` = int32 LE channel/slot;
+**every instance in John's library uses `2`** (18 of them across `Shape Filter`,
+`Smart Filter`, `Shitty Mam v1`). This is the **Goal Receiver** — it emits the
+shape the HUB currently requests. Exact meaning of the `2` is unconfirmed — ask John.
+
+## Virtual (wire-layer) processing semantics (inferred 2026-09-03)
+
+- `VirtualAnalyzerDefaultInternalVariant` — given a shape signal, yields that
+  shape's **NE quadrant**. To extract an arbitrary quadrant: rotate the shape so
+  that quadrant lands in NE, analyze, then rotate back by the inverse.
+- `VirtualRotatorDefaultInternalVariant` / `...CCWInternalVariant` — rotate a shape
+  signal 90 CW / CCW in the wire layer.
+- `WireTransmitterSenderInternalVariant` / `...Receiver` — wireless signal relay
+  pair; John uses them to carry a signal between bands of a tall foundation instead
+  of running wire the whole length.
+- `LogicGateIfInternalVariant(+Mirrored)` chained with `ButtonDefault` +
+  `ConstantSignalDefault` = John's standard **priority-select / preset bank**
+  (first enabled button wins).
+
+## `Quaded Filter` (`Filter.spz2bp` / `Quaded Filter.spz2bp`) port map
+
+`Foundation_1x4`, 1068-1096 buildings. **4 bands x 12 lanes = 48 lanes (full belt).**
+- Band order north->south: **NW, SW, SE, NE** (labelled in-blueprint).
+- Band `k` (0..3) occupies local `Y = 20k - 12 .. 20k - 9` (= -12..-9, 8..11,
+  28..31, 48..51), floors L0-L2, 4 lanes each.
+- **Input**: EAST edge, local `X=17`, `R2` (flows west). **Output**: WEST edge,
+  local `X=2`, `R2`. One `BeltFilterDefault` per lane sits mid-band.
+- Logic block: local X3-16, Y15-23, L0 — preset bank -> quadrant decomposer ->
+  wire transmitters (see architecture.md for what it computes).
+
+`Quaded Color Filter` is the same 4-band `Foundation_1x4` shell (R2) with **four
+independent** per-band selectors over `r` / `g` / `b` / null.
+
 **Red X's on stamp are EXPECTED for this design, not errors.** Each Stacker
 platform's "Top" input has two alternate physical entry points with a
 `"USE ONE INPUT ONLY"` label between them (see above) — the game flags the unused

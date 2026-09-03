@@ -49,6 +49,14 @@ here the moment it recurs; keep it practical. Read this + PROGRESS on resume._
 - Give John a crisp test recipe (what to feed, what to expect) + ask for a screenshot.
 
 ## Reverse-engineering John's modules (method that works)
+0. **Census the whole library BEFORE designing anything new.** Run a building-type
+   census over `blueprints/2026/` and decode the labels of every big blueprint. We
+   spent a session planning to invent "the brain" and a "per-position type select"
+   — both already existed, built and working, inside `Quaded Filter` /
+   `Full Belt Any Shape Maker`. A 200-line decode script beat a session of design.
+   Cheap tells: `Virtual*` = wire-layer shape maths, `ControlledSignalReceiver` =
+   the HUB goal signal, `BeltFilter` = a gated lane, `Button`+`ConstantSignal` =
+   a manual stand-in for a signal we're meant to supply.
 1. **Read the labels first.** `LabelDefaultInternalVariant` buildings carry real
    text: `raw = base64.b64decode(C["$value"]); text = raw[2:].decode("utf-8")`
    (2-byte LE length prefix, then UTF-8). John annotates everything — "Bottom",

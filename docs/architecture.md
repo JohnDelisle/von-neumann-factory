@@ -168,3 +168,124 @@ Composition needs each module's foundation footprint + port map (extract next).
 Capability needed for assemblies: place islands (foundation/space-belt tiles at
 island X,Y,Z,R) and route SpaceBelt_* tiles between module ports. (Studying John's
 multi-island blueprints to learn the island-grid + space-belt conventions.)
+
+---
+
+## >>> BIG FINDING (2026-09-03): John already has ~85% of the MAM built <<<
+
+Decoding `Full Belt Any Shape Maker.spz2bp` (and `Quaded Filter` / `Filter` /
+`Quaded Color Filter` / `Smart Filter`) changed the picture completely. **Most of
+the "missing building blocks" PROGRESS.md listed already exist in John's library.**
+
+### `Full Belt Any Shape Maker` == `MAM working` (same machine, two names)
+Byte-level: identical island composition and building total (64 972), the second
+just translated +1 in X. It is a **full-belt, single-layer, uncolored any-shape
+synthesizer**, and it is **exactly VN-07 plus one platform** — the `Quaded Filter`.
+
+Four identical lanes (one per quarter-belt), each:
+
+```
+mixed base shapes (1/4 belt, 12 lanes)
+  -> Quad Splitter   (2x4_Flipped, 3097)   -> 4 quadrant streams (48 lanes)
+  -> Demuxer         (2x4, 2739)           -> orientation normalized
+  -> Quaded Filter   (1x4, 1096)  <<< THE BRAIN + PER-POSITION SELECT
+  -> Stacker supporting empty quadrants
+       (2 x "Fancy A+B" 2x4 + 3 x 2x2 stackers + Overflow 1x1)
+  -> 1/4 belt of the requested shape
+```
+Plus 20 `Overflow` 1x1 sinks (eat rejected quadrants) and 4 `Trash` 1x1.
+x4 lanes = full space belt in, full space belt out.
+
+### What `Quaded Filter` actually is (the decode we thought we had to invent)
+A `Foundation_1x4`, 4 bands of 12 lanes (48 total). Band order north->south =
+**NW, SW, SE, NE**; band k occupies local `Y = 20k-20+8 .. 20k-20+11` (i.e. -12..-9,
+8..11, 28..31, 48..51), EAST in (X17, R2), WEST out (X2, R2), floors L0-L2.
+One `BeltFilterDefault` per lane (48 total) gates each lane.
+
+Its logic block (local X3-16, Y15-23, L0) is **a target-shape decomposer**:
+1. **Target shape signal in.** Today: 4 `ConstantSignalDefault` presets
+   (`CuCuCuCu`, `RuRuRuRu`, `SuSuSuSu`, `WuWuWuWu`) selected by 4 `ButtonDefault`
+   through a `LogicGateIf` priority chain. **These are a manual stand-in for the
+   Goal Receiver — nothing else about the machine is hardcoded.**
+2. **Decompose into 4 quadrant signals.** A symmetric `VirtualRotator` /
+   `VirtualAnalyzer` fan at X8-12, Y17-20: four paths applying 0 / 1 CW / 1 CCW /
+   2 rotations, each into a `VirtualAnalyzer` (which yields the NE quadrant), then
+   the inverse rotation back. Result: the target shape's NE, SE, SW, NW quadrants
+   as four independent shape signals.
+3. **Distribute.** 6 `WireTransmitterSender`/`Receiver` pairs carry each band's
+   quadrant signal to that band's 12 `BeltFilter`s.
+
+=> **A band passes only quadrants matching the corresponding quadrant of the
+target shape.** The stacker then assembles exactly the requested shape, and empty
+target quadrants simply pass nothing (which is why the empty-quadrant-tolerant
+stacker is the one wired in).
+
+**So the per-position type SELECT and the shape-decode brain are BOTH already
+built and validated.** What's hardcoded is only *where the target shape comes from*.
+
+### `Quaded Color Filter` — per-position colour select, also already built
+Same `Foundation_1x4` 4-band shape, but **4 independent selectors, one per band**,
+each choosing between `r`, `g`, `b` and `null` (`ConstantSignal` tags `07 01 <char>`
+and the bare `05` null). It **filters painted quadrants by colour per position** —
+it does not paint. Only 3 primaries + none, not the full 8-colour palette.
+
+### `Smart Filter` / `Shape Filter` — the Goal Receiver plumbing, already proven
+Both contain `ControlledSignalReceiverInternalVariantMirrored` with config
+`00 00 00 02` (an int32 channel/slot = 2, identical in all 18 instances across
+`Shape Filter`, `Smart Filter` and `Shitty Mam v1`). `Shape Filter` pairs it with
+12 `BeltReader` + 12 `LogicGateCompare` + 12 `BeltFilter` = "pass only the shape
+the HUB currently wants". **This is the Goal-Receiver wiring we said we had to
+design.** (Confirm with John exactly what the `2` selects.)
+
+---
+
+## Revised architecture (proposal, 2026-09-03) — needs John's call
+
+The honest reframing: **architecture.md's "constructive vs generate-and-filter"
+dichotomy was the wrong axis.** John's machine is *constructive at the shape level*
+(it stacks the output from selected quadrants) and *filter-based at the quadrant
+level* (it picks the quadrants it needs out of a mixed supply). That hybrid is
+already built, full-belt, and mostly validated.
+
+### The remaining gap list (real, after the finding above)
+| # | Gap | Status |
+|---|-----|--------|
+| 1 | Target shape from the HUB, not buttons | `ControlledSignalReceiver` proven in `Shape Filter`; needs grafting into `Quaded Filter` |
+| 2 | Colour | `Quaded Color Filter` filters r/g/b/none per position; needs a coloured supply, and 8 colours not 3 |
+| 3 | Multi-layer | unbuilt; needs layer decompose + a layer stacker chain |
+| 4 | Base supply | mixed uncoloured belt of the 4 base types; patches in the working save still TBD |
+| 5 | Quadrant waste / throughput | with a 4-type mixed supply each band rejects ~3/4 of arrivals |
+| 6 | Goal-change transient | belts full of old quadrants when the HUB request changes |
+| 7 | Pins / crystals | out of scope for v1 (no crystals in the working save) |
+
+### Proposed sequencing (smallest validated step first, per PLAYBOOK)
+- **Step 1 — `VN-10`: lane-fix + adopt `Full Belt Any Shape Maker`.** It embeds 4
+  copies of the buggy `Fancy A+B Side Overflow` (the "SHIT" labels are still in
+  there). Regenerate it from code on top of `load_fixed_stacker_islands()`. Cheap,
+  purely mechanical, and gives us the whole machine under version control.
+- **Step 2 — `VN-11`: Goal-driven `Quaded Filter`.** Replace the button +
+  `ConstantSignal` bank with `ControlledSignalReceiver` (copy the exact wiring from
+  `Shape Filter`). One platform changed; everything downstream untouched. **This is
+  the single edit that turns "Any Shape Maker" into a MAM.**
+- **Step 3 — validate end-to-end uncoloured**, single layer, against live HUB goals.
+- **Step 4 — colour.** Decide paint-before-assembly vs filter-a-coloured-supply
+  (see the open question below).
+- **Step 5 — multi-layer.**
+
+### The open questions for John (decide before building)
+1. **Colour strategy.** (a) *Filter*: supply every base type in every colour and let
+   an extended `Quaded Color Filter` pick — trivially reuses what exists, but the
+   supply mix explodes (4 types x 8 colours) and waste goes way up. (b) *Paint*:
+   put a brain-controlled `Painter` on each quadrant stream after the `Quaded
+   Filter` and before the stacker — much less supply, but needs a signal-driven
+   paint selector we don't have. **Recommend (b)**, but John knows the paint
+   plumbing cost.
+2. **Supply mix vs waste.** A single mixed belt makes every band throw away ~3/4 of
+   what it sees. Alternative: a signal-driven type router upstream so each Quad
+   Splitter is fed the type that lane needs. Worth it, or is overflow-and-recycle
+   fine at this scale?
+3. **What does `ControlledSignalReceiver` config `2` select?** (Which HUB goal
+   slot / channel.) John built it — one sentence saves a session.
+4. **Multi-layer**: is v1 single-layer, or do we design the layer stack in now?
+5. **`Full Belt Any Shape Maker` vs `MAM working`** — which name survives? (They're
+   the same machine; we should keep one.)
