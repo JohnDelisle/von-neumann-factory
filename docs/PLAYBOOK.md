@@ -45,6 +45,11 @@ here the moment it recurs; keep it practical. Read this + PROGRESS on resume._
   floor). Off-band => won't stamp (red X). This bit us on VN-05.
 - **Grid render** each floor (ASCII) and eyeball flow: inputs, operators, outputs,
   turns, lifts. (See /tmp grid helpers or re-create.)
+- **Config sanity**: every non-null building `C` must be
+  `{"$type": "System.Byte[], mscorlib", "$value": ...}`. A config missing `$type`
+  makes the game drop the whole file **silently** — it just never shows up in the
+  blueprint folder. `check_configs()` enforces this in the build loop; never
+  rebuild a `C` dict from scratch, use `set_config()`.
 - Mirror to the in-game VN folder and `cmp` to confirm the copy is identical.
 - Give John a crisp test recipe (what to feed, what to expect) + ask for a screenshot.
 

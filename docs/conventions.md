@@ -365,6 +365,22 @@ shape the HUB currently requests. Exact meaning of the `2` is unconfirmed — as
   `ConstantSignalDefault` = John's standard **priority-select / preset bank**
   (first enabled button wins).
 
+## A building config `C` MUST carry `$type` (learned the hard way 2026-09-03)
+
+`C` is either `null` or the object
+`{"$type": "System.Byte[], mscorlib", "$value": "<base64>"}`.
+**Omitting `$type` makes the game reject the ENTIRE blueprint file — silently.**
+No error, no red X: the file simply never appears in the in-game blueprint folder,
+which reads as a failed folder refresh. VN-11/VN-12 shipped this way once (a button
+config was rebuilt as `{"$value": ...}`); John spotted the missing entries.
+
+=> use `config()` / `set_config()` in `build_modules.py`, which preserve `$type`,
+and never rebuild a config dict from scratch. `check_configs()` runs over every
+generated module in the build loop so this fails the build instead of the game.
+
+**Diagnostic rule: a blueprint that doesn't show up in-game at all is a malformed
+file, not a stale folder.** Files that merely place badly still appear (with red X's).
+
 ## Multi-cell buildings record only their ORIGIN cell (2026-09-03)
 
 A blueprint entry gives one `X,Y,L` even for buildings larger than 1x1 — the extra

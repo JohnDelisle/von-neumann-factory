@@ -40,6 +40,43 @@ def load_reference_islands(filename):
     ver, d = decode_bp(path)
     return gv(d["BP"]["Entries"])
 
+BYTE_ARRAY_TYPE = "System.Byte[], mscorlib"
+
+def config(b64):
+    """A building `C` blob. The `$type` key is NOT optional -- a config object
+    without it makes the game reject the ENTIRE blueprint file silently (it just
+    never appears in the in-game folder). Cost us a round-trip; see
+    check_configs()."""
+    return {"$type": BYTE_ARRAY_TYPE, "$value": b64}
+
+def set_config(entry, b64):
+    """Set a building entry's config value, preserving its existing `$type`."""
+    if isinstance(entry.get("C"), dict):
+        entry["C"]["$value"] = b64
+    else:
+        entry["C"] = config(b64)
+    return entry
+
+def check_configs(bp):
+    """Every non-null `C` must be an object carrying `$type` (see config()).
+    Run over every generated module so a malformed config fails the build instead
+    of producing a file the game silently ignores."""
+    bad = []
+    def visit(entries, where):
+        for e in gv(entries):
+            c = e.get("C")
+            if c is None:
+                continue
+            if not isinstance(c, dict) or "$type" not in c or "$value" not in c:
+                bad.append(f"{where} {e.get('T')} @({e.get('X')},{e.get('Y')},{e.get('L')}): {c!r}")
+    for isl in gv(bp["BP"]["Entries"]):
+        visit((isl.get("B") or {}).get("Entries"), f"island({isl.get('X')},{isl.get('Y')})")
+        if "B" not in isl:
+            visit([isl], "island-entry")
+    if bad:
+        raise AssertionError("malformed building configs (missing $type):\n  " + "\n  ".join(bad))
+    return bp
+
 def label_texts(island_entry):
     """Every `LabelDefaultInternalVariant` text inside an island entry.
     Label config is base64(<len:u16 LE> + UTF-8) -- see docs/conventions.md.
@@ -783,9 +820,7 @@ def make_quaded_filter_goal_driven(island_entry):
 
     # exactly one preset may be enabled: the goal slot
     for cell in PRESET_BUTTONS:
-        e = index[cell]
-        e["C"] = {"$value": BUTTON_ON if cell == GOAL_SLOT_BUTTON else BUTTON_OFF} \
-            if isinstance(e.get("C"), dict) else (BUTTON_ON if cell == GOAL_SLOT_BUTTON else BUTTON_OFF)
+        set_config(index[cell], BUTTON_ON if cell == GOAL_SLOT_BUTTON else BUTTON_OFF)
 
     kept = [e for e in buildings
             if (e["X"], e["Y"], e["L"]) != GOAL_SLOT_CONST]
@@ -873,7 +908,7 @@ if __name__ == "__main__":
     outdir = sys.argv[1] if len(sys.argv) > 1 else "blueprints"
     os.makedirs(outdir, exist_ok=True)
     for name, fn in MODULES.items():
-        code = encode_bp(5, fn())
+        code = encode_bp(5, check_configs(fn()))
         with open(os.path.join(outdir, name + ".spz2bp"), "w") as f:
             f.write(code)
         print("wrote", name, f"({len(code)} bytes)")

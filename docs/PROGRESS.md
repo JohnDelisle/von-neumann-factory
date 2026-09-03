@@ -115,6 +115,13 @@ origin cell plus the next along R, driving the wire cell at origin+2. VN-11 plac
 it accordingly. **If it red-X's, it's a one-cell footprint error — shift the origin
 and rebuild.** Everything else in VN-11/VN-12 is John's own verbatim.
 
+**First cut of VN-11/VN-12 was a dud — fixed.** They didn't appear in the in-game
+folder at all: the button config had been rebuilt as `{"$value": ...}`, dropping
+`"$type": "System.Byte[], mscorlib"`, and the game **silently discards a blueprint
+file with a malformed config**. Rebuilt via `set_config()`, and `check_configs()`
+now runs over every module in the build loop so it can't recur. Remember the
+diagnostic: **missing from the folder = malformed file, not a stale refresh.**
+
 ### TEST RECIPE for John
 1. Refresh the in-game blueprint folder; stamp **`VN-12 MAM goal driven`**.
 2. Feed its east input a full belt of **mixed uncoloured base shapes** (Cu/Ru/Su/Wu).
