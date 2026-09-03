@@ -304,11 +304,40 @@ def vn03_rotate90cw_12lane():
     return blueprint_islands([island("Foundation_1x1", R=2, buildings=b)])
 
 
+
+def vn04_stacker_2in_1lane():
+    """1-lane 2-input stacker primitive (validates StackerStraight ports).
+
+    From John's StackerStraight ref: bottom (main) enters from behind (south, same
+    floor); top (stack) enters from the cell directly ABOVE the stacker (L1);
+    output exits forward (north), same floor. Here both inputs enter the south edge
+    - bottom on L0, top on L1 - so the module snaps onto a 2-floor bus; output north
+    on L0. Feed two DISJOINT single-quadrant pieces => one merged layer out.
+    Column X9. Belts (no launchers) since runs are short - this is a port proof.
+    """
+    X=9; SY=9  # stacker row
+    b=[]
+    # L0 bottom path: south-edge receiver -> up -> stacker -> up -> north-edge sender
+    b.append(be("BeltPortReceiverInternalVariant", X=X, Y=17, L=0, R=3))
+    for y in range(16, SY, -1):                       # Y16..Y10 belts up
+        b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=y, L=0, R=3))
+    b.append(be("StackerStraightInternalVariant", X=X, Y=SY, L=0, R=3))
+    for y in range(SY-1, 2, -1):                      # Y8..Y3 belts up
+        b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=y, L=0, R=3))
+    b.append(be("BeltPortSenderInternalVariant", X=X, Y=2, L=0, R=3))
+    # L1 top path: south-edge receiver -> up -> into stacker top cell (X,SY,L1)
+    b.append(be("BeltPortReceiverInternalVariant", X=X, Y=17, L=1, R=3))
+    for y in range(16, SY, -1):                       # Y16..Y10 belts up; Y9(L1) left EMPTY = stacker top port
+        b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=y, L=1, R=3))
+    return blueprint_islands([island("Foundation_1x1", buildings=b)])
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
     "VN-02 half-destroy 12lane": vn02_halfdestroy_12lane,
     "VN-03 rotate90CW 12lane": vn03_rotate90cw_12lane,
+    "VN-04 stacker 2in 1lane": vn04_stacker_2in_1lane,
 }
 
 if __name__ == "__main__":
