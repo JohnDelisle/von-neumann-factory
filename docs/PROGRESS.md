@@ -60,14 +60,20 @@ truth; each change is committed + pushed.
   shapes.
 
 ## Next steps
-1. **Stage 1 - Quadrant isolator**: 1-lane proof (`VN-01`) VALIDATED. NEXT = scale to the
-   **12-lane bus** (4 cols X8-11 x 3 floors L0-2). Throughput: a single CutterHalf/RotatorOneQuad
-   is slower than a full belt, so John's proven modules PARALLELIZE per lane -
-   **Half Destroyer = 3 cutters/lane**, **Clockwise = 2 rotators/lane** (split -> N buildings
-   -> merge). A full-speed isolator lane = HalfDestroy(x3) -> Rotate90(x2) -> HalfDestroy(x3).
-   Open design forks (ask John): (a) full-throughput parallelized now vs simpler 1-building/lane
-   12-wide geometry pass first; (b) all lanes isolate same quadrant vs per-lane pre-rotation to
-   select different quadrants (needed for the 4-base-shape constructive feed).
+1. **Stage 1 - Quadrant isolator**: 1-lane proof (`VN-01`) VALIDATED. 12-lane build (John:
+   full-12-lane-in-one-pass, per-lane selectable quadrant):
+   - **`VN-02 half-destroy 12lane`** BUILT (awaiting isolation test): `Clockwise`'s proven
+     split->op->merge butterfly is operation-agnostic (each item hits exactly 1 operator), so
+     we swapped its 24 RotatorOneQuad -> CutterHalf to get a 12-lane full-throughput pass-through
+     Half Destroyer (2 cutters/lane, south-in Y17/north-out Y2, island R=2). Keeps world-EAST half.
+   - **Composition** (uniform, isolates orig-NE quadrant): `VN-02` -> `Clockwise` -> `VN-02`
+     placed in series on the bus (HalfDestroy -> Rotate90CW -> HalfDestroy).
+   - **Per-lane selectable quadrant** = add a SELECTABLE PRE-ROTATE stage before the isolator:
+     same butterfly, per-lane operator chosen by baked k in {0:belt-pass -> orig NE, 1:RotCW ->
+     orig NW, 2:RotHalf(180) -> orig SW, 3:RotCCW -> orig SE}. Needs the lane->operator-cell map
+     (derive by simulating flow through the butterfly). Build AFTER VN-02 validates.
+   - John TEST: import `VN-02` alone, feed any full shape on all 4 lanes x 3 floors; expect only
+     the world-EAST half (e.g. `CuCuCuCu` -> the two east quadrants) out on every lane.
 2. Stage 2 painter tap, Stage 3 assembler (stackers), Stage 4 brain (Goal
    Receiver + Virtual Processing), Stage 5 parallelize x4.
 3. Base supply: needs this world's shape-patch locations (circle/square/star/
