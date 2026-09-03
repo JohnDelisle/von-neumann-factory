@@ -32,3 +32,9 @@ Foundations complete: blueprint/save formats decoded, an encoder validated by
 in-game round-trip, coordinate + rotation + bus conventions confirmed. Next:
 building the constructive MAM pipeline stage by stage (see
 `docs/architecture.md`).
+
+## Docs
+- `docs/PROGRESS.md` — current state + session handoff (read first).
+- `docs/PLAYBOOK.md` — how we build: method, design patterns, gotchas.
+- `docs/architecture.md` — the MAM design + John's reusable module ecosystem.
+- `docs/conventions.md` — file formats + reverse-engineered game constraints.

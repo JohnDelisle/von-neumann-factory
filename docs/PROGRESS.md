@@ -1,8 +1,9 @@
 # Project status & session handoff
 
-_Last updated: 2026-09-03. **Read this first when resuming.** Then skim
-`docs/architecture.md` (design + ecosystem) and `docs/conventions.md` (file
-formats + reverse-engineered game mechanics)._
+_Last updated: 2026-09-03. **Read this first when resuming.** Then read
+`docs/PLAYBOOK.md` (how we build — method, patterns, gotchas), and skim
+`docs/architecture.md` (the MAM design + ecosystem) and `docs/conventions.md`
+(file formats + reverse-engineered game constraints)._
 
 ## What this is
 Co-building an elegant, symmetric **constructive Make Anything Machine (MAM)** in
