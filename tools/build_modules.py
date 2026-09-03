@@ -48,8 +48,40 @@ def vn00_coord_test():
         b.append(be("BeltDefaultForwardInternalVariant", X=9, Y=y, R=1))
     return blueprint_islands([island("Foundation_1x1", buildings=b)])
 
+def vn01_quad_isolator_1lane():
+    """Stage 1 proof: isolate a single quadrant on ONE lane.
+
+    Sequence (north-flowing, bus convention south-in Y17 / north-out Y2, all R3):
+        HalfDestroy -> Rotate 90 CW -> HalfDestroy
+
+    Shape math (Half Destroyer keeps the WORLD-EAST half; Rotate is 90 CW in
+    world space; cut plane is always world-vertical regardless of building R):
+        full {NE,SE,SW,NW}
+          -HalfDestroy->  {NE,SE}          (keep east)
+          -Rotate90CW->   {SE,SW}          (NE->SE, SE->SW)
+          -HalfDestroy->  {SE}             (keep east) => one quadrant
+
+    Feed any full single-layer shape; expect a single SE (bottom-right) quadrant
+    out. Pre-rotating the input selects which original quadrant survives.
+    All three transforms are single-cell inline buildings placed adjacently to
+    also validate that they chain directly without intermediate belts.
+    """
+    X = 9  # a central bus column (bus cols are X8-11)
+    b = []
+    b.append(be("BeltPortReceiverInternalVariant", X=X, Y=17, R=3))   # input from south
+    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=16, R=3))
+    b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=15, R=3))
+    b.append(be("CutterHalfInternalVariant",         X=X, Y=14, R=3)) # keep east {NE,SE}
+    b.append(be("RotatorOneQuadInternalVariant",     X=X, Y=13, R=3)) # 90 CW -> {SE,SW}
+    b.append(be("CutterHalfInternalVariant",         X=X, Y=12, R=3)) # keep east {SE}
+    for y in range(11, 2, -1):                                        # belts Y11..Y3
+        b.append(be("BeltDefaultForwardInternalVariant", X=X, Y=y, R=3))
+    b.append(be("BeltPortSenderInternalVariant",     X=X, Y=2,  R=3)) # output north
+    return blueprint_islands([island("Foundation_1x1", buildings=b)])
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
+    "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
 }
 
 if __name__ == "__main__":

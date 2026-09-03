@@ -18,6 +18,14 @@ truth; each change is committed + pushed.
   cutter mechanics (Half Destroyer keeps EAST).
 - `tools/shapez_bp.py` (codec) + `tools/build_modules.py` (generator).
 - Repo set up and pushed.
+- **Cutter/Rotator footprints extracted** from John's blueprints: `CutterHalfInternalVariant`,
+  `RotatorOneQuadInternalVariant` (90 CW) and `RotatorOneQuadCCWInternalVariant` are all
+  **single-cell inline** buildings (no config), `R` = flow direction. `Clockwise`/`Counter
+  Clockwise` confirm CW/CCW; `Half Destroyer` confirms keep-east. NOTE: real-game exports use
+  a **terser schema** (plain `Entries` list, omitted default fields, `Icon`/`BinaryVersion`,
+  `V:1137/1138`); our verbose encoder still imports fine.
+- **`VN-01 quad isolator 1lane`** authored + mirrored to the in-game VN folder
+  (HalfDestroy -> Rotate90 CW -> HalfDestroy, one lane, X9 L0, north-flow R3). **Awaiting John's in-game test.**
 
 ## Environment / operational notes (IMPORTANT for resuming)
 - Device: `jmd-486-dx4` (Windows; device_bash runs in its Linux VM).
@@ -29,8 +37,10 @@ truth; each change is committed + pushed.
 - **In-game blueprint folder**: `blueprints/The Von Neumann Factory/`.
 - **Repo working copy lives ON THE DEVICE** at `~/von-neumann-factory` (device VM
   home), remote `github.com/JohnDelisle/von-neumann-factory` (private).
-  Git credential is stored on the device (`~/.git-credentials`, token in
-  `/tmp/ghtoken`; may need re-auth via GitHub device flow if the VM was recycled).
+  Git auth = a **fine-grained PAT** (Contents R/W on this repo) in `~/.git-credentials`
+  on the device VM (helper=store; `user.name/email` set globally). **VM recycling wipes
+  this** -> John generates a fresh fine-grained PAT and Claude re-stores it. (GitHub CLI
+  device flow does NOT work here: that app has no per-repo grant -> 403 on clone.)
 - **Cloud container CANNOT reach GitHub** (egress locked to configured repos):
   do all git create/push **from the device** (device_bash), not the cloud.
 - Workflow per change: edit in repo -> `python3 tools/build_modules.py blueprints`
@@ -46,11 +56,12 @@ truth; each change is committed + pushed.
   shapes.
 
 ## Next steps
-1. **Stage 1 - Quadrant isolator** (IN PROGRESS): build a narrow (1-lane) proof of
-   HalfDestroy -> Rotate90 -> HalfDestroy to validate cutter/rotator footprints +
-   isolation logic, then scale to the 12-lane bus. Needs: exact port cells of
-   `CutterHalfInternalVariant` and `RotatorOneQuadInternalVariant` (extract from
-   John's Half Destroyer / MAM blueprints, or test empirically).
+1. **Stage 1 - Quadrant isolator** (1-lane proof AUTHORED, awaiting test): `VN-01 quad
+   isolator 1lane` is built + mirrored. John: import it, feed a full single-layer shape
+   (e.g. `CuCuCuCu`), expect a single **SE / bottom-right** quadrant out. Verify each
+   transform chains inline (they're adjacent at Y14/Y13/Y12). If good -> **scale to the
+   12-lane bus** (4 cols x 3 floors; see `Clockwise` for the rotator bus routing pattern).
+   If the isolated quadrant is wrong, we adjust pre-rotation / cut order.
 2. Stage 2 painter tap, Stage 3 assembler (stackers), Stage 4 brain (Goal
    Receiver + Virtual Processing), Stage 5 parallelize x4.
 3. Base supply: needs this world's shape-patch locations (circle/square/star/
