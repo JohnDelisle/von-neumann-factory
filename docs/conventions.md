@@ -659,42 +659,45 @@ never happens to do it.
 trip here: absence from John's library is not a game rule.** A census tells you what
 he does, not what the game permits. Only an in-game test tells you the latter.
 
-## !! A LABEL IS THREE CELLS LONG (EXTRACTED 2026-09-04) — and this was the bug
+## A LABEL IS FIVE CELLS LONG — and labels are still not fully understood
 
-`LabelDefaultInternalVariant` is **not 1x1**. It occupies **three cells, centred on
-its entry, running along the axis it faces**:
+`LabelDefaultInternalVariant` is **not 1x1**. It occupies **five cells, centred on its
+entry, along the axis it faces** (R0/R2 horizontal, R1/R3 vertical), and the size is
+**fixed — it does not scale with the text**.
 
-| rotation | occupies |
-|---|---|
-| **R0 / R2** (horizontal) | `(x-1,y)` `(x,y)` `(x+1,y)` |
-| **R1 / R3** (vertical) | `(x,y-1)` `(x,y)` `(x,y+1)` |
+Measured from `For Claude Labels.spz2bp`, which John built for exactly this purpose
+(2026-09-04), boxing labels in belt. Every box interior is 5 cells whatever the text:
 
-Extracted from the 5x5 occupancy around **all 3,089 labels in John's library**, split
-by rotation. The signal is absolute:
-- R0/R2: `(-1,0)` and `(+1,0)` occupied **0 times out of 577** — while the cells
-  directly above and below are occupied freely;
-- R1/R3: `(0,-1)` and `(0,+1)` occupied **0 times out of 2,512** — while left and
-  right are occupied freely.
+| box | label | text | interior |
+|---|---|---|---|
+| `(17,8)`-`(23,10)` | "Center-ish" | 10 | X18-22 |
+| `(17,3)`-`(23,4)` | "North side, center-ish" | 22 | X18-22 |
+| `(25,9)`-`(31,11)` R2 | "Upside-down text" | 16 | X26-30 |
+| `(4,3)`-`(6,8)` R1 | "Text running N-S" | 16 | Y3-7 |
 
-**This is what made our blueprints vanish.** A label overrunning a neighbour makes the
-game discard the **whole file** — no error, no red X, it never appears in the folder.
-It explains every failure: `p6`, `VN-13 v1`, `VN-13 v2`, `r1`, `s1` and `s2` each ran
-a label into an adjacent display, and `p6`'s also ran off the platform at X=1. `p1`
-(a label alone) imported fine, which is why labels looked innocent at first.
+It agrees with a whole-library census: along the axis, **both ±1 and ±2 are occupied 0
+times out of 3,089 labels**, while the perpendicular neighbours are used freely. (An
+earlier reading of that census concluded 3 cells — one ring too small.)
 
-**Why it took four rounds to find:** a label *can* sit next to another building — just
-never along its own axis — so the naive "are labels ever adjacent to anything?" census
-said yes and cleared them. Splitting that census **by rotation** made it obvious.
-The general lesson: when censusing a footprint, split by `R` before concluding.
+### !! But 5 cells does NOT explain everything, so labels are OFF
+`VN-13t1` failed to stamp with labels at `(4,14)` and `(5,7)` — spans X2-6 and X3-7,
+both inside the buildable window and hitting nothing. John: "the labels appear to
+extend past the edge of the platform." So either the footprint is larger than John's
+own boxes allow, or a label may not occupy the outermost buildable ring, or labels do
+not collide at all and the earlier disappearances had another cause entirely.
 
-`FOOTPRINTS` in `build_modules.py` now carries this (with `ROTATION_SWAPS_AXIS`), and
-`validate_layout()` rejects every one of the failing layouts while still passing `p1`.
+Note also that John never places a label body below offset 3 — his westmost label
+body starts at X=3, never X=2.
 
-## STILL OPEN: `VN-13r2` — two label-free islands we authored
+**Policy: generated blueprints carry NO labels.** They are cosmetic, the filename
+already identifies a platform, and this has cost four round trips. `FOOTPRINTS` keeps
+the 5-cell entry so that anything placed deliberately is still checked.
 
-The label rule does **not** explain `r2`: two `Foundation_1x1` islands, no labels, each
-byte-for-byte a blueprint that imports on its own, and the pair went missing.
-Multi-island as such works — VN-07/VN-10/VN-12 are multi-island and validated in-game
-— but every one of those *lifts* its islands from John's files rather than authoring
-them. `VN-13 colour brain all` (4 islands, legal labels) and `VN-13t1` (1 island, same
-legal labels) separate "labels fixed" from "multi-island works".
+## STILL OPEN: multi-island blueprints whose islands we author
+
+`VN-13r2` — two `Foundation_1x1` islands, no labels, each byte-for-byte a blueprint
+that imports standalone — went missing. Multi-island works in general: VN-07, VN-10
+and VN-12 are multi-island and validated in-game. But every one of those **lifts** its
+islands from John's files rather than constructing them. `VN-13 colour brain all`
+(four islands, no labels, each island identical to a validated single-island file) is
+the clean test.

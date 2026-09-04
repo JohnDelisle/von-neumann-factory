@@ -957,16 +957,19 @@ FOOTPRINTS = {
     "ControlledSignalTransmitterInternalVariant": (3, 3, "c"),
     "ControlledSignalTransmitterInternalVariantMirrored": (3, 3, "c"),
     "WireGlobalTransmitterReceiverInternalVariant": (3, 3, "c"),
-    # A LABEL IS THREE CELLS LONG, not 1x1 -- centred on its entry and running along
-    # the axis it faces. Extracted 2026-09-04 from the 5x5 occupancy around all 3,089
-    # labels in John's library, split by rotation:
-    #   R0/R2 (horizontal): (-1,0) and (+1,0) occupied 0 times out of 577, while the
-    #                       cells above and below are occupied freely;
-    #   R1/R3 (vertical):   (0,-1) and (0,+1) occupied 0 times out of 2,512, while
-    #                       left and right are occupied freely.
-    # A clean signal, and the reason it was missed at first is that a label CAN sit
-    # beside another building -- just never along its own axis.
-    "LabelDefaultInternalVariant": (3, 1, "c"),
+    # A LABEL IS FIVE CELLS LONG, not 1x1 -- centred on its entry, running along the
+    # axis it faces (R0/R2 horizontal, R1/R3 vertical). MEASURED from John's
+    # purpose-built `For Claude Labels.spz2bp` (2026-09-04), where he boxed labels in
+    # belt. Every box has a 5-cell interior REGARDLESS of text length:
+    #   "Center-ish" (10 chars)             box (17,8)-(23,10)  -> X18-22
+    #   "North side, center-ish" (22 chars) box (17,3)-(23,4)   -> X18-22
+    #   "Upside-down text" R2 (16 chars)    box (25,9)-(31,11)  -> X26-30
+    #   "Text running N-S" R1 (16 chars)    box (4,3)-(6,8)     -> Y3-7
+    # so the footprint is fixed at 5 and does not scale with the text. This also
+    # matches the whole-library census: along the axis, +-1 AND +-2 are occupied 0
+    # times out of 3,089 labels, while the perpendicular neighbours are used freely.
+    # An earlier reading of that census said 3 cells -- one ring too small.
+    "LabelDefaultInternalVariant": (5, 1, "c"),
 }
 
 # Buildings whose footprint turns with them (w/h swap on R1/R3).
@@ -1159,7 +1162,7 @@ def goal_receiver_config():
     return rx[0]["C"]["$value"]
 
 
-def colour_brain_platform(quadrant, labels=True):
+def colour_brain_platform(quadrant, labels=False):
     """One quadrant's colour chain on its own 1x1, flowing NORTH (everything R3).
 
     The first three buildings are John's validated receiver arrangement, cell for
@@ -1167,9 +1170,12 @@ def colour_brain_platform(quadrant, labels=True):
     which John confirmed imports and runs. The only additions are this quadrant's
     rotators, which `VN-13p5` separately confirmed.
 
-    Labels are back on, now that a label is known to be **three cells long** along
-    its facing axis (see FOOTPRINTS). Every earlier label here overlapped a display,
-    which is what made the blueprints vanish; `validate_layout()` now refuses that.
+    `labels` defaults to **False**, and should stay that way. A label is 5 cells long
+    (see FOOTPRINTS) but even a validated 5-cell model does not explain why `VN-13t1`
+    failed to stamp with labels at `(4,14)`/`(5,7)`, whose spans X2-6 and X3-7 are
+    inside the buildable window and hit nothing. Something about labels is still not
+    understood, they are purely cosmetic, and the blueprint's filename already says
+    what each platform is. Not worth another round trip.
     """
     rx_x, rx_y = RX_CELL
     b = [be("ConstantSignalDefaultInternalVariant", X=RX_CHANNEL_CELL[0],
@@ -1225,25 +1231,17 @@ def _colour_brain_module(quadrant):
 # `VN-13r2` -- two label-free islands, each of which imports standalone -- is NOT
 # explained by it and is still open. These two separate the last question.
 def vn13_colour_brain_all():
-    """All four quadrants on one blueprint, four islands, labels placed legally.
+    """All four quadrants on one blueprint: four islands, NO labels.
 
-    If this imports, both mysteries are closed at once. If it does not while `t1`
-    does, then multi-island blueprints whose islands WE author are the remaining
-    problem -- note that VN-07/VN-10/VN-12 are multi-island and validated, but each
-    lifts its islands from John's own files rather than building them."""
+    A clean test of the one thing still open. Each island is byte-for-byte one of the
+    four `VN-13 * colour` platforms that John validated in-game, so if this fails the
+    cause is multi-island blueprints whose islands WE author -- VN-07/VN-10/VN-12 are
+    multi-island and validated, but every one of those lifts its islands from John's
+    files rather than building them. If it works it replaces the four separate files."""
     check_int_signal_encoding()
-    check_label_encoding()
     return blueprint_islands([
         our_island("Foundation_1x1", colour_brain_platform(q), X=n, Y=0, where=f"all {q}")
         for n, q in enumerate(("NE", "SE", "SW", "NW"))])
-
-
-def vn13t1_one_island_labelled():
-    """Control: a single island, the confirmed-working NE chain plus the same two
-    legally-placed labels. Isolates 'labels are fixed' from 'multi-island works'."""
-    check_label_encoding()
-    return blueprint_islands([our_island("Foundation_1x1",
-                                         colour_brain_platform("NE"), where="t1")])
 
 
 MODULES = {
@@ -1267,7 +1265,6 @@ MODULES = {
     "VN-13 SW colour": _colour_brain_module("SW"),
     "VN-13 NW colour": _colour_brain_module("NW"),
     "VN-13 colour brain all": vn13_colour_brain_all,
-    "VN-13t1 one island labelled": vn13t1_one_island_labelled,
 }
 
 if __name__ == "__main__":
