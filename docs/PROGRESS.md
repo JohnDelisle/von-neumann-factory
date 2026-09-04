@@ -38,31 +38,97 @@ Saving **~79.7k per unit / ~319k at full belt — 2.35x**.
 
 ---
 
-## JOHN'S JOB: the re-plumb (per 1/4-belt unit)
+## JOHN'S JOB: the re-plumb — BUILD SHEET (island coordinates, 2026-09-04)
 
-Unchanged: 4x rail unloader, 4x `Quad Splitter`, 4x `Demuxer`, 4x `Quaded Filter`.
+Island map of `For Claude Single layer MAM, no-paint` (footprints derived from each
+platform's own building coordinates, not from the foundation name — a `Foundation_1x4`
+at R1 runs along **Y**, which the name alone gets wrong):
 
-1. **Delete** the 4 per-lane stacker clusters (each = 2x `Fancy A+B` +
-   3x `Stacker supporting empty quadrants`). -30,436 buildings.
-2. **Add 4 band merges.** For each band P in {NE, SE, SW, NW}, merge the band-P
-   output of ALL FOUR lanes' filters into one stream. **Exactly one lane is ever
-   active on a given band** (band P of lane T passes iff `goal[P] == T`), so a plain
-   4-way space-belt merge is enough — **no arbitration, and it does not depend on
-   the goal**.
-3. **Add per band:** `Paint 4 Filter` -> `Painter` on the merged stream.
-4. **Keep the 5th cluster**, now fed by the four painted band streams. Its four
-   inputs become **per-position** instead of per-lane — which is exactly the
-   `Full Belt Any Shape Maker` pattern.
+```
+       Q=QuadSplitter D=Demuxer F=QuadedFilter A=FancyA+B S=Stacker o=Overflow X=Trash
+   X:  -21                   0         10        17    21
+  -10      +++++AA+SSAA+++++++++AA+SSAAFoDDQQ++++ =     lane 1  (r = -9)
+   -9      + SS+AA+SSAA+++++ SS+AA+SSAAFoDDQQ   + =
+   -8    +++oSS+AA+SSAA+++++oSS+AA+SSAAFoDDQQ   + =
+   -7    + +++++AA+SSAA+++ +++++AA+SSAAFoDDQQ   + =
+   -4                  +++ +++++AA+SSAAFoDDQQ+  + =     lane 2  (r = -3)
+   -3                  +++ + SS+AA+SSAAFoDDQQ+  + =
+   -2                  +++++oSS+AA+SSAAFoDDQQ+  + =
+   -1                  ++  +++++AA+SSAAFoDDQQ++++ =
+    2                  ++  +++++AA+SSAAFoDDQQ+  + =     lane 3  (r = 3)
+    ...                                                lane 4  (r = 9)
+      ^^^^^^^^^^^^^^^^      ^^^^^^^^^^^^
+      the 5th cluster       the 4 per-lane clusters -- THIS is what goes
+      (X-17..-8) KEEP       (X0..9, one per lane)   -- DELETE
+```
 
-**Throughput is unchanged and better balanced**: each merged band carries exactly
-one item per output shape, so the surviving cluster sees the same rate it already
-handles today. Keep `Stacker supporting empty quadrants` — goals still have empty
-quadrants.
+The unit is **four identical lane blocks** at `r = -9, -3, 3, 9`, each four platform
+rows tall, flowing **east -> west**:
+`rail (X21) -> Quad Splitter (X14-17) -> Demuxer (X12-13) -> Quaded Filter (X10)
+-> per-lane cluster (X0-9) -> [space belts west] -> 5th cluster (X-17..-8) -> out`.
 
-**Validate narrow first (PLAYBOOK):** build ONE unit band-merged, no paint, and
-re-run the 3-random-goal test before touching the full-belt machine.
+### 1. DELETE, for each of the four lanes `r` in `-9, -3, 3, 9`
 
----
+| island | foundation | what |
+|---|---|---|
+| `(3, r+1)` | `Foundation_2x4` | Fancy A+B |
+| `(8, r+1)` | `Foundation_2x4` | Fancy A+B |
+| `(0, r+1)` | `Foundation_2x2` | Stacker |
+| `(6, r+1)` | `Foundation_2x2_Flipped` | Stacker |
+| `(6, r)`   | `Foundation_2x2` | Stacker |
+| `(-1, r+1)`| `Foundation_1x1` | that cluster's Overflow |
+
+...plus the space belts between the filter and the cluster and from the cluster west.
+**16 platforms x 4 lanes, -30,436 buildings.** That frees the whole strip **X0..X9**.
+
+**KEEP** everything at X10 and east (splitters, demuxers, filters, rail, the X11
+overflows), **and the 5th cluster** — Fancy `(-13,-8)` `(-8,-8)`, Stacker `(-16,-8)`
+`(-10,-8)` `(-10,-9)`, Overflow `(-17,-8)`, Trash `(-21,-6..-3)`.
+
+### 2. WHERE THE FOUR BANDS COME OUT (this is the bit the old spec hand-waved)
+
+Each `Quaded Filter` is a `Foundation_1x4` running **north-south at X=10**, occupying
+platform rows `r-1 .. r+2`, **one band per row**, in the north->south order John
+labelled: **NW, SW, SE, NE**. Output is on the **west** edge of each. So:
+
+| band | comes out west at platform rows |
+|---|---|
+| **NW** | `-10`, `-4`, `2`, `8` |
+| **SW** | `-9`, `-3`, `3`, `9` |
+| **SE** | `-8`, `-2`, `4`, `10` |
+| **NE** | `-7`, `-1`, `5`, `11` |
+
+The four lanes are 6 rows apart, so **each band's four sources are 6 rows apart and
+the four bands are on adjacent rows** — four interleaved combs. That means **four
+separate north-south collector lines** in the freed X0..X9 strip, one per band, each
+picking up every 6th row; they cannot share a column.
+
+### 3. ADD, per band (4 of them)
+
+```
+the band's 4 lane outputs --> 4-way merge --> Paint 4 Filter --> Painter --> 5th cluster
+```
+The merge needs **no arbitration**: band P of lane T passes iff `goal[P] == T`, so
+exactly one of the four is ever flowing and the other three are hard-blocked. A plain
+space-belt merge is correct for every goal.
+
+Each merged band is **12 lanes = one space belt** (a filter band is 12 lanes), which
+is also what the 5th cluster already eats today — so **throughput is unchanged**, and
+its four inputs simply become **per-position instead of per-lane**. Keep
+`Stacker supporting empty quadrants`; goals still have empty quadrants.
+
+### !! One question for John before stamping the painters
+`Painter` = `Foundation_2x4`, **3,041** buildings, **192** painters, 1,488 belts.
+`Painter Small` = `Foundation_1x2`, **812** buildings, **48** painters, 372 belts —
+exactly a quarter of the big one, with the same 48 fluid ports. If `Painter` is sized
+for a **full belt (48 lanes)** and `Painter Small` for **one space belt (12 lanes)**,
+then a merged band wants **`Painter Small`**, and the unit drops from 58,824 to
+**~49,900** buildings. Claude can't tell capacity from the blueprint — **which is it?**
+
+### 4. Validate narrow first (PLAYBOOK)
+Do **one** lane-block's worth: band-merge a single unit with **no paint at all**
+(4 merges straight into the 5th cluster) and re-run the 3-random-goal test. Only then
+add paint, and only then scale to the full-belt machine.
 
 ## CLAUDE'S JOB: the colour brain — and it is smaller than PROGRESS assumed
 
