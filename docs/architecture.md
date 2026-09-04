@@ -458,6 +458,58 @@ stacked vertically at `X=10`, `Y=17..20`, all facing R0, so each one's *left* (n
 output cell is the next analyzer. Only the top one has a free neighbour at
 `(10,16)`. Tapping all four colours would need the fan re-laid, not just re-tapped.
 
+## PHASE 2 (paint) — settled semantics, one open decision (2026-09-04)
+
+**John confirmed the Shape Analyzer's contract:** it reads the **NE** part of the
+input shape and emits the **uncoloured shape signal** on the top/forward output and
+that part's **colour signal** on the side output; for a Pin or an empty part the
+colour output is **null**.
+
+### Consequence 1: the filter is ALREADY colour-blind — Phase 2 needs no filter logic
+The fan's band signals are analyzer forward outputs, so they are uncoloured by
+construction. The Phase 1 machine therefore already builds the correct **shape** for
+a **coloured** goal, today. Claude's paint-both-sides normaliser is unnecessary and
+has been dropped. The null-for-empty colour output is also a free "this quadrant
+needs no paint" flag.
+
+### Consequence 2: paint placement forces the band-merge decision
+A lane's partial shape can need **two different colours** — goal `CrCgSuWu` has the
+`Cu` lane supplying NE (red) and SE (green) — and a `Painter` colours a whole shape.
+So in the **current** architecture paint must go **per band, before each lane's
+stacker**: 4 bands x 4 lanes = **16 painters per unit**.
+
+With the **band-by-band merge** (merge the four lanes' band-P streams, paint once per
+position, then ONE stacker cluster) it is **4 painters per unit**.
+
+| Per 1/4-belt unit, painted | Buildings |
+|---|---|
+| John's current architecture + 16 painters | ~121k |
+| band-merge + 4 painters | **~54k** |
+
+**This reverses the earlier "not worth doing now".** The band-merge saves 4 stacker
+clusters *and* 12 painters; Phase 2 is the moment to decide. **John's call.**
+
+### The paint primitive already exists: `Paint 4 Filter`
+The plain `Painter` (3,041 buildings, 192 painters) has **no logic at all** — it
+paints with whatever fluid arrives, so "brain-driven colour" is a **fluid routing**
+problem, not a signal-into-painter problem.
+
+`Paint 4 Filter` is the router: a `Foundation_1x4` (1,066 buildings) with 84 fluid
+ports and **48 signal-driven `PipeGateDefaultInternalVariantMirrored`**, selected by
+a 4-way `Button`/`ConstantSignal`/`LogicGateIf` bank — the same 4-band shape as the
+`Quaded Filter`. Swap its button bank for the analyzer's colour signal exactly as
+John did for the shape filter. (`Paint 3 Filter` is the 3-way version.)
+
+**Caveat: it selects among 4 paints.** The full palette is 8; covering it needs
+chaining, a wider selector, or feeding mixed colours in.
+
+### Layout wrinkle: the colour outputs are not reachable yet
+The four fan analyzers sit stacked at `X=10`, `Y=17..20`, all facing R0, so each
+one's side (north) output cell is the next analyzer; only the top has a free
+neighbour at `(10,16)`. Getting all four colours out needs the fan re-laid, or four
+extra analyzers added in the free block, **plus** `ControlledSignalTransmitter`s to
+carry them to the paint-selector platforms.
+
 ### !! Paint has a brain problem, not just a plumbing problem
 Painting per position **after** the merge and before the stacker is the cheap
 placement — 4 `Painter`s per unit, each needing one colour signal, and the goal is

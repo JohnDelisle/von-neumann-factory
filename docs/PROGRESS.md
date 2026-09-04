@@ -190,23 +190,42 @@ Feeding **four distinct uniform shapes, one per splitter**, needs the Phase 1
 re-plumb (four separate inputs + band-by-band merge into one stacker) — **not built
 yet**.
 
-## >>> ONE QUESTION BLOCKS PHASE 2 — and John can read it off a display <<<
-John's suggestion: use the **Shape Analyzer's shape output** instead of Claude's
-paint-both-sides colour normalisation. Better, if its shape output is colour-free —
-it would mean the filter is **already** colour-blind and the analyzer's *second*
-output is the per-quadrant colour the painters need.
+## >>> PHASE 2 (paint): semantics settled, ONE decision for John <<<
+John confirmed the **Shape Analyzer** contract: reads the **NE** part, emits the
+**uncoloured shape** on the top output and that part's **colour** on the side
+output; **null colour** for a Pin or an empty part.
 
-**In `For Claude Wiring Shapes` there is already an analyzer wired to answer this:**
-`VirtualAnalyzer` at **`(7,10)`**, fed the constant `CwRwSwWw` at `(7,11)`, with a
-display on each output — **`(7,9)` = forward output**, **`(6,10)` = left output**.
+**So the filter is already colour-blind** — the fan's band signals are analyzer
+forward outputs. The Phase 1 machine already builds the right *shape* for a
+*coloured* goal today, and Phase 2 needs **no filter-logic change at all**. Claude's
+paint-normaliser circuit is dropped. Full detail in architecture.md "PHASE 2".
 
-| `(7,9)` forward shows | Conclusion |
+### THE DECISION: 16 painters, or refactor to the band-merge and use 4?
+A lane's partial shape can need **two colours** (goal `CrCgSuWu`: the `Cu` lane
+supplies NE red and SE green) and a `Painter` colours a whole shape. So:
+
+| Per 1/4-belt unit, painted | Buildings |
 |---|---|
-| an **uncoloured** quadrant (e.g. `Cu------` / a bare kind) | **Phase 2 filter needs no circuit at all** — it is already colour-blind |
-| a **coloured** quadrant (e.g. `Cw------`) | colour survives; we need the normaliser (or take colour from the other output and rebuild) |
+| keep the current architecture, paint per band = **16 painters** | ~121k |
+| **band-merge** the four lanes per position, paint once per position = **4 painters** | **~54k** |
 
-and `(6,10)` should show the **colour** (`w`) — the signal the physical `Painter`s
-need either way.
+The band-merge saves 4 stacker clusters *and* 12 painters. This **reverses** the
+earlier "not worth doing now" — Phase 2 is the moment to choose. At full belt it is
+roughly **486k vs 216k buildings**.
+
+### The paint router already exists
+`Painter` has **no logic** — it paints with whatever fluid arrives, so colour control
+is **fluid routing**. `Paint 4 Filter` is the router: `Foundation_1x4`, 84 fluid
+ports, **48 signal-driven `PipeGate`s**, selected by a `Button`/`ConstantSignal`/`If`
+bank — the same shape as the `Quaded Filter`, so swap its buttons for the analyzer's
+colour signal exactly as John did for the shape filter. **It selects among 4 paints;
+the palette is 8**, so that needs chaining or a wider selector.
+
+### Blocker to solve either way
+The four fan analyzers are stacked at `X=10, Y=17..20` facing R0, so each side
+output cell is the next analyzer — only the top has a free neighbour at `(10,16)`.
+Getting all four colours out needs the fan re-laid (or four extra analyzers in the
+free block) **plus** `ControlledSignalTransmitter`s to reach the paint platforms.
 
 ## >>> WHAT'S LEFT (the single-layer uncoloured MAM is done) <<<
 
