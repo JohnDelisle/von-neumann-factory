@@ -219,18 +219,36 @@ cell, inferred from a census where 45/45 of John's port cells hold only
 output port works fine.** The census described John's habits, not the game's rules.
 Removed from `validate_layout()`. **Absence from John's library is not a game rule.**
 
-### Labels: measured at 5 cells, still not fully understood, now switched OFF
-John built `For Claude Labels.spz2bp` to settle it (now in `blueprints/reference/`).
-A label is **5 cells long, centred on its entry, along its facing axis** — fixed size,
-independent of text length; every belt box he drew has a 5-cell interior for texts of
-10, 16 and 22 characters. That matches a whole-library census (±1 **and** ±2 along the
-axis occupied 0 times in 3,089 labels).
+### LABELS: SOLVED. Two rules, and they have two different symptoms
+Settled by John's purpose-built `For Claude Labels.spz2bp` (now in
+`blueprints/reference/`). Full write-up in `conventions.md`:
 
-**But 5 cells does not explain `VN-13t1`**, which failed to stamp with labels spanning
-X2-6 and X3-7 — inside the window, hitting nothing. Something about labels is still
-wrong. They are cosmetic, the filename already names each platform, and this has cost
-four round trips, so: **generated blueprints now carry no labels at all.** The
-footprint stays in `FOOTPRINTS` so a deliberate one is still checked.
+1. **A label body is 5 cells**, centred on its entry, along its facing axis
+   (R0/R2 horizontal, R1/R3 vertical) — fixed size, independent of text length.
+   Applying an N-cell model to all 3,100 labels in the library: **0 collisions at
+   N=5, 2,569 at N=7.**
+2. **A label needs one cell of margin** — its body must stay within **[3,16]** on a
+   1x1, never the outer ring. John's reference demonstrates this on purpose: every
+   label he named "Corner" / "North side" / "South side" sits exactly one cell in.
+   The census agrees: label bodies use offsets [3..7, 12..16], **never 2 or 17**,
+   while every other building type uses the full 2..17.
+
+**Overlap → the whole FILE is discarded** (never appears in the folder: p6, v1, v2,
+r1, s1, s2). **Margin violation alone → the file imports but FAILS TO STAMP** (t1).
+That is why the symptom kept changing under us. `validate_layout()` now encodes both
+rules and reproduces every observed outcome — including that `t1`'s `(5,7)` label was
+innocent and only its `(4,14)` one (body X2-6) was at fault.
+
+Labels are back on and correctly placed: `COLOUR ->` at `(5,y)` (body X3-7) and the
+title at `(10,13)` (body X8-12). **The four validated `VN-13 * colour` blueprints are
+untouched and asserted byte-identical to what John tested.**
+
+### TEST NEXT (2 stamps)
+- **`VN-13t2 one island labelled`** — one island, the confirmed NE chain + both labels
+  correctly placed. Confirms the label fix.
+- **`VN-13 colour brain all`** — all four quadrants, four islands, labels. If both
+  stamp, everything is closed and this replaces the four separate files. If t2 stamps
+  and this does not, the remaining problem is multi-island blueprints we author.
 
 ### The one open question: multi-island blueprints we author
 `VN-13r2` (two islands, no labels, each byte-for-byte a file that imports standalone)
