@@ -94,8 +94,18 @@ def verify(path):
     check(n22 == 2 * clusters and len(fancy) == 2 * clusters,
           f"stacker clusters: {clusters} (from {n22} 2x2, {n22f} 2x2_Flipped, {len(fancy)} Fancy A+B)")
     if clusters and len(filt):
-        print(f"           -> {clusters / (len(filt) / 4):.0f} clusters per 4-lane unit "
-              f"({len(filt) // 4} unit(s))")
+        units = len(filt) // 4
+        per_unit = clusters / (len(filt) / 4)
+        # 5/unit = the Phase 1 per-lane architecture (4 lane clusters + 1 merge);
+        # 1/unit = the band-merge (bands merged per position, then ONE cluster).
+        arch = {5.0: "Phase 1 per-lane", 1.0: "band-merge"}.get(
+            round(per_unit, 3), "UNRECOGNISED -- expected 5 (per-lane) or 1 (band-merge)")
+        print(f"           -> {per_unit:.0f} clusters per 4-lane unit "
+              f"({units} unit(s)) = {arch}")
+        painters = sum(1 for i in isls if "Painter" in bm.label_texts(i)
+                       or "Paint" in " ".join(bm.label_texts(i)))
+        if painters:
+            print(f"           -> {painters} paint platform(s)")
 
     bad = []
     for i in isls:
