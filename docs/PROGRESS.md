@@ -193,63 +193,56 @@ uncoloured **shape** (forward/north) output, all labelled.
 
 Only once this passes do the compare-bank + graft onto `Paint 4 Filter` get built.
 
-### VN-13 v1 was rejected by the game — CAUSE FOUND, v2 shipped (2026-09-04)
-John bisected it with seven probes. Results: **p0-p3 and p5 present, p4 present but
-invalid, p6 missing.** That cleared our encoder, our label/int/shape encodings, the
-receiver itself, the virtual chain, and the platform edge — and the follow-up census
-found the real rule.
+### THE COLOUR LOGIC IS VALIDATED IN-GAME (2026-09-04)
+Two things are now settled by John's readings, and neither needs revisiting:
 
-**A `ControlledSignal*` port cell may hold ONLY a `Wire*`, `Display*` or
-`ConstantSignal*`.** Measured across **all 45** such buildings in John's library: the
-occupied ±2 cells are always one of those three, never a `Virtual*` or `LogicGate*`.
-v1 put a `VirtualAnalyzer` straight onto a receiver's output port and the game
-**discarded the whole file** — a **fourth silent failure mode**, now in conventions.md.
-(My first hypothesis — a collision with the receiver's invisible 3×3 body — was
-wrong; the new validator proved v1 didn't actually collide.)
+1. **The analyzer emits the COLOUR on its LEFT output and the uncoloured SHAPE on
+   its FORWARD output.** His `VN-13q1`/`q2` reading named compass directions —
+   "grey (uncoloured) out its top (**West**)", "shape `Wu------` on the **North**" —
+   and west is the left side of an R3 analyzer. `conventions.md` was right; the
+   earlier "colour out the top" was the angled camera.
+2. **The rotation mapping is correct**: `VN-13p5` fed `CrCgCbCu` through 1x CW and
+   returned colour `u` + shape `Cu------`, exactly the original **NW** quadrant.
+   So **NE none / SE 1x CCW / SW 2x CW / NW 1x CW** stands.
 
-Two things measured properly while there, both now in conventions.md:
-- the **3×3 body is confirmed** — in all 45 instances the eight cells around the
-  entry are empty;
-- **`[2,17]` is exact** on a 1×1, over 85,372 of John's own buildings (he uses X=2
-  2,804 times). On a multi-platform foundation the seam IS buildable, so offsets
-  0/1/18/19 occur there — don't carry the 1×1 bound across.
+### A rule I invented and John's game disproved
+The `VN-13p6` post-mortem claimed a `Virtual*` building may not sit on a
+`ControlledSignal*` port cell — inferred from a census where 45/45 of John's port
+cells hold only a `Wire`/`Display`/`ConstantSignal`. **`VN-13q1` shows an analyzer
+directly on the output port works fine.** The census described John's habits, not
+the game's rules. Removed from `validate_layout()`; recorded in `conventions.md` so
+it is not re-derived. **Absence from John's library is not a game rule** — the same
+trap PLAYBOOK already flags for footprints.
 
-**`validate_layout()` / `our_island()` now enforce all of this at build time**
-(John's request): out-of-bounds, cell collisions *including* invisible multi-cell
-bodies, port-cell violations, and any multi-cell building whose anchor we have never
-extracted. Regression-tested against the exact v1 layout.
+### TEST NEXT: four standalone blueprints, no labels
+The four-island version still goes missing, so VN-13 now ships as **four separate
+single-island blueprints** — `VN-13 NE colour`, `SE`, `SW`, `NW`. Each is
+**`VN-13q2` (confirmed working in-game) plus that quadrant's rotators**
+(confirmed by `p5`). Nothing in them is unproven, and the blueprint name does the job
+the labels were doing.
 
-### THE COLOUR MATHS IS ALREADY VALIDATED
-p5 fed `CrCgCbCu` through 1× CW into an analyzer and returned colour **`u`** and
-shape **`Cu------`** — exactly the original **NW** quadrant. The rotation mapping
-(NE none / SE 1× CCW / SW 2× CW / NW 1× CW) is **correct**. Only the plumbing was wrong.
+Per platform: `ConstantSignal`(123) `(7,10)` -> `ControlledSignalReceiver` `(9,10)`
+-> wire `(9,8)` -> rotators -> `VirtualAnalyzer`.
+**West display = COLOUR. North display = uncoloured shape.**
 
-### OPEN: which analyzer output is the colour?
-`conventions.md` says forward = shape, left = colour. The `Quaded Filter` fan agrees
-(its post-rotators hang off the **forward** output, and rotating a colour is
-meaningless). John's p5 reading — "colour out the **top**, `Cu------` out the
-**side**" — reads the other way. The view is angled so "top"/"side" is probably just
-ambiguous. **VN-13 v2 labels every display `FWD` or `LEFT` by the cell it sits on**,
-which settles it on sight.
+1. Stamp all four. Set the goal on `For Claude Wiring Shapes` to **`CrCgCbCu`**
+   (four *different* colours — a single-colour goal proves nothing here).
+2. Expect west displays: **NE=r, SE=g, SW=b, NW=uncoloured**.
+3. Then `Cr--CbCu` -> SE's colour goes **null**. That null is the no-paint flag.
 
-### TEST NEXT: `VN-13 colour brain test` (v2) + two probes
-v2 is **four separate 1×1 platforms** (NE, SE, SW, NW) side by side. Each reproduces
-John's validated receiver arrangement cell for cell — constant `(7,10)`, receiver
-`(9,10)`, **wire on the port cell `(9,8)`** — then grows the chain north from `(9,7)`,
-clear of the 3×3 body.
+### Still open: why does a multi-island blueprint we authored go missing?
+`q2` (one island) imports; the four-island v2 does not, and its NE platform is
+*exactly* q2 plus three labels. Ruled out: island entry structure (identical to
+John's), multi-island as such (his library has files with up to **88** 1x1 islands),
+labels being multi-cell (3,089 labels, 364 adjacent to another label). Two probes
+separate what is left:
+- **`VN-13r1 label by display`** — q2 + one label beside a display. A
+  `DisplayDefault` is adjacent to a label **0 times in 3,089** of John's labels:
+  suggestive, not proof.
+- **`VN-13r2 two islands`** — two label-free q2 platforms we authored ourselves
+  (every multi-island blueprint we have shipped so far lifted its islands from John).
 
-1. Stamp `VN-13 colour brain test`. Set the goal constant on
-   `For Claude Wiring Shapes` to **`CrCgCbCu`**.
-2. Read the eight displays. Expect **NE=r, SE=g, SW=b, NW=uncoloured** — and note
-   **which label (`FWD` or `LEFT`) sits by the colour swatch** rather than the shape.
-3. Then set `Cr--CbCu` and confirm SE's colour goes **null** — the no-paint flag.
-
-Also stamp the two probes; they pin the port-cell rule down:
-- **`VN-13q1 analyzer on port cell`** — analyzer placed *directly* on the port cell.
-  **Expected to be MISSING.** If it is present, the rule is wrong and something else
-  killed v1.
-- **`VN-13q2 wire then analyzer`** — wire on the port cell, analyzer beyond it.
-  **Expected to work**; it is exactly the pattern v2 uses.
+This matters beyond VN-13: the Phase 2 paint work will need multi-island blueprints.
 
 ### !! Palette correction: it is 3 paints + off, not 4
 Both `Paint 3 Filter` and `Paint 4 Filter` carry the **same** four constants —
