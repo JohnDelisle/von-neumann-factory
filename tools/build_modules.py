@@ -957,7 +957,20 @@ FOOTPRINTS = {
     "ControlledSignalTransmitterInternalVariant": (3, 3, "c"),
     "ControlledSignalTransmitterInternalVariantMirrored": (3, 3, "c"),
     "WireGlobalTransmitterReceiverInternalVariant": (3, 3, "c"),
+    # A LABEL IS THREE CELLS LONG, not 1x1 -- centred on its entry and running along
+    # the axis it faces. Extracted 2026-09-04 from the 5x5 occupancy around all 3,089
+    # labels in John's library, split by rotation:
+    #   R0/R2 (horizontal): (-1,0) and (+1,0) occupied 0 times out of 577, while the
+    #                       cells above and below are occupied freely;
+    #   R1/R3 (vertical):   (0,-1) and (0,+1) occupied 0 times out of 2,512, while
+    #                       left and right are occupied freely.
+    # A clean signal, and the reason it was missed at first is that a label CAN sit
+    # beside another building -- just never along its own axis.
+    "LabelDefaultInternalVariant": (3, 1, "c"),
 }
+
+# Buildings whose footprint turns with them (w/h swap on R1/R3).
+ROTATION_SWAPS_AXIS = {"LabelDefaultInternalVariant"}
 
 # The 3x3 body is now strongly evidenced, not inferred from one reference: across
 # **all 45 controlled-signal buildings in John's library**, the eight cells
@@ -992,6 +1005,8 @@ def footprint_cells(entry):
             f"Get a minimal reference from John (box-trick: outline it in belt on the "
             f"floor above) and add it to FOOTPRINTS before placing one.")
     w, h, anchor = FOOTPRINTS.get(T, (1, 1, "o"))
+    if T in ROTATION_SWAPS_AXIS and entry.get("R", 0) in (1, 3):
+        w, h = h, w
     if anchor == "c":
         x0, y0 = x - (w - 1) // 2, y - (h - 1) // 2
     else:
@@ -1144,7 +1159,7 @@ def goal_receiver_config():
     return rx[0]["C"]["$value"]
 
 
-def colour_brain_platform(quadrant, labels=False):
+def colour_brain_platform(quadrant, labels=True):
     """One quadrant's colour chain on its own 1x1, flowing NORTH (everything R3).
 
     The first three buildings are John's validated receiver arrangement, cell for
@@ -1152,10 +1167,9 @@ def colour_brain_platform(quadrant, labels=False):
     which John confirmed imports and runs. The only additions are this quadrant's
     rotators, which `VN-13p5` separately confirmed.
 
-    `labels` defaults to FALSE: v2 was label-free nowhere and went missing, while
-    every blueprint John has successfully imported from us either had no label or a
-    single isolated one. Labels are not proven guilty -- `VN-13r1` tests them -- but
-    they buy nothing here, since the blueprint's own NAME says which quadrant it is.
+    Labels are back on, now that a label is known to be **three cells long** along
+    its facing axis (see FOOTPRINTS). Every earlier label here overlapped a display,
+    which is what made the blueprints vanish; `validate_layout()` now refuses that.
     """
     rx_x, rx_y = RX_CELL
     b = [be("ConstantSignalDefaultInternalVariant", X=RX_CHANNEL_CELL[0],
@@ -1173,16 +1187,24 @@ def colour_brain_platform(quadrant, labels=False):
     b.append(be("DisplayDefaultInternalVariant", X=rx_x - 1, Y=y, R=2))
     b.append(be("DisplayDefaultInternalVariant", X=rx_x, Y=y - 1, R=3))
     if labels:
-        b.append(be("LabelDefaultInternalVariant", X=rx_x - 2, Y=y, R=2,
-                    C=label_config(quadrant + " colour")))
+        # A label is THREE cells along its facing axis, so an R0 label at (5,y)
+        # occupies (4,y),(5,y),(6,y) -- clear of the colour display at (8,y).
+        # Placing one at (7,y) is what broke r1/s1/s2: it reached into (8,y).
+        b.append(be("LabelDefaultInternalVariant", X=5, Y=y, R=0,
+                    C=label_config("COLOUR ->")))
+        b.append(be("LabelDefaultInternalVariant", X=4, Y=14, R=0,
+                    C=label_config("VN-13 " + quadrant)))
     return b
 
 
 def _colour_brain_module(quadrant):
     def build():
         check_int_signal_encoding()
+        # labels=False: these four are VALIDATED IN-GAME exactly as they are
+        # (John, 2026-09-04). Do not add anything to them -- if labels are wanted,
+        # that is what `VN-13t1` and `VN-13 colour brain all` are for.
         return blueprint_islands([our_island("Foundation_1x1",
-                                             colour_brain_platform(quadrant),
+                                             colour_brain_platform(quadrant, labels=False),
                                              where=f"VN-13 {quadrant}")])
     build.__doc__ = f"""VN-13 {quadrant}: the goal's {quadrant} quadrant colour, on one platform.
 
@@ -1197,37 +1219,31 @@ def _colour_brain_module(quadrant):
     return build
 
 
-# --- the packaging puzzle: two label probes ----------------------------------
-# UNRESOLVED. Full evidence table in docs/conventions.md. Summary: every blueprint we
-# have shipped that pairs a `Label` with ANY other building has gone missing from the
-# folder (p6, VN-13 v1, VN-13 v2, r1 -- 4 for 4), while a label ALONE on a platform
-# imports fine (p1) and every label-free blueprint imports fine. That cannot be a game
-# rule -- John's own `Quaded Filter` carries a label beside 1,067 other buildings --
-# so something about OUR label entries is subtly wrong, even though `label_config()`
-# is asserted byte-identical to his.
-#
-# One difference stands out and is worth one cheap test: **rotation**. p1's working
-# label was R0; every failing blueprint contains at least one **R2** label. John does
-# use R2 labels (`Painter`), so this is a guess, not a deduction -- hence a probe
-# rather than a rule. These two are identical apart from that R.
-#
-# (`VN-13r2`, two label-free islands, also went missing and is NOT explained by this.
-# Multi-island as such works -- VN-07/VN-10/VN-12 are multi-island and validated --
-# but every one of those lifts its islands from John rather than authoring them.)
-def _labelled_ne(rot):
-    b = colour_brain_platform("NE")
-    b.append(be("LabelDefaultInternalVariant", X=7, Y=7, R=rot, C=label_config("NE colour")))
-    return blueprint_islands([our_island("Foundation_1x1", b, where=f"label R{rot}")])
+# --- what is left of the packaging puzzle ------------------------------------
+# The label footprint explains p6, VN-13 v1, VN-13 v2, r1, s1 and s2: every one of
+# them ran a label into a neighbouring building (and p6's also off the platform edge).
+# `VN-13r2` -- two label-free islands, each of which imports standalone -- is NOT
+# explained by it and is still open. These two separate the last question.
+def vn13_colour_brain_all():
+    """All four quadrants on one blueprint, four islands, labels placed legally.
+
+    If this imports, both mysteries are closed at once. If it does not while `t1`
+    does, then multi-island blueprints whose islands WE author are the remaining
+    problem -- note that VN-07/VN-10/VN-12 are multi-island and validated, but each
+    lifts its islands from John's own files rather than building them."""
+    check_int_signal_encoding()
+    check_label_encoding()
+    return blueprint_islands([
+        our_island("Foundation_1x1", colour_brain_platform(q), X=n, Y=0, where=f"all {q}")
+        for n, q in enumerate(("NE", "SE", "SW", "NW"))])
 
 
-def vn13s1_label_r0():
-    """`VN-13 NE colour` (confirmed working) plus one label at R0 -- p1's rotation."""
-    return _labelled_ne(0)
-
-
-def vn13s2_label_r2():
-    """The same, with the label at R2 -- the rotation every failing blueprint had."""
-    return _labelled_ne(2)
+def vn13t1_one_island_labelled():
+    """Control: a single island, the confirmed-working NE chain plus the same two
+    legally-placed labels. Isolates 'labels are fixed' from 'multi-island works'."""
+    check_label_encoding()
+    return blueprint_islands([our_island("Foundation_1x1",
+                                         colour_brain_platform("NE"), where="t1")])
 
 
 MODULES = {
@@ -1250,8 +1266,8 @@ MODULES = {
     "VN-13 SE colour": _colour_brain_module("SE"),
     "VN-13 SW colour": _colour_brain_module("SW"),
     "VN-13 NW colour": _colour_brain_module("NW"),
-    "VN-13s1 label r0": vn13s1_label_r0,
-    "VN-13s2 label r2": vn13s2_label_r2,
+    "VN-13 colour brain all": vn13_colour_brain_all,
+    "VN-13t1 one island labelled": vn13t1_one_island_labelled,
 }
 
 if __name__ == "__main__":

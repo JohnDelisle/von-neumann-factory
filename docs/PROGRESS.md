@@ -219,18 +219,36 @@ cell, inferred from a census where 45/45 of John's port cells hold only
 output port works fine.** The census described John's habits, not the game's rules.
 Removed from `validate_layout()`. **Absence from John's library is not a game rule.**
 
-### UNRESOLVED: some generated blueprints never appear in the folder
-Full evidence table in `conventions.md`. A `Label` paired with any other building has
-gone missing **4 for 4** (p6, v1, v2, r1) while a label alone is fine (p1) — which
-cannot be a game rule, since John's `Quaded Filter` has a label beside 1,067
-buildings. `r2` (two label-free islands, each of which imports standalone) is also
-missing and is not explained by that.
+### SOLVED: a LABEL IS THREE CELLS LONG — that is what kept eating our blueprints
+`LabelDefaultInternalVariant` occupies **three cells centred on its entry, along the
+axis it faces** (R0/R2 horizontal, R1/R3 vertical). From the 5x5 occupancy around all
+**3,089** labels in John's library, split by rotation: the two cells along the axis are
+occupied **0 times out of 577** (R0/R2) and **0 out of 2,512** (R1/R3), while the
+perpendicular neighbours are occupied freely.
 
-**Workaround, proven: ONE island, NO labels.** Build everything that way until this is
-understood. Two optional probes are in the folder — `VN-13s1 label r0` and
-`VN-13s2 label r2`, identical but for the label's rotation (every missing file had an
-R2 label; p1's working one was R0). Low priority; ignore them if you would rather
-push on with the re-plumb.
+A label overrunning a neighbour makes the game **discard the whole file**. That
+explains `p6`, `VN-13 v1`, `VN-13 v2`, `r1`, `s1` and `s2` — each ran a label into an
+adjacent display; p6's also ran off the platform edge. `p1` (a label alone) imported,
+which is exactly why labels looked innocent for three rounds.
+
+**Why it hid so long:** a label *may* sit beside another building, just never along its
+own axis — so a census that did not split by `R` cleared them. `validate_layout()` now
+encodes it and rejects all six failing layouts while still passing p1.
+
+**The four validated `VN-13 * colour` blueprints are untouched** (asserted
+byte-identical to what John tested) — labels went into the new files instead.
+
+### STILL OPEN: `VN-13r2`, two label-free islands
+Not explained by the label rule. Two `Foundation_1x1` islands, no labels, each
+byte-for-byte a blueprint that imports standalone — and the pair went missing.
+Multi-island works in general (VN-07/VN-10/VN-12 are multi-island and validated) but
+all of those lift their islands from John rather than authoring them.
+
+**Two files in the folder settle it** (optional, ~1 minute):
+- **`VN-13t1 one island labelled`** — one island, the confirmed NE chain + two legally
+  placed labels. Expected to work; confirms the label fix.
+- **`VN-13 colour brain all`** — all four quadrants, four islands, legal labels.
+  If this works too, both mysteries are closed and it replaces the four separate files.
 
 ### !! Palette correction: it is 3 paints + off, not 4
 Both `Paint 3 Filter` and `Paint 4 Filter` carry the **same** four constants —
