@@ -1272,86 +1272,74 @@ def vn13t2_one_island_labelled():
 
 
 # ---------------------------------------------------------------- VN-14
-# THE BAND-MERGE AGGREGATOR, per unit.
+# THE BAND-MERGE AGGREGATOR, per unit. 16 filter band outputs -> 4 trunks, one per
+# quadrant POSITION -> 4 outputs into the unit's single surviving stacker cluster.
+# Paint goes on the trunks: each is uniform in colour by construction, which is the
+# whole reason for merging by position rather than by lane.
 #
-# 16 filter band outputs -> 4 trunks, one per quadrant POSITION -> 4 outputs into the
-# unit's single surviving stacker cluster. Paint goes on the four trunks (Phase 2a).
+# JOHN FIXED CLAUDE'S FIRST ATTEMPT (`For Claude Fixed Pipes.spz2bp`, 2026-09-04) and
+# this generator reproduces his layout **cell for cell** -- the build asserts it, so
+# his fix is now a regression test for ours (PLAYBOOK).
 #
-# This is the per-unit answer to John's `For Claude Space Belt.spz2bp`, which does the
-# same job for all four units at once (64 in / 4 trunks / 64 out). His version merges
-# across units, and that is a **4x throughput bottleneck**: within one unit exactly one
-# of four lanes is live on a band (12 lanes = one space belt), but the four units run
-# in parallel, so four of his sixteen inputs per trunk are live at once = 48 lanes on a
-# 12-lane belt. Merging per unit keeps every trunk at the 12 lanes it already carries,
-# and needs 4 stacker clusters instead of 16 (~91,300 buildings less).
+# THE BUG HE FOUND, and the rule that comes with it:
+#   **A Z-change unit cannot also merge, and the cell DIRECTLY BELOW a lift must be
+#   EMPTY.** Claude's first version spaced the trunks one column apart and dropped
+#   `Lift1DownForward` at (8,y,Z1) straight onto the NW trunk running at (8,y,Z0).
+#   In all 12 lifts of John's fixed version the Z0 cell under the lift is empty --
+#   no exceptions. Spacing the trunks TWO apart is what buys that clearance: odd
+#   columns carry trunks, even columns are free for lifts to land through.
 #
-# EVERY PIECE IS EXTRACTED FROM JOHN'S BLUEPRINT, not guessed (PLAYBOOK):
-#   west-flowing belt            SpaceBelt_Forward            R2
-#   north-flowing trunk          SpaceBelt_Forward            R3
-#   south-flowing belt           SpaceBelt_Forward            R1
-#   merge east input onto trunk  SpaceBelt_LeftFwdMerger      R3
-#   hop up out of the way        SpaceBelt_Lift1UpForward     R2   (Z0 -> Z1, one west)
-#   hop across                   SpaceBelt_Forward            R2   at Z=1
-#   hop back down                SpaceBelt_Lift1DownForward   R2   at Z=1 (-> Z0, one west)
-#   west -> north                SpaceBelt_RightTurn          R2
-#   north -> west                SpaceBelt_LeftTurn           R3
-#   west -> south                SpaceBelt_LeftTurn           R2
-#   south -> west                SpaceBelt_RightTurn          R1
-# The hop chain is John's exactly: lift up at the input column, run west at Z=1 over
-# the trunks in the way, drop down one cell east of the target trunk.
+# The three input patterns, all extracted, none invented:
+#   nearest band, no hop          (8,y) Forward R2            -> (7,y) LeftFwdMerger R3
+#   hop then MERGE                (8,y) Lift1UpForward R2
+#                                 (7..tx+2, y, Z1) Forward R2
+#                                 (tx+1, y, Z1) Lift1DownForward R2
+#                                                              -> (tx,y) LeftFwdMerger R3
+#   hop then START a trunk        (8,y) Lift1UpForward R2
+#     (the southernmost group)    (7..tx+1, y, Z1) Forward R2
+#                                 (tx, y, Z1) Lift1DownRight R2
+#                                                              -> (tx,y-1) Forward R3
+# `Lift1DownForward` lands one cell WEST at Z0; `Lift1DownRight` lands one cell NORTH
+# at Z0 -- the "rotate the exit 90 degrees" John described. The Right variant is how a
+# hopped stream starts a trunk without needing a separate turn, since a lift may turn
+# but may not merge.
 #
-# GEOMETRY (island coordinates in `For Claude Single layer MAM, no-paint`):
-#   Lanes at r = -9, -3, 3, 9. Each `Quaded Filter` stands north-south at X=10 over
-#   rows r-1..r+2, one band per row (NW, SW, SE, NE north->south), all leaving WEST
-#   at X=9. The surviving 5th cluster takes its four inputs on its EAST edge at
-#   X=-6, rows -10..-7.
+# LAYOUT (John's). Trunks on odd columns, lift clearance on even ones:
+#   band  trunk X  merges at rows      starts at   exits west along  delivery X  out at
+#   NW    7        -8, -2,  4          (7,10)      -12               -6          (-7,-8)
+#   SW    5        -7, -1,  5          (5,10)      -11               -5          (-7,-7)
+#   SE    3        -6,  0,  6          (3,11)      -10               -4          (-7,-6)
+#   NE    1        -5,  1,  7          (1,12)       -9               -3          (-7,-5)
 #
-#   band  trunk X  input rows          exit row  delivery X  cluster input
-#   NW    8        -10, -4,  2,  8     -14       -5          (-6,-10)
-#   SW    7         -9, -3,  3,  9     -13       -4          (-6, -9)
-#   SE    6         -8, -2,  4, 10     -12       -3          (-6, -8)
-#   NE    5         -7, -1,  5, 11     -11       -2          (-6, -7)
+# Only the 12 input hops ever leave Z=0. Everything else is flat, because each band's
+# northernmost source is one row south of the previous band's: trunk NW leaves west
+# along row -12, north of where SW/SE/NE begin, and the delivery columns nest the same
+# way -- the "outermost gets the longest run" trick John already uses to keep the lane
+# cluster outputs from crossing.
 #
-# WHY THIS ORDERING HAS NO CROSSINGS ANYWHERE EXCEPT THE 12 INPUT HOPS:
-# each band's northernmost source is one row further south than the previous band's,
-# so a trunk only spans rows from its own first input downward. Trunk NW leaves west
-# along row -14, north of where trunks SW/SE/NE even begin (-13/-12/-11); trunk SW
-# leaves along -13, north of SE and NE; and so on. The delivery columns nest the same
-# way. It is the same "outermost gets the longest run" trick John already uses to keep
-# the four lane clusters' outputs from crossing -- it just falls out in the other
-# direction here.
-BANDS = ("NW", "SW", "SE", "NE")
-LANE_ROWS = (-9, -3, 3, 9)
-INPUT_X = 9                                  # west of the filters at X=10
-TRUNK_X = {"NW": 8, "SW": 7, "SE": 6, "NE": 5}
-EXIT_ROW = {"NW": -14, "SW": -13, "SE": -12, "NE": -11}
-DELIVERY_X = {"NW": -5, "SW": -4, "SE": -3, "NE": -2}
-CLUSTER_IN = {"NW": (-6, -10), "SW": (-6, -9), "SE": (-6, -8), "NE": (-6, -7)}
+# !! The row/column anchors above are JOHN'S, from his fixed blueprint. They sit 2
+# rows south and 1 column east of where Claude derived the real machine's filter rows
+# (lane blocks at r-1..r+2 for r = -9,-3,3,9, cluster inputs at X=-6 rows -10..-7).
+# Translate before stamping, or confirm which anchoring is right.
+AGG_INPUT_X = 8
+AGG_TRUNK_X = (7, 5, 3, 1)              # by band offset: NW, SW, SE, NE
+AGG_GROUP_BASE = (-8, -2, 4, 10)        # row of the NW band in each lane block
+AGG_EXIT_ROW = (-12, -11, -10, -9)
+AGG_DELIVERY_X = (-6, -5, -4, -3)
+AGG_CLUSTER_ROW = (-8, -7, -6, -5)
+AGG_CLUSTER_X = -7
 
 SB_W = ("SpaceBelt_Forward", 2)
 SB_N = ("SpaceBelt_Forward", 3)
 SB_S = ("SpaceBelt_Forward", 1)
 SB_MERGE_N = ("SpaceBelt_LeftFwdMerger", 3)
 SB_UP = ("SpaceBelt_Lift1UpForward", 2)
-SB_DOWN = ("SpaceBelt_Lift1DownForward", 2)
+SB_DOWN_FWD = ("SpaceBelt_Lift1DownForward", 2)
+SB_DOWN_RIGHT = ("SpaceBelt_Lift1DownRight", 2)
 SB_W_TO_N = ("SpaceBelt_RightTurn", 2)
 SB_N_TO_W = ("SpaceBelt_LeftTurn", 3)
 SB_W_TO_S = ("SpaceBelt_LeftTurn", 2)
 SB_S_TO_W = ("SpaceBelt_RightTurn", 1)
-
-
-def check_spacebelt_vocabulary():
-    """Assert every piece we use appears in John's blueprint with that exact rotation
-    (and Z where it matters). If he re-exports a different design this fails loudly
-    rather than silently generating belts that do not connect."""
-    isls = load_reference_islands("For Claude Space Belt.spz2bp")
-    have = {(i["T"], i.get("R", 0), i.get("Z", 0)) for i in isls}
-    for name, (T, R), Z in (("west", SB_W, 0), ("north", SB_N, 0), ("south", SB_S, 0),
-                            ("merge", SB_MERGE_N, 0), ("lift up", SB_UP, 0),
-                            ("hop", SB_W, 1), ("lift down", SB_DOWN, 1),
-                            ("W->N", SB_W_TO_N, 0), ("N->W", SB_N_TO_W, 0),
-                            ("W->S", SB_W_TO_S, 0), ("S->W", SB_S_TO_W, 0)):
-        assert (T, R, Z) in have, f"{name}: {T} R{R} Z{Z} not present in John's design"
 
 
 def sb(piece, X, Y, Z=0):
@@ -1359,61 +1347,92 @@ def sb(piece, X, Y, Z=0):
     return island(T, X=X, Y=Y, Z=Z, R=R)
 
 
-def vn14_band_merge_aggregator():
-    """VN-14: the per-unit band-merge aggregator, space-belt only.
-
-    Drop-in for the strip freed by deleting the four per-lane stacker clusters. Takes
-    the 16 filter band outputs at X=9 and delivers four per-position streams to the
-    surviving cluster at X=-6. Insert `Paint 4 Filter` -> `Painter` on each trunk for
-    Phase 2a; the trunk is uniform in colour by construction, which is the whole point
-    of merging by position rather than by lane.
-    """
-    check_spacebelt_vocabulary()
+def _aggregator_islands():
+    """John's fixed per-unit aggregator, generated from the pattern."""
     out = []
-    for b_i, band in enumerate(BANDS):
-        tx, exit_row, dx = TRUNK_X[band], EXIT_ROW[band], DELIVERY_X[band]
-        rows = [r - 1 + b_i for r in LANE_ROWS]          # this band's four input rows
-        tail = max(rows)                                  # southern end of the trunk
+    tail_base = AGG_GROUP_BASE[-1]
+    for k in range(4):
+        tx, exit_row = AGG_TRUNK_X[k], AGG_EXIT_ROW[k]
+        merge_rows = [b + k for b in AGG_GROUP_BASE[:-1]]
+        tail_row = tail_base + k                       # this band's row in the last block
+        trunk_start = tail_row if k == 0 else tail_row - 1
 
-        # --- the sixteen inputs: west out of the filter, then hop over any trunks in
-        #     the way at Z=1 and drop onto this band's own trunk
-        for y in rows:
-            if b_i == 0:
-                out.append(sb(SB_W, INPUT_X, y))          # NW: nothing to hop
+        # --- the four inputs
+        for b in AGG_GROUP_BASE:
+            y = b + k
+            if k == 0:
+                out.append(sb(SB_W, AGG_INPUT_X, y))
+                continue
+            out.append(sb(SB_UP, AGG_INPUT_X, y))
+            last_hop = tx + 1 if y == tail_row else tx + 2
+            for x in range(AGG_INPUT_X - 1, last_hop - 1, -1):
+                out.append(sb(SB_W, x, y, Z=1))
+            # a lift may TURN but may not MERGE, and needs the cell below it empty
+            if y == tail_row:
+                out.append(sb(SB_DOWN_RIGHT, tx, y, Z=1))      # lands (tx, y-1) at Z0
             else:
-                out.append(sb(SB_UP, INPUT_X, y))
-                for x in range(INPUT_X - 1, tx + 1, -1):  # Z=1, over the trunks east of us
-                    out.append(sb(SB_W, x, y, Z=1))
-                out.append(sb(SB_DOWN, tx + 1, y, Z=1))
+                out.append(sb(SB_DOWN_FWD, tx + 1, y, Z=1))    # lands (tx, y) at Z0
 
-        # --- the trunk: north from its southernmost input up to its exit row
-        for y in range(exit_row, tail + 1):
-            if y == tail:
-                out.append(sb(SB_W_TO_N, tx, y))          # first input starts the trunk
-            elif y in rows:
-                out.append(sb(SB_MERGE_N, tx, y))         # later inputs merge in
-            elif y == exit_row:
-                out.append(sb(SB_N_TO_W, tx, y))          # head: turn west
+        # --- the trunk, north from where it starts up to its exit row
+        for y in range(exit_row, trunk_start + 1):
+            if y == exit_row:
+                out.append(sb(SB_N_TO_W, tx, y))
+            elif y in merge_rows:
+                out.append(sb(SB_MERGE_N, tx, y))
+            elif y == trunk_start and k == 0:
+                out.append(sb(SB_W_TO_N, tx, y))               # unhopped band turns in
             else:
                 out.append(sb(SB_N, tx, y))
 
-        # --- west along the exit row, then south down the delivery column
+        # --- west along the exit row, south down the delivery column, into the cluster
+        dx, cy = AGG_DELIVERY_X[k], AGG_CLUSTER_ROW[k]
         for x in range(tx - 1, dx, -1):
             out.append(sb(SB_W, x, exit_row))
         out.append(sb(SB_W_TO_S, dx, exit_row))
-        cx, cy = CLUSTER_IN[band]
         for y in range(exit_row + 1, cy):
             out.append(sb(SB_S, dx, y))
         out.append(sb(SB_S_TO_W, dx, cy))
-        for x in range(dx - 1, cx - 1, -1):
+        for x in range(dx - 1, AGG_CLUSTER_X - 1, -1):
             out.append(sb(SB_W, x, cy))
+    return out
 
-    # --- structural check: no two islands may share a platform cell at the same level
+
+def check_aggregator_matches_john():
+    """Assert our generated aggregator is John's `For Claude Fixed Pipes` cell for
+    cell. He hand-fixed our first attempt, so this turns his fix into a regression
+    test -- if either drifts, the build says exactly which cells differ."""
+    ours = {(i["X"], i["Y"], i["Z"]): (i["T"], i["R"]) for i in _aggregator_islands()}
+    johns = {(i["X"], i["Y"], i.get("Z", 0)): (i["T"], i.get("R", 0))
+             for i in load_reference_islands("For Claude Fixed Pipes.spz2bp")}
+    if ours != johns:
+        diff = []
+        for cell in sorted(set(ours) | set(johns)):
+            if ours.get(cell) != johns.get(cell):
+                diff.append(f"{cell}: ours={ours.get(cell)} johns={johns.get(cell)}")
+        raise AssertionError(f"aggregator differs from John's fix in {len(diff)} cells:\n  "
+                             + "\n  ".join(diff[:25]))
+
+
+def vn14_band_merge_aggregator():
+    """VN-14: the per-unit band-merge aggregator, space-belt only.
+
+    16 filter band outputs -> 4 per-position trunks -> 4 streams into the surviving
+    stacker cluster. Insert `Paint 4 Filter` -> `Painter` anywhere on a trunk's
+    straight run for Phase 2a.
+    """
+    check_aggregator_matches_john()
+    out = _aggregator_islands()
     seen = {}
     for i in out:
         key = (i["X"], i["Y"], i["Z"])
         assert key not in seen, f"island collision at {key}: {i['T']} vs {seen[key]}"
         seen[key] = i["T"]
+    for i in out:
+        if "Lift1Down" in i["T"] or "Lift1Up" in i["T"]:
+            other = (i["X"], i["Y"], 1 - i["Z"])
+            assert other not in seen, (
+                f"{i['T']} at ({i['X']},{i['Y']},Z{i['Z']}) has {seen[other]} directly "
+                f"below/above it -- a Z-change unit needs that cell clear")
     return blueprint_islands(out)
 
 

@@ -715,3 +715,40 @@ than lifting them from John's files is fine, and the earlier `VN-13r2` failure (
 label-free islands) is **unexplained but superseded**: the same construction, scaled
 up to four islands, works. It was most likely mis-read during a batch check of six
 files. Do not build a theory on it; if it recurs, bisect it fresh.
+
+## Space-belt Z changes: the lift rules (EXTRACTED 2026-09-04, `For Claude Fixed Pipes`)
+
+Multi-level space belts work — islands carry a `Z` field and John routes over
+crossings at `Z=1`. But the lift units are strict, and John named the constraint:
+**a Z-change unit cannot also merge.** Doing both takes two units — the lift, then a
+separate merger. A lift *may* rotate its exit 90 degrees, which is what the `Right`
+variants are for.
+
+| unit | sits at | delivers to |
+|---|---|---|
+| `SpaceBelt_Lift1UpForward` R2 | `(x,y,Z0)` | `(x-1, y, Z1)` — up one level, one cell forward |
+| `SpaceBelt_Lift1DownForward` R2 | `(x,y,Z1)` | `(x-1, y, Z0)` — down one level, one cell forward |
+| `SpaceBelt_Lift1DownRight` R2 | `(x,y,Z1)` | `(x, y-1, Z0)` — down one level, exit turned 90° right |
+
+**!! The cell directly above/below a lift must be EMPTY.** True of all 12 lifts in
+John's fixed blueprint, with no exceptions — a trunk may not run underneath one.
+**This is what broke Claude's first aggregator**: it spaced the trunks one column
+apart and dropped a `Lift1DownForward` at `(8,y,Z1)` straight onto the trunk running
+at `(8,y,Z0)`.
+
+**The fix is a spacing discipline: trunks on every OTHER column.** Odd columns carry
+trunks, even columns stay clear so lifts have somewhere to land through. A plain
+`Forward` at `Z=1` may pass over an occupied `Z=0` cell — only lifts need clearance.
+
+### The three input patterns (use verbatim; do not re-derive)
+```
+nearest band, no hop   (8,y) Forward R2                      -> (7,y) LeftFwdMerger R3
+hop then MERGE         (8,y) Lift1UpForward R2
+                       (7 .. tx+2, y, Z1) Forward R2
+                       (tx+1, y, Z1) Lift1DownForward R2      -> (tx,y) LeftFwdMerger R3
+hop then START a trunk (8,y) Lift1UpForward R2
+                       (7 .. tx+1, y, Z1) Forward R2
+                       (tx,   y, Z1) Lift1DownRight R2        -> (tx,y-1) Forward R3
+```
+The `Right` variant is how a hopped stream starts a trunk without a separate turn —
+a lift may turn but may not merge, so there is no unit that could do both.
