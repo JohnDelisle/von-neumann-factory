@@ -100,6 +100,33 @@ filters are untouched. Four blueprint variants, one per band.
   (L2 has 247). Drop to L0 with `WireDefault1Up/2UpBackward`, as John already does
   at `(26,5)`/`(27,5)`.
 
+### BUILT THIS SESSION: `VN-13 colour brain test` — **test this first**
+A standalone `Foundation_1x1`, 30 buildings, in `blueprints/` and mirrored into the
+in-game folder. Four independent chains, one per quadrant, each
+`ControlledSignalReceiver`(ch 123) -> rotator(s) -> `VirtualAnalyzer`, with a
+`Display` on the analyzer's **colour** (left/west) output and another on its
+uncoloured **shape** (forward/north) output, all labelled.
+
+| quadrant | receiver | rotation | analyzer | colour display | shape display |
+|---|---|---|---|---|---|
+| NE | `(4,15)`  | none      | `(4,13)`  | `(3,13)`  | `(4,12)`  |
+| SE | `(8,15)`  | 1x CCW    | `(8,12)`  | `(7,12)`  | `(8,11)`  |
+| SW | `(12,15)` | 2x CW     | `(12,11)` | `(11,11)` | `(12,10)` |
+| NW | `(16,15)` | 1x CW     | `(16,12)` | `(15,12)` | `(16,11)` |
+
+**Test recipe (John):**
+1. Stamp `VN-13 colour brain test` anywhere (force a blueprint-folder refresh first).
+2. On `For Claude Wiring Shapes`, change the transmitter's shape constant at
+   `(-5,14)` from `Su--WuCu` to something **coloured with four different colours**,
+   e.g. `CrCgCbCu` — distinct colour per quadrant, so a swapped pair is obvious.
+3. Read the four colour displays. Expect **NE=r, SE=g, SW=b, NW=uncoloured/null**.
+4. Then try a goal with an **empty** quadrant (e.g. `Cr--CbCu`) — the SE colour
+   display should go **null**. That is the no-paint flag Phase 2 depends on.
+5. Screenshot please. What can be wrong: a rotation direction (colours appear
+   permuted) or the analyzer's colour side (nothing on the displays at all).
+
+Only once this passes do the compare-bank + graft onto `Paint 4 Filter` get built.
+
 ### !! Palette correction: it is 3 paints + off, not 4
 Both `Paint 3 Filter` and `Paint 4 Filter` carry the **same** four constants —
 `r`, `g`, `b`, and **null**. The "3"/"4" is not the palette size. So:
@@ -306,6 +333,7 @@ work on `load_fixed_stacker_islands()`, never the stock reference.**
 | `VN-11a filter verbatim` | control: stock preset-driven filter, known-good baseline |
 | `VN-12 MAM goal driven` | VALIDATED — superseded by John's Phase 1 build |
 | `VN-12 MAM preset CuRuSuWu` | VALIDATED — preset-driven A/B |
+| `VN-13 colour brain test` | **NEW, awaiting John's in-game test** — 4 goal quadrant colours on displays |
 
 **Superseded by John's Phase 1 machines** (`blueprints/reference/For Claude Single
 layer MAM, no-paint` and `... Working Full Belt ...`) — the VN-1x series is history

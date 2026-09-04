@@ -924,6 +924,163 @@ def vn12_mam_goal_driven():
     return blueprint_islands(islands)
 
 
+# ---------------------------------------------------------------- VN-13
+# The COLOUR BRAIN: extract the goal's per-quadrant COLOUR from the goal signal.
+#
+# Phase 2 needs, for each band P, the colour the goal wants at position P. John
+# confirmed the Shape Analyzer contract: it reads the input shape's **NE** part and
+# emits the uncoloured shape on its FORWARD output and that part's COLOUR on its
+# LEFT (R-1) output -- `null` for an empty or pin quadrant, which is a ready-made
+# "this quadrant needs no paint" flag.
+#
+# We do NOT take this from the `Quaded Filter`'s existing analyzer fan:
+#   * the fan's four analyzers are stacked in column X=10 all facing R0, so each
+#     one's left/colour cell is the next analyzer -- only the top is free (10,16);
+#   * and it would be pointless anyway. The colours are a function of the GOAL, not
+#     of the lane, so all four lanes' filters (sixteen at full belt) would compute
+#     the same four signals. The colour logic belongs downstream, on the paint
+#     platform, once per band. See docs/architecture.md.
+#
+# Unlike the shape fan this chain needs NO post-rotation: rotation does not change
+# a colour, so we rotate the goal so the wanted quadrant lands in NE, analyze, and
+# read the left output directly.
+#
+#   quadrant | rotation before the analyzer
+#   ---------+------------------------------
+#   NE       | none
+#   SE       | 1x VirtualRotatorCCW
+#   SW       | 2x VirtualRotator      (CW; 2 steps, direction irrelevant)
+#   NW       | 1x VirtualRotator      (CW)
+#
+# (k CW steps bring the quadrant k places CCW from NE into NE.)
+#
+# GEOMETRY -- every cell below is from an EXTRACTED reference, never guessed:
+#   * `ControlledSignalReceiver` is 3x3 centred on its entry cell, ports 2 cells
+#     out: channel in from the LEFT (origin-2), signal out FORWARD (origin-2).
+#     From `For Claude Signal Receiver.spz2bp`, where John outlined the building
+#     with an L1 belt ring at X7-11/Y8-12 around the entry at (9,10) R3 -- the ring
+#     is the cells just OUTSIDE a 3x3, and his own output wire starts at (9,8).
+#   * `VirtualAnalyzer` / `VirtualRotator*`: in from behind, out forward (+ left for
+#     the analyzer). `DisplayDefault`: in from behind. All 1x1. From
+#     `For Claude Wiring Shapes.spz2bp` -- see docs/conventions.md port map.
+#
+# Four independent receivers rather than one receiver fanned out on wire: a
+# receiver is 9 cells and we have room, and it avoids inventing wire-junction
+# connectivity we have no reference for.
+QUADRANT_ROTATIONS = {
+    "NE": [],
+    "SE": ["VirtualRotatorCCWInternalVariant"],
+    "SW": ["VirtualRotatorDefaultInternalVariant"] * 2,
+    "NW": ["VirtualRotatorDefaultInternalVariant"],
+}
+GOAL_CHANNEL = 123
+
+
+def label_config(text):
+    """A `LabelDefaultInternalVariant` config: u16 LE length + UTF-8 (conventions)."""
+    raw = text.encode("utf-8")
+    return config(base64.b64encode(len(raw).to_bytes(2, "little") + raw).decode("ascii"))
+
+
+def check_label_encoding():
+    """Self-check: reproduce John's 'Quaded Filter' label byte-for-byte."""
+    isl = load_reference_island("Quaded Filter.spz2bp")
+    lbl = [e for e in gv(isl["B"]["Entries"]) if e["T"] == "LabelDefaultInternalVariant"]
+    assert len(lbl) == 1 and label_texts(isl) == ["Quaded Filter"]
+    ours = label_config("Quaded Filter")["$value"]
+    assert ours == lbl[0]["C"]["$value"], f"label encoding mismatch: {ours!r}"
+
+
+def goal_receiver_config():
+    """The `ControlledSignalReceiver` config, taken VERBATIM from John's minimal
+    reference rather than hardcoded -- if he ever changes it, we follow."""
+    isl = load_reference_island("For Claude Signal Receiver.spz2bp")
+    rx = [e for e in gv(isl["B"]["Entries"])
+          if e["T"] == "ControlledSignalReceiverInternalVariant"]
+    assert len(rx) == 1, "minimal receiver reference is not as described"
+    # and confirm the footprint evidence is still there: the L1 outline ring
+    ring = {(e["X"], e["Y"]) for e in gv(isl["B"]["Entries"]) if e["L"] == 1}
+    expect = {(x, y) for x in range(7, 12) for y in range(8, 13)
+              if x in (7, 11) or y in (8, 12)}
+    assert ring == expect, \
+        "the L1 footprint outline in For Claude Signal Receiver has changed"
+    return rx[0]["C"]["$value"]
+
+
+def colour_brain_chain(quadrant, rx_x, rx_y):
+    """One quadrant's colour-extraction chain on a 1x1, flowing NORTH (all R3).
+
+    `ControlledSignalReceiver` entry at (rx_x, rx_y) => 3x3 over rx_x+-1/rx_y+-1,
+    channel constant at (rx_x-2, rx_y), goal signal out at (rx_x, rx_y-2).
+    Rotators then the analyzer stack north from there; the analyzer's LEFT (west)
+    neighbour takes the COLOUR, its forward (north) neighbour the uncoloured shape.
+    """
+    b = [be("ControlledSignalReceiverInternalVariant", X=rx_x, Y=rx_y, R=3,
+            C=config(goal_receiver_config())),
+         be("ConstantSignalDefaultInternalVariant", X=rx_x - 2, Y=rx_y, R=0,
+            C=int_signal_config(GOAL_CHANNEL))]
+    y = rx_y - 2
+    for rot in QUADRANT_ROTATIONS[quadrant]:
+        b.append(be(rot, X=rx_x, Y=y, R=3))
+        y -= 1
+    b.append(be("VirtualAnalyzerDefaultInternalVariant", X=rx_x, Y=y, R=3))
+    # LEFT output of an R3 building is WEST: the colour. This is the whole point.
+    b.append(be("DisplayDefaultInternalVariant", X=rx_x - 1, Y=y, R=2))
+    b.append(be("LabelDefaultInternalVariant", X=rx_x - 2, Y=y, R=2,
+                C=label_config(quadrant + " colour")))
+    # FORWARD output is the uncoloured single-quadrant shape -- shown as a control.
+    b.append(be("DisplayDefaultInternalVariant", X=rx_x, Y=y - 1, R=3))
+    return b
+
+
+def vn13_colour_brain_test():
+    """VN-13: read all four of the goal's quadrant COLOURS off one platform.
+
+    A standalone validation of the Phase 2 colour front end with nothing else
+    attached -- stamp it anywhere, set a COLOURED goal on channel 123, read four
+    colour displays. Validates in isolation what will then be grafted onto each
+    `Paint 4 Filter` in place of its four `ButtonDefault`s.
+
+    Layout (Foundation_1x1, buildable [2,17], all L0, everything faces R3/north).
+    Four independent chains at X = 4, 8, 12, 16, receivers on Y14-16, each chain
+    growing north by its rotation count so the analyzers land on different rows:
+
+        NE  analyzer (4,13)   colour display (3,13)   shape display (4,12)
+        SE  analyzer (8,12)   colour display (7,12)   shape display (8,11)
+        SW  analyzer (12,11)  colour display (11,11)  shape display (12,10)
+        NW  analyzer (16,12)  colour display (15,12)  shape display (16,11)
+    """
+    check_int_signal_encoding()
+    check_label_encoding()
+    b = [be("LabelDefaultInternalVariant", X=2, Y=3, R=0,
+            C=label_config("VN-13 colour brain test - goal ch 123"))]
+    for quadrant, rx_x in zip(("NE", "SE", "SW", "NW"), (4, 8, 12, 16)):
+        b += colour_brain_chain(quadrant, rx_x, 15)
+
+    # structural self-checks: nothing overlaps, everything is buildable, and the
+    # 3x3 receiver bodies do not collide with anything (they record only an origin,
+    # so their other 8 cells are invisible in the entry list -- conventions.md)
+    occupied = {}
+    for e in b:
+        key = (e["X"], e["Y"], e["L"])
+        assert key not in occupied, f"cell collision at {key}: {e['T']} vs {occupied[key]}"
+        occupied[key] = e["T"]
+        assert 2 <= e["X"] <= 17 and 2 <= e["Y"] <= 17, f"{e['T']} outside [2,17]: {key}"
+    for e in b:
+        if e["T"] != "ControlledSignalReceiverInternalVariant":
+            continue
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                if dx == dy == 0:
+                    continue
+                cell = (e["X"] + dx, e["Y"] + dy, e["L"])
+                assert cell not in occupied, \
+                    f"receiver body cell {cell} is taken by {occupied[cell]}"
+                assert 2 <= cell[0] <= 17 and 2 <= cell[1] <= 17, \
+                    f"receiver 3x3 body overruns the platform at {cell}"
+    return blueprint_islands([island("Foundation_1x1", buildings=b)])
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
@@ -940,6 +1097,7 @@ MODULES = {
     "VN-11 quaded filter goal driven": vn11_quaded_filter_goal_driven,
     "VN-12 MAM preset CuRuSuWu": vn12_mam_preset_curusuwu,
     "VN-12 MAM goal driven": vn12_mam_goal_driven,
+    "VN-13 colour brain test": vn13_colour_brain_test,
 }
 
 if __name__ == "__main__":
