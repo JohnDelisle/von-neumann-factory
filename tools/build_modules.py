@@ -924,49 +924,182 @@ def vn12_mam_goal_driven():
     return blueprint_islands(islands)
 
 
-# ---------------------------------------------------------------- VN-13
+# ------------------------------------------------- platform bounds & footprints
+# John asked for this after VN-13p4 stamped with the signal generator clashing into
+# the receiver: "maybe add some platform size/boundary detection to prevent future
+# issues like that?" (2026-09-04).
+#
+# The buildable window is [2,17] in BOTH axes on a 1x1 -- not a guess: measured over
+# **85,372 buildings on Foundation_1x1 platforms** across John's whole library
+# (blueprints/2026 + blueprints/reference). X range 2..17, Y range 2..17, and he uses
+# the extremes himself (X=2 2,804 times, Y=17 856 times). So the edge is NOT what
+# broke VN-13p4.
+#
+# What broke it is the second rule below: **a multi-cell building records only its
+# ORIGIN cell** (conventions.md), so its other cells are invisible in the entry list
+# and nothing stops us dropping another building on top of them. A
+# `ControlledSignalReceiver` is 3x3 centred on its entry, so the receiver at (4,15)
+# occupies X3-5/Y14-16 -- and VN-13's chain was laid straight through that body.
+#
+# FOOTPRINTS: (width, height, anchor). Anchor "c" = entry cell is the centre;
+# "o" = entry cell is the origin corner (extends +X/+Y). Only list what we have
+# EXTRACTED; anything unknown that is not plainly 1x1 goes in UNKNOWN_FOOTPRINT and
+# raises rather than being assumed 1x1 -- assuming is exactly how VN-13 shipped broken.
+PLATFORM_MIN, PLATFORM_MAX = 2, 17
+
+FOOTPRINTS = {
+    # 3x3 centred -- from `For Claude Signal Receiver.spz2bp`, where John outlined
+    # the receiver at (9,10) with an L1 belt ring at X7-11/Y8-12. That ring is the
+    # border of a 5x5, i.e. exactly the cells adjacent to a 3x3 core at X8-10/Y9-11,
+    # and his own output wire sits at (9,8) ON the ring. Ports are at origin +-2.
+    "ControlledSignalReceiverInternalVariant": (3, 3, "c"),
+    "ControlledSignalReceiverInternalVariantMirrored": (3, 3, "c"),
+    "ControlledSignalTransmitterInternalVariant": (3, 3, "c"),
+    "ControlledSignalTransmitterInternalVariantMirrored": (3, 3, "c"),
+    "WireGlobalTransmitterReceiverInternalVariant": (3, 3, "c"),
+}
+
+# The 3x3 body is now strongly evidenced, not inferred from one reference: across
+# **all 45 controlled-signal buildings in John's library**, the eight cells
+# immediately around the entry are EMPTY in every single instance, and the only
+# occupied cells within 2 sit exactly on the ports at +-2.
+#
+# That same census gives a second rule. A port cell (+-2 along either axis) is only
+# ever occupied by a **Wire*, Display* or ConstantSignal** -- `WireDefaultForward`,
+# `WireDefaultJunction`, `DisplayDefault`, `ConstantSignalDefault`. A Virtual* or
+# LogicGate* building is NEVER placed there. VN-13 v1 put a `VirtualAnalyzer`
+# directly on the receiver's output port at (4,13) and the game rejected the whole
+# file, which is what this rule now catches. Route out through a wire first, exactly
+# as John does at (9,8) in `For Claude Signal Receiver.spz2bp`.
+PORT_OCCUPANT_PREFIXES = ("WireDefault", "DisplayDefault", "ConstantSignalDefault")
+
+# Multi-cell buildings whose anchor we have NOT established. Placing one is refused
+# until someone extracts it (PLAYBOOK: ask John for a minimal reference, ideally with
+# the building outlined in belt on the floor above).
+UNKNOWN_FOOTPRINT = {
+    "Display2x2InternalVariant", "Display2x2InternalVariantMirrored",
+    "Display3x3InternalVariant",
+    "VirtualHalvesSwapperDefaultInternalVariant",
+}
+
+
+def footprint_cells(entry):
+    """Every cell a building actually occupies -- not just the origin it records."""
+    T, x, y, L = entry["T"], entry["X"], entry["Y"], entry.get("L", 0)
+    if T in UNKNOWN_FOOTPRINT:
+        raise AssertionError(
+            f"{T} at ({x},{y},L{L}): multi-cell building with an UNEXTRACTED anchor. "
+            f"Get a minimal reference from John (box-trick: outline it in belt on the "
+            f"floor above) and add it to FOOTPRINTS before placing one.")
+    w, h, anchor = FOOTPRINTS.get(T, (1, 1, "o"))
+    if anchor == "c":
+        x0, y0 = x - (w - 1) // 2, y - (h - 1) // 2
+    else:
+        x0, y0 = x, y
+    return [(x0 + dx, y0 + dy, L) for dx in range(w) for dy in range(h)]
+
+
+def validate_layout(buildings, where="", foundation="Foundation_1x1"):
+    """Refuse a layout that the game would reject or mis-stamp.
+
+    Catches, for every building INCLUDING the hidden cells of multi-cell ones:
+      * anything outside the buildable [2,17] window;
+      * two buildings sharing a cell.
+    Only 1x1 foundations are bounds-checked -- for a multi-platform foundation the
+    local-coordinate window depends on the island rotation (a Foundation_1x4 at R1
+    runs along Y, not X), which we have not pinned down, so bounds are skipped and
+    only collisions are checked.
+    """
+    problems, occupied = [], {}
+    check_bounds = foundation == "Foundation_1x1"
+    at = {(e["X"], e["Y"], e.get("L", 0)): e for e in buildings}
+    for e in buildings:
+        w, h, anchor = FOOTPRINTS.get(e["T"], (1, 1, "o"))
+        if anchor != "c" or (w, h) != (3, 3):
+            continue
+        for dx, dy in ((0, -2), (0, 2), (-2, 0), (2, 0)):
+            nb = at.get((e["X"] + dx, e["Y"] + dy, e.get("L", 0)))
+            if nb is not None and not nb["T"].startswith(PORT_OCCUPANT_PREFIXES):
+                problems.append(
+                    f"{nb['T']} at ({nb['X']},{nb['Y']},L{nb.get('L',0)}) sits on a PORT "
+                    f"cell of {e['T']} at ({e['X']},{e['Y']}) -- in all 45 of John's "
+                    f"instances a port cell holds only a Wire/Display/ConstantSignal. "
+                    f"Route out through a wire first.")
+    for e in buildings:
+        for cell in footprint_cells(e):
+            x, y, L = cell
+            if check_bounds and not (PLATFORM_MIN <= x <= PLATFORM_MAX
+                                     and PLATFORM_MIN <= y <= PLATFORM_MAX):
+                problems.append(
+                    f"{e['T']} at ({e['X']},{e['Y']},L{e.get('L',0)}) occupies {cell} "
+                    f"-- outside the buildable [{PLATFORM_MIN},{PLATFORM_MAX}] window")
+            if cell in occupied:
+                problems.append(
+                    f"{e['T']} at ({e['X']},{e['Y']},L{e.get('L',0)}) and "
+                    f"{occupied[cell]} both occupy {cell}")
+            occupied[cell] = f"{e['T']} at ({e['X']},{e['Y']},L{e.get('L',0)})"
+    if problems:
+        raise AssertionError(f"invalid layout {where}:\n  " + "\n  ".join(problems))
+    return buildings
+
+
+def our_island(foundation, buildings, **kw):
+    """`island()` for platforms WE author -- validated before it can ship."""
+    validate_layout(buildings, where=kw.get("where", foundation), foundation=foundation)
+    kw.pop("where", None)
+    return island(foundation, buildings=buildings, **kw)
+
+
+# ---------------------------------------------------------------- VN-13 (v2)
 # The COLOUR BRAIN: extract the goal's per-quadrant COLOUR from the goal signal.
 #
-# Phase 2 needs, for each band P, the colour the goal wants at position P. John
-# confirmed the Shape Analyzer contract: it reads the input shape's **NE** part and
-# emits the uncoloured shape on its FORWARD output and that part's COLOUR on its
-# LEFT (R-1) output -- `null` for an empty or pin quadrant, which is a ready-made
-# "this quadrant needs no paint" flag.
+# Phase 2 needs, for each band P, the colour the goal wants at position P. The
+# analyzer reads its input shape's NE part and emits that part's shape on one output
+# and its COLOUR on the other -- and the colour is `null` for an empty or pin
+# quadrant, a ready-made "this quadrant needs no paint" flag.
 #
-# We do NOT take this from the `Quaded Filter`'s existing analyzer fan:
-#   * the fan's four analyzers are stacked in column X=10 all facing R0, so each
-#     one's left/colour cell is the next analyzer -- only the top is free (10,16);
-#   * and it would be pointless anyway. The colours are a function of the GOAL, not
-#     of the lane, so all four lanes' filters (sixteen at full belt) would compute
-#     the same four signals. The colour logic belongs downstream, on the paint
-#     platform, once per band. See docs/architecture.md.
-#
-# Unlike the shape fan this chain needs NO post-rotation: rotation does not change
-# a colour, so we rotate the goal so the wanted quadrant lands in NE, analyze, and
-# read the left output directly.
+# So: rotate the goal so the wanted quadrant lands in NE, analyze, read the colour.
+# No post-rotation, unlike the filter's shape fan -- rotating a colour is a no-op.
 #
 #   quadrant | rotation before the analyzer
-#   ---------+------------------------------
 #   NE       | none
 #   SE       | 1x VirtualRotatorCCW
-#   SW       | 2x VirtualRotator      (CW; 2 steps, direction irrelevant)
+#   SW       | 2x VirtualRotator      (CW)
 #   NW       | 1x VirtualRotator      (CW)
 #
-# (k CW steps bring the quadrant k places CCW from NE into NE.)
+# v1 WAS REJECTED BY THE GAME -- it never appeared in the blueprint folder. The
+# bisection (VN-13p0..p6, John 2026-09-04) found why, and both causes were mine:
 #
-# GEOMETRY -- every cell below is from an EXTRACTED reference, never guessed:
-#   * `ControlledSignalReceiver` is 3x3 centred on its entry cell, ports 2 cells
-#     out: channel in from the LEFT (origin-2), signal out FORWARD (origin-2).
-#     From `For Claude Signal Receiver.spz2bp`, where John outlined the building
-#     with an L1 belt ring at X7-11/Y8-12 around the entry at (9,10) R3 -- the ring
-#     is the cells just OUTSIDE a 3x3, and his own output wire starts at (9,8).
-#   * `VirtualAnalyzer` / `VirtualRotator*`: in from behind, out forward (+ left for
-#     the analyzer). `DisplayDefault`: in from behind. All 1x1. From
-#     `For Claude Wiring Shapes.spz2bp` -- see docs/conventions.md port map.
+#   p0-p3 present  => our encoder, our label/int encodings, the receiver itself and
+#                     John's own receiver coordinates are all fine.
+#   p4 PRESENT BUT INVALID  => receiver (4,15) + channel constant (2,15). Not an edge
+#                     problem: [2,17] is confirmed buildable in both axes over 85,372
+#                     of John's own buildings on 1x1s. The receiver is **3x3 centred**,
+#                     so it occupies X3-5/Y14-16 and the layout clashed with its own
+#                     invisible body.
+#   p5 present     => the virtual chain and the shape-signal encoding are fine, and
+#                     it read `CrCgCbCu` -> 1x CW -> colour `u` + shape `Cu------`,
+#                     which is EXACTLY the predicted NW quadrant. **The colour maths
+#                     is validated.**
+#   p6 MISSING     => one chain at those same cells: the analyzer/displays/label were
+#                     laid straight through the receiver's 3x3 body.
 #
-# Four independent receivers rather than one receiver fanned out on wire: a
-# receiver is 9 cells and we have room, and it avoids inventing wire-junction
-# connectivity we have no reference for.
+# v2 therefore does two things differently:
+#   1. every platform reproduces JOHN'S OWN validated arrangement verbatim --
+#      constant (7,10) R0, receiver (9,10) R3, and a wire on the output port cell
+#      (9,8), exactly as in `For Claude Signal Receiver.spz2bp` -- and only then
+#      grows the chain north from (9,7), well clear of the 3x3 body at X8-10/Y9-11;
+#   2. one chain per platform, four separate 1x1 islands, so no chain can ever reach
+#      into another's receiver.
+# And `validate_layout()` now refuses this class of bug at build time.
+#
+# OPEN QUESTION the displays are labelled to settle: WHICH output is the colour?
+# docs/conventions.md says shape=forward, colour=left. John's p5 reading was "colour
+# out the top, `Cu------` out the side", which reads as the opposite -- but the
+# `Quaded Filter` fan feeds its post-rotators from the FORWARD output, and rotating a
+# colour is meaningless, so forward must be the shape there. "Top"/"side" is
+# camera-relative and ambiguous, so v2 labels each display **FWD** or **LEFT** by the
+# cell it sits on. Whichever label sits by the colour swatch is the answer.
 QUADRANT_ROTATIONS = {
     "NE": [],
     "SE": ["VirtualRotatorCCWInternalVariant"],
@@ -974,6 +1107,8 @@ QUADRANT_ROTATIONS = {
     "NW": ["VirtualRotatorDefaultInternalVariant"],
 }
 GOAL_CHANNEL = 123
+# John's own, from `For Claude Signal Receiver.spz2bp` -- reused verbatim, not chosen.
+RX_CELL, RX_CHANNEL_CELL, RX_OUT_CELL = (9, 10), (7, 10), (9, 8)
 
 
 def label_config(text):
@@ -991,142 +1126,15 @@ def check_label_encoding():
     assert ours == lbl[0]["C"]["$value"], f"label encoding mismatch: {ours!r}"
 
 
-def goal_receiver_config():
-    """The `ControlledSignalReceiver` config, taken VERBATIM from John's minimal
-    reference rather than hardcoded -- if he ever changes it, we follow."""
-    isl = load_reference_island("For Claude Signal Receiver.spz2bp")
-    rx = [e for e in gv(isl["B"]["Entries"])
-          if e["T"] == "ControlledSignalReceiverInternalVariant"]
-    assert len(rx) == 1, "minimal receiver reference is not as described"
-    # and confirm the footprint evidence is still there: the L1 outline ring
-    ring = {(e["X"], e["Y"]) for e in gv(isl["B"]["Entries"]) if e["L"] == 1}
-    expect = {(x, y) for x in range(7, 12) for y in range(8, 13)
-              if x in (7, 11) or y in (8, 12)}
-    assert ring == expect, \
-        "the L1 footprint outline in For Claude Signal Receiver has changed"
-    return rx[0]["C"]["$value"]
-
-
-def colour_brain_chain(quadrant, rx_x, rx_y):
-    """One quadrant's colour-extraction chain on a 1x1, flowing NORTH (all R3).
-
-    `ControlledSignalReceiver` entry at (rx_x, rx_y) => 3x3 over rx_x+-1/rx_y+-1,
-    channel constant at (rx_x-2, rx_y), goal signal out at (rx_x, rx_y-2).
-    Rotators then the analyzer stack north from there; the analyzer's LEFT (west)
-    neighbour takes the COLOUR, its forward (north) neighbour the uncoloured shape.
-    """
-    b = [be("ControlledSignalReceiverInternalVariant", X=rx_x, Y=rx_y, R=3,
-            C=config(goal_receiver_config())),
-         be("ConstantSignalDefaultInternalVariant", X=rx_x - 2, Y=rx_y, R=0,
-            C=int_signal_config(GOAL_CHANNEL))]
-    y = rx_y - 2
-    for rot in QUADRANT_ROTATIONS[quadrant]:
-        b.append(be(rot, X=rx_x, Y=y, R=3))
-        y -= 1
-    b.append(be("VirtualAnalyzerDefaultInternalVariant", X=rx_x, Y=y, R=3))
-    # LEFT output of an R3 building is WEST: the colour. This is the whole point.
-    b.append(be("DisplayDefaultInternalVariant", X=rx_x - 1, Y=y, R=2))
-    b.append(be("LabelDefaultInternalVariant", X=rx_x - 2, Y=y, R=2,
-                C=label_config(quadrant + " colour")))
-    # FORWARD output is the uncoloured single-quadrant shape -- shown as a control.
-    b.append(be("DisplayDefaultInternalVariant", X=rx_x, Y=y - 1, R=3))
-    return b
-
-
-def vn13_colour_brain_test():
-    """VN-13: read all four of the goal's quadrant COLOURS off one platform.
-
-    A standalone validation of the Phase 2 colour front end with nothing else
-    attached -- stamp it anywhere, set a COLOURED goal on channel 123, read four
-    colour displays. Validates in isolation what will then be grafted onto each
-    `Paint 4 Filter` in place of its four `ButtonDefault`s.
-
-    Layout (Foundation_1x1, buildable [2,17], all L0, everything faces R3/north).
-    Four independent chains at X = 4, 8, 12, 16, receivers on Y14-16, each chain
-    growing north by its rotation count so the analyzers land on different rows:
-
-        NE  analyzer (4,13)   colour display (3,13)   shape display (4,12)
-        SE  analyzer (8,12)   colour display (7,12)   shape display (8,11)
-        SW  analyzer (12,11)  colour display (11,11)  shape display (12,10)
-        NW  analyzer (16,12)  colour display (15,12)  shape display (16,11)
-    """
-    check_int_signal_encoding()
-    check_label_encoding()
-    b = [be("LabelDefaultInternalVariant", X=2, Y=3, R=0,
-            C=label_config("VN-13 colour brain test - goal ch 123"))]
-    for quadrant, rx_x in zip(("NE", "SE", "SW", "NW"), (4, 8, 12, 16)):
-        b += colour_brain_chain(quadrant, rx_x, 15)
-
-    # structural self-checks: nothing overlaps, everything is buildable, and the
-    # 3x3 receiver bodies do not collide with anything (they record only an origin,
-    # so their other 8 cells are invisible in the entry list -- conventions.md)
-    occupied = {}
-    for e in b:
-        key = (e["X"], e["Y"], e["L"])
-        assert key not in occupied, f"cell collision at {key}: {e['T']} vs {occupied[key]}"
-        occupied[key] = e["T"]
-        assert 2 <= e["X"] <= 17 and 2 <= e["Y"] <= 17, f"{e['T']} outside [2,17]: {key}"
-    for e in b:
-        if e["T"] != "ControlledSignalReceiverInternalVariant":
-            continue
-        for dx in (-1, 0, 1):
-            for dy in (-1, 0, 1):
-                if dx == dy == 0:
-                    continue
-                cell = (e["X"] + dx, e["Y"] + dy, e["L"])
-                assert cell not in occupied, \
-                    f"receiver body cell {cell} is taken by {occupied[cell]}"
-                assert 2 <= cell[0] <= 17 and 2 <= cell[1] <= 17, \
-                    f"receiver 3x3 body overruns the platform at {cell}"
-    return blueprint_islands([island("Foundation_1x1", buildings=b)])
-
-
-# ---------------------------------------------------------------- VN-13 probes
-# VN-13 did not appear in the in-game blueprint folder (John, 2026-09-04). That is
-# the documented signature of a file the game rejects WHOLESALE -- no error, no red
-# X, it simply never shows up (conventions.md "Same invalid building, two different
-# symptoms"). Inspection cleared the obvious causes:
-#   * every one of its 7 building type ids is present in the game's own string
-#     table in resources.assets (96 ids found; all 7 matched);
-#   * check_configs() passes -- every `C` carries its `$type`;
-#   * the emitted JSON is key-for-key the same shape as John's own
-#     `For Claude Signal Receiver.spz2bp`, which imports fine;
-#   * Player.log records no blueprint error at all.
-#
-# So stop guessing and bisect. PLAYBOOK: "Isolate a suspect building on its own
-# blueprint to get the real error message." Each probe below is the smallest
-# blueprint that exercises ONE suspect. John looks at the folder once and reports
-# which are present; the first missing one names the culprit.
-#
-#   p0  round-trip control -- John's OWN Signal Receiver, decoded and re-encoded by
-#       our encoder with its content untouched. If p0 is MISSING the fault is our
-#       ENCODER, not anything we placed, and nothing else in the ladder matters.
-#   p1  one Label, using our label_config()      -> our label byte encoding
-#   p2  one Display, no config at all            -> a config-free building we place
-#   p3  receiver + channel constant, at JOHN'S OWN cells (9,10)/(7,10)
-#       -> the receiver + our int_signal_config, at coordinates known to work
-#   p4  receiver + channel constant at OUR cells (4,15)/(2,15)
-#       -> same buildings, our placement: catches a bad position/edge clearance
-#   p5  shape constant -> rotator -> analyzer -> 2 displays, NO receiver
-#       -> the virtual chain on its own
-#   p6  the NE chain alone (receiver + analyzer + displays), one quarter of VN-13
-#       -> catches "one chain is fine, four is not" (e.g. receivers too close)
-#
-# Everything here is deliberately tiny and boring. Delete the whole block once the
-# answer is known and VN-13 loads.
-PROBE_SHAPE = "CrCgCbCu"
-
-
 def shape_signal_config(code):
     """A `ConstantSignal` shape config: tag 06 01, then 01 <len:u16 LE> <ASCII>."""
     raw = code.encode("ascii")
-    body = b"\x06\x01\x01" + len(raw).to_bytes(2, "little") + raw
-    return config(base64.b64encode(body).decode("ascii"))
+    return config(base64.b64encode(
+        b"\x06\x01\x01" + len(raw).to_bytes(2, "little") + raw).decode("ascii"))
 
 
 def check_shape_signal_encoding():
-    """Self-check: reproduce John's `Su--WuCu` goal constant byte-for-byte from
-    `For Claude Wiring Shapes.spz2bp`."""
+    """Self-check: reproduce John's `Su--WuCu` goal constant byte-for-byte."""
     isl = load_reference_island("For Claude Wiring Shapes.spz2bp")
     want = {e["C"]["$value"] for e in gv(isl["B"]["Entries"])
             if e["T"] == "ConstantSignalDefaultInternalVariant" and isinstance(e.get("C"), dict)}
@@ -1134,71 +1142,107 @@ def check_shape_signal_encoding():
     assert ours in want, f"shape signal encoding mismatch: ours {ours!r} not among John's"
 
 
-def vn13p0_roundtrip_control():
-    """John's `For Claude Signal Receiver` re-emitted by OUR encoder, content
-    untouched. Present in-game => our encoder is fine. Missing => it is not, and
-    every other probe is moot."""
-    _, d = decode_bp(os.path.join(REF_DIR, "For Claude Signal Receiver.spz2bp"))
-    return d
+def goal_receiver_config():
+    """The `ControlledSignalReceiver` config, taken VERBATIM from John's minimal
+    reference rather than hardcoded, with his L1 footprint outline asserted still
+    present -- that ring is our only evidence for the 3x3 body."""
+    isl = load_reference_island("For Claude Signal Receiver.spz2bp")
+    rx = [e for e in gv(isl["B"]["Entries"])
+          if e["T"] == "ControlledSignalReceiverInternalVariant"]
+    assert len(rx) == 1 and (rx[0]["X"], rx[0]["Y"]) == RX_CELL, \
+        "minimal receiver reference is not as described"
+    ring = {(e["X"], e["Y"]) for e in gv(isl["B"]["Entries"]) if e["L"] == 1}
+    assert ring == {(x, y) for x in range(7, 12) for y in range(8, 13)
+                    if x in (7, 11) or y in (8, 12)}, \
+        "the L1 footprint outline in For Claude Signal Receiver has changed"
+    return rx[0]["C"]["$value"]
 
 
-def _one(*buildings):
-    return blueprint_islands([island("Foundation_1x1", buildings=list(buildings))])
+def colour_brain_platform(quadrant):
+    """One quadrant's colour chain on its own 1x1, flowing NORTH (everything R3).
+
+    The first three buildings are John's validated receiver arrangement, cell for
+    cell; the chain then starts at (9,7), one clear of the receiver's 3x3 body.
+    """
+    rx_x, rx_y = RX_CELL
+    b = [be("ConstantSignalDefaultInternalVariant", X=RX_CHANNEL_CELL[0],
+            Y=RX_CHANNEL_CELL[1], R=0, C=int_signal_config(GOAL_CHANNEL)),
+         be("ControlledSignalReceiverInternalVariant", X=rx_x, Y=rx_y, R=3,
+            C=config(goal_receiver_config())),
+         # a wire on the output port cell, exactly as John has one at (9,8)
+         be("WireDefaultForwardInternalVariant", X=RX_OUT_CELL[0], Y=RX_OUT_CELL[1], R=3)]
+    y = RX_OUT_CELL[1] - 1
+    for rot in QUADRANT_ROTATIONS[quadrant]:
+        b.append(be(rot, X=rx_x, Y=y, R=3))
+        y -= 1
+    b.append(be("VirtualAnalyzerDefaultInternalVariant", X=rx_x, Y=y, R=3))
+    # The two outputs, each labelled by the port it sits on so the reading is
+    # unambiguous: LEFT is the west neighbour, FWD is the north one.
+    b.append(be("DisplayDefaultInternalVariant", X=rx_x - 1, Y=y, R=2))
+    b.append(be("LabelDefaultInternalVariant", X=rx_x - 2, Y=y, R=2,
+                C=label_config(quadrant + " LEFT")))
+    b.append(be("DisplayDefaultInternalVariant", X=rx_x, Y=y - 1, R=3))
+    b.append(be("LabelDefaultInternalVariant", X=rx_x + 1, Y=y - 1, R=0,
+                C=label_config(quadrant + " FWD")))
+    b.append(be("LabelDefaultInternalVariant", X=3, Y=14, R=0,
+                C=label_config("VN-13 " + quadrant)))
+    return b
 
 
-def vn13p1_label_only():
-    """One Label, encoded by our label_config()."""
-    check_label_encoding()
-    return _one(be("LabelDefaultInternalVariant", X=9, Y=9, R=0,
-                   C=label_config("VN-13p1")))
+def vn13_colour_brain_test():
+    """VN-13 v2: read all four of the goal's quadrant COLOURS, one per platform.
 
-
-def vn13p2_display_only():
-    """One Display, C=null -- a building we place that carries no config at all."""
-    return _one(be("DisplayDefaultInternalVariant", X=9, Y=9, R=3))
-
-
-def vn13p3_receiver_johns_cells():
-    """Receiver + channel constant at JOHN'S OWN coordinates from his minimal
-    reference: receiver (9,10) R3, constant (7,10) R0. Only his L1 belt outline is
-    dropped. Missing => the receiver or our int_signal_config is the problem."""
+    Four separate `Foundation_1x1` islands side by side (NE, SE, SW, NW). Stamp it,
+    set a coloured goal on channel 123, read four pairs of displays. Each display is
+    labelled with the analyzer port it sits on (LEFT / FWD) so the reading also
+    settles which output actually carries the colour.
+    """
     check_int_signal_encoding()
-    return _one(be("ControlledSignalReceiverInternalVariant", X=9, Y=10, R=3,
-                   C=config(goal_receiver_config())),
-                be("ConstantSignalDefaultInternalVariant", X=7, Y=10, R=0,
-                   C=int_signal_config(GOAL_CHANNEL)))
+    check_label_encoding()
+    islands = []
+    for n, quadrant in enumerate(("NE", "SE", "SW", "NW")):
+        islands.append(our_island("Foundation_1x1", colour_brain_platform(quadrant),
+                                  X=n, Y=0, where=f"VN-13 {quadrant}"))
+    return blueprint_islands(islands)
 
 
-def vn13p4_receiver_our_cells():
-    """The same two buildings at OUR VN-13 coordinates: receiver (4,15), constant
-    (2,15). p3 present but p4 missing => the placement is the problem (the 3x3 body
-    at X3-5/Y14-16, or the constant sitting at X=2 on the platform edge), not the
-    buildings."""
-    return _one(be("ControlledSignalReceiverInternalVariant", X=4, Y=15, R=3,
-                   C=config(goal_receiver_config())),
-                be("ConstantSignalDefaultInternalVariant", X=2, Y=15, R=0,
-                   C=int_signal_config(GOAL_CHANNEL)))
+# --- two probes that settle the remaining unknown -----------------------------
+# p6 died because the chain sat on the receiver's body, but it ALSO put the analyzer
+# directly on the receiver's output port cell (9,8). Those are two different possible
+# rules and only one has been ruled out. VN-13 v2 takes the safe route (a wire on the
+# port cell, John's own pattern); these say whether that was necessary.
+def vn13q1_analyzer_on_port_cell():
+    """Receiver + channel constant at John's cells, with the analyzer placed DIRECTLY
+    on the receiver's output port cell (9,8). Present => a consumer may sit on the
+    port cell. Missing => it may not, and a wire is required first.
+
+    Deliberately bypasses `our_island()`: this layout is exactly what
+    `validate_layout()`'s port-cell rule now refuses, and the point of the probe is
+    to confirm that the rule is real rather than to obey it."""
+    return blueprint_islands([island("Foundation_1x1", buildings=[
+        be("ConstantSignalDefaultInternalVariant", X=7, Y=10, R=0,
+           C=int_signal_config(GOAL_CHANNEL)),
+        be("ControlledSignalReceiverInternalVariant", X=9, Y=10, R=3,
+           C=config(goal_receiver_config())),
+        be("VirtualAnalyzerDefaultInternalVariant", X=9, Y=8, R=3),
+        be("DisplayDefaultInternalVariant", X=8, Y=8, R=2),
+        be("DisplayDefaultInternalVariant", X=9, Y=7, R=3),
+    ])])
 
 
-def vn13p5_virtual_chain_no_receiver():
-    """Shape constant -> rotator -> analyzer -> both displays. Exercises the virtual
-    buildings and our shape-signal encoding with no receiver involved. Feed is a
-    constant so it is also a standalone colour-logic test in its own right:
-    `CrCgCbCu` rotated 1x CW puts NW in NE, so expect colour = **uncoloured**."""
-    check_shape_signal_encoding()
-    return _one(be("ConstantSignalDefaultInternalVariant", X=9, Y=12, R=3,
-                   C=shape_signal_config(PROBE_SHAPE)),
-                be("VirtualRotatorDefaultInternalVariant", X=9, Y=11, R=3),
-                be("VirtualAnalyzerDefaultInternalVariant", X=9, Y=10, R=3),
-                be("DisplayDefaultInternalVariant", X=8, Y=10, R=2),   # colour (left)
-                be("DisplayDefaultInternalVariant", X=9, Y=9, R=3))    # shape (forward)
-
-
-def vn13p6_one_chain():
-    """Exactly one quarter of VN-13: the NE chain on its own, at its VN-13 cells.
-    p6 present but VN-13 missing => four chains collide (receiver bodies too close,
-    or a channel constant landing on a neighbouring receiver's ring)."""
-    return _one(*colour_brain_chain("NE", 4, 15))
+def vn13q2_wire_then_analyzer():
+    """The same, but with a wire on the port cell and the analyzer one further north
+    -- the arrangement VN-13 v2 uses. This one is expected to work."""
+    return blueprint_islands([our_island("Foundation_1x1", [
+        be("ConstantSignalDefaultInternalVariant", X=7, Y=10, R=0,
+           C=int_signal_config(GOAL_CHANNEL)),
+        be("ControlledSignalReceiverInternalVariant", X=9, Y=10, R=3,
+           C=config(goal_receiver_config())),
+        be("WireDefaultForwardInternalVariant", X=9, Y=8, R=3),
+        be("VirtualAnalyzerDefaultInternalVariant", X=9, Y=7, R=3),
+        be("DisplayDefaultInternalVariant", X=8, Y=7, R=2),
+        be("DisplayDefaultInternalVariant", X=9, Y=6, R=3),
+    ], where="VN-13q2")])
 
 
 MODULES = {
@@ -1218,13 +1262,8 @@ MODULES = {
     "VN-12 MAM preset CuRuSuWu": vn12_mam_preset_curusuwu,
     "VN-12 MAM goal driven": vn12_mam_goal_driven,
     "VN-13 colour brain test": vn13_colour_brain_test,
-    "VN-13p0 roundtrip control": vn13p0_roundtrip_control,
-    "VN-13p1 label only": vn13p1_label_only,
-    "VN-13p2 display only": vn13p2_display_only,
-    "VN-13p3 receiver johns cells": vn13p3_receiver_johns_cells,
-    "VN-13p4 receiver our cells": vn13p4_receiver_our_cells,
-    "VN-13p5 virtual chain": vn13p5_virtual_chain_no_receiver,
-    "VN-13p6 one chain": vn13p6_one_chain,
+    "VN-13q1 analyzer on port cell": vn13q1_analyzer_on_port_cell,
+    "VN-13q2 wire then analyzer": vn13q2_wire_then_analyzer,
 }
 
 if __name__ == "__main__":

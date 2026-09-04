@@ -383,7 +383,7 @@ outputs. All coordinates below are relative to the building's own cell and `R`
 | `VirtualRotatorDefault` / `CCW` | behind | forward |
 | `VirtualPinPusherDefault` | behind | forward |
 | `VirtualHalfCutterDefault` | behind | forward |
-| `VirtualAnalyzerDefault` | behind | **forward + left** (two) |
+| `VirtualAnalyzerDefault` | behind | **forward + left** (two) — *which one carries the colour is OPEN, see below* |
 | `VirtualUnstackerDefault` | behind | **forward + left** (two) |
 | `VirtualPainterDefault` | shape behind, **colour from left** | forward |
 | `VirtualCrystalGeneratorDefault` | shape behind, **colour from left** | forward |
@@ -599,3 +599,56 @@ the **receiver** (and `WireGlobalTransmitterReceiver`) carry `00 00 00 02`. The
 earlier note that "the config byte 2 appears on the transmitter as well" was wrong.
 Channel is a separate wire input from the left (`(-7,12)`), shape input from behind
 (`(-5,14)`).
+
+## Controlled-signal buildings: 3x3 body + the PORT-CELL RULE (CENSUS 2026-09-04)
+
+Measured over **all 45 `ControlledSignal*` / `WireGlobalTransmitterReceiver`
+buildings in John's library**, not inferred from one example:
+
+1. **The body is 3x3, centred on the recorded entry cell.** In every one of the 45
+   instances the **eight cells immediately around the entry are empty**. Only the
+   origin is recorded in the entry list, so those eight are invisible — see
+   "Multi-cell buildings record only their ORIGIN cell".
+2. **Ports are at exactly +-2** along the axes: signal out **forward**, channel in
+   from the **left** (`R-1`; the `Mirrored` variant takes it from the right).
+3. **!! A port cell may hold ONLY a `Wire*`, `Display*` or `ConstantSignal*`.**
+   In all 45 instances the occupied +-2 cells are `WireDefaultForward`,
+   `WireDefaultJunction`, `DisplayDefault` or `ConstantSignalDefault` — **never** a
+   `Virtual*` or `LogicGate*`. To feed a virtual building, route out through a wire
+   first, exactly as John does at `(9,8)` in `For Claude Signal Receiver.spz2bp`.
+
+**This rule is what killed VN-13 v1** — it put a `VirtualAnalyzer` directly on a
+receiver's output port cell, and the game rejected the **entire file** (never
+appeared in the blueprint folder; no error, no red X). A fourth silent failure mode,
+alongside the three already listed. `validate_layout()` in `build_modules.py` now
+refuses all of 1-3 at build time.
+
+## Buildable window on a 1x1 is EXACTLY [2,17] in both axes (MEASURED 2026-09-04)
+
+Over **85,372 buildings on `Foundation_1x1` platforms** across `blueprints/2026` and
+`blueprints/reference`: X range 2..17, Y range 2..17, with the extremes genuinely in
+use (X=2 appears 2,804 times, Y=17 856 times). The old "~[2,17]" tilde can go.
+
+**On a MULTI-platform foundation the seam is buildable**, so in-platform offsets
+0, 1, 18 and 19 do occur there. Do not carry the 1x1 bound across to a `1x2`/`1x4`.
+
+## OPEN: which analyzer output carries the colour?
+
+The table above records **forward = shape, left = colour**. Two pieces of evidence
+disagree and it is not yet settled:
+
+- **For forward = shape:** the `Quaded Filter` fan feeds its *post-rotators* from the
+  analyzer's **forward** output (`(10,17)` R0 -> `(11,17)`/`(12,17)` rotators).
+  Rotating a colour is meaningless, so forward must be the shape there.
+- **For forward = colour:** John's reading of `VN-13p5` (2026-09-04) — a
+  `CrCgCbCu` constant through 1x CW into an analyzer — was "colour `u` out the **top**
+  and `Cu------` out the **side**", and the top display sits on the forward port.
+
+"Top"/"side" is camera-relative and the game's view is angled, so the reading is
+probably just ambiguous rather than contradictory. **VN-13 v2 labels each display
+`FWD` or `LEFT` by the cell it occupies** to settle it. Until then, do not rely on
+the table row above.
+
+**Independently of that, the colour MATHS is validated**: p5 returned colour `u` and
+shape `Cu------` for `CrCgCbCu` rotated 1x CW, which is exactly the original **NW**
+quadrant. The rotation mapping (NE none / SE 1x CCW / SW 2x CW / NW 1x CW) is correct.
