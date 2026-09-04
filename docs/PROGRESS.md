@@ -185,6 +185,39 @@ uniform in colour by construction — that is the entire point of merging by pos
 rigid-body and the four streams are disjoint single quadrants, the order should not
 matter — but confirm with Step 4's single-quadrant goals before trusting it.
 
+### STEP 3c — TWO WORKING AGGREGATORS, one decision left (2026-09-04)
+Both are in `blueprints/reference/`. Both merge by POSITION, so both give **4 painters
+per unit** — the actual Phase 2 goal — and both obey the lift rules. They differ in
+one thing: **how many stacker clusters survive.**
+
+| | `VN-14` (= `For Claude Fixed Pipes`) | `For Claude Johns Version Pipes` |
+|---|---|---|
+| islands | **216** | 368 |
+| topology | 16 in -> 4 trunks -> **4 out** | 16 in -> 4 trunks -> **16 out** (4 groups of 4) |
+| clusters kept per unit | **1** (the 5th) | **4** (the lane clusters), 5th deleted |
+| cluster buildings/unit | **7,609** | 30,436 |
+| rework | filters and clusters both move | **nothing moves** — same 16 rows in, same 16 rows out |
+
+**John's is the minimal-disturbance design and that is a real virtue.** The 16 filter
+outputs and 16 cluster inputs stay exactly where they are; only the belts between them
+change, and each of those rows now carries a per-POSITION stream instead of a
+per-lane-band one. His southernmost block needs no lifts at all — each trunk simply
+starts there, so those four inputs run west along their own row and turn north.
+
+**The cost is three redundant clusters per unit.** A trunk carries one band = 12 lanes;
+split four ways each cluster sees 3 lanes per input and emits 3 lanes, so four
+clusters at quarter load do exactly what one at full load does. The surviving 5th
+cluster already eats 4 x 12-lane inputs today, which is the proof one is enough.
+
+**~22,800 buildings per unit, ~91,300 at full belt.** Same trade-off as the original
+band-merge decision, one level down.
+
+**JOHN'S CALL.** Cheap and slow to build vs lean and more rework. If the four lane
+clusters stay, their outputs are complete shapes and merge on a plain belt into the
+existing output path — no stacking needed, which removes most of the re-plumb.
+Claude can generate either; `VN-14` currently generates the 4-out version and asserts
+it cell-for-cell against John's fixed file.
+
 ### STEP 4 — validate ONE band before building four
 Do **NE only**: merge rows `-7, -1, 5, 11` into a single stream and feed it into the
 5th cluster's input at `(-6,-7)`. Leave the other three inputs unfed.
