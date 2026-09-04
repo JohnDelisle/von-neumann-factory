@@ -433,6 +433,31 @@ falls through and merges into the lower layer instead of forming a new one. So
 support rule, so real goal shapes should be safe — **but confirm with John before
 the layer chain is built.**
 
+### John's better idea: use the Analyzer's shape output (2026-09-04)
+Rather than Claude's paint-both-sides normalisation, **use the Shape Analyzer's
+shape output**, which separates shape from colour by construction. If that output
+is colour-free then:
+
+1. **The existing fan may ALREADY be colour-blind** — it runs four
+   `VirtualAnalyzer`s (at `(10,17)`..`(10,20)`), and the band filter signals are
+   their (re-rotated) shape outputs. If those carry no colour, an uncoloured supply
+   matches a coloured goal with **no circuit change at all**.
+2. **The analyzer's second output is the colour** — exactly the per-quadrant signal
+   the physical `Painter`s need in Phase 2, currently unused.
+
+That is strictly better than the painter trick: fewer parts, and it *produces* the
+colour signal instead of discarding it.
+
+**Unresolved, and not inferable from the blueprint: does the analyzer's shape output
+retain colour?** The fan rotates *after* each analyzer, which implies the forward
+output is a positioned shape rather than a bare kind — and a positioned shape might
+well keep its colour. **One display reading settles it** (see PROGRESS.md).
+
+**Layout wrinkle if we do need the colour outputs:** the four fan analyzers are
+stacked vertically at `X=10`, `Y=17..20`, all facing R0, so each one's *left* (north)
+output cell is the next analyzer. Only the top one has a free neighbour at
+`(10,16)`. Tapping all four colours would need the fan re-laid, not just re-tapped.
+
 ### !! Paint has a brain problem, not just a plumbing problem
 Painting per position **after** the merge and before the stacker is the cheap
 placement — 4 `Painter`s per unit, each needing one colour signal, and the goal is

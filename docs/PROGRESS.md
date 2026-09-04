@@ -190,6 +190,24 @@ Feeding **four distinct uniform shapes, one per splitter**, needs the Phase 1
 re-plumb (four separate inputs + band-by-band merge into one stacker) — **not built
 yet**.
 
+## >>> ONE QUESTION BLOCKS PHASE 2 — and John can read it off a display <<<
+John's suggestion: use the **Shape Analyzer's shape output** instead of Claude's
+paint-both-sides colour normalisation. Better, if its shape output is colour-free —
+it would mean the filter is **already** colour-blind and the analyzer's *second*
+output is the per-quadrant colour the painters need.
+
+**In `For Claude Wiring Shapes` there is already an analyzer wired to answer this:**
+`VirtualAnalyzer` at **`(7,10)`**, fed the constant `CwRwSwWw` at `(7,11)`, with a
+display on each output — **`(7,9)` = forward output**, **`(6,10)` = left output**.
+
+| `(7,9)` forward shows | Conclusion |
+|---|---|
+| an **uncoloured** quadrant (e.g. `Cu------` / a bare kind) | **Phase 2 filter needs no circuit at all** — it is already colour-blind |
+| a **coloured** quadrant (e.g. `Cw------`) | colour survives; we need the normaliser (or take colour from the other output and rebuild) |
+
+and `(6,10)` should show the **colour** (`w`) — the signal the physical `Painter`s
+need either way.
+
 ## >>> WHAT'S LEFT (the single-layer uncoloured MAM is done) <<<
 
 | # | Gap | Notes |
