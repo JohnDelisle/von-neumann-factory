@@ -707,11 +707,11 @@ that followed was one ring short. **When censusing a footprint, split by `R`, an
 prefer a purpose-built reference over inference.** `validate_layout()` now encodes
 both rules and reproduces every row of that table.
 
-## STILL OPEN: multi-island blueprints whose islands we author
+## Multi-island blueprints we author: CONFIRMED WORKING (2026-09-04)
 
-`VN-13r2` — two `Foundation_1x1` islands, no labels, each byte-for-byte a blueprint
-that imports standalone — went missing. Multi-island works in general: VN-07, VN-10
-and VN-12 are multi-island and validated in-game. But every one of those **lifts** its
-islands from John's files rather than constructing them. `VN-13 colour brain all`
-(four islands, no labels, each island identical to a validated single-island file) is
-the clean test.
+`VN-13 colour brain all` — four `Foundation_1x1` islands we construct ourselves,
+each carrying its own chain — stamps correctly in-game. So authoring islands rather
+than lifting them from John's files is fine, and the earlier `VN-13r2` failure (two
+label-free islands) is **unexplained but superseded**: the same construction, scaled
+up to four islands, works. It was most likely mis-read during a batch check of six
+files. Do not build a theory on it; if it recurs, bisect it fresh.

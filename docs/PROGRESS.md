@@ -243,21 +243,20 @@ Labels are back on and correctly placed: `COLOUR ->` at `(5,y)` (body X3-7) and 
 title at `(10,13)` (body X8-12). **The four validated `VN-13 * colour` blueprints are
 untouched and asserted byte-identical to what John tested.**
 
-### TEST NEXT (2 stamps)
-- **`VN-13t2 one island labelled`** — one island, the confirmed NE chain + both labels
-  correctly placed. Confirms the label fix.
-- **`VN-13 colour brain all`** — all four quadrants, four islands, labels. If both
-  stamp, everything is closed and this replaces the four separate files. If t2 stamps
-  and this does not, the remaining problem is multi-island blueprints we author.
+### Multi-island: CONFIRMED WORKING — `VN-13 colour brain all` stamps
+Four islands we authored ourselves, each with its own chain, labels included. So the
+tooling is fully unblocked. `VN-13r2`'s earlier failure is unexplained but superseded
+— same construction, more islands, works. Not worth chasing.
 
-### The one open question: multi-island blueprints we author
-`VN-13r2` (two islands, no labels, each byte-for-byte a file that imports standalone)
-went missing. Multi-island works in general — VN-07/VN-10/VN-12 are multi-island and
-validated — but all of those **lift** their islands from John rather than building
-them. **`VN-13 colour brain all`** is now in the folder: four islands, no labels, each
-island identical to one of the four validated files. One stamp answers it. If it
-works, it replaces the four separate blueprints; if not, we keep shipping one island
-per file, which costs nothing.
+### VN-13 STATUS: COMPLETE
+| blueprint | state |
+|---|---|
+| `VN-13 NE/SE/SW/NW colour` | validated in-game; byte-frozen |
+| `VN-13 colour brain all` | validated in-game — all four quadrants, one stamp |
+| `VN-13t2 one island labelled` | validated in-game |
+
+**Phase 2's colour front end is done.** `VN-13 colour brain all` is the block to graft
+onto the paint filters.
 
 ### !! Palette correction: it is 3 paints + off, not 4
 Both `Paint 3 Filter` and `Paint 4 Filter` carry the **same** four constants —

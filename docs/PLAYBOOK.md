@@ -136,3 +136,52 @@ Claude's build effort is best spent on new logic and on replication/parameterisa
 - Shrink to the smallest failing case; validate that in-game before scaling.
 - If a design fork is genuinely John's call (platform size, throughput target,
   what "clean" means here), ask him — he's the Shapez logistics expert.
+
+## Extracting a footprint: the four traps (learned the hard way, 2026-09-04)
+
+Finding that `LabelDefaultInternalVariant` is 5 cells long, not 1x1, cost **six**
+in-game round trips. Every wrong turn was a reasoning error worth naming, because
+each one will recur on the next unfamiliar building.
+
+1. **Split the census by rotation before concluding.** The first pass asked "is a
+   label ever adjacent to another building?", got 364 yeses, and cleared labels
+   entirely. But a label may sit beside something *perpendicular* to its axis and
+   never *along* it. Re-running the identical census **split by `R`** made the answer
+   jump out: 0 occurrences along the axis, thousands across it. **A footprint is
+   directional; a census that ignores `R` averages the signal away.**
+
+2. **Absence from John's library is not a game rule.** A census showed 45/45 of his
+   signal-building port cells hold only a Wire/Display/ConstantSignal, so we inferred
+   that a `Virtual*` may not sit there — and shipped it as a validated rule. `VN-13q1`
+   put an analyzer straight on a port cell and it ran fine. **A census tells you what
+   John does. Only an in-game test tells you what the game permits.**
+
+3. **Test a footprint model against the whole library, not one example.** The decisive
+   evidence was mechanical: apply an N-cell model to all 3,100 labels and count
+   collisions with known-good blueprints. **0 at N=5, 2,569 at N=7.** A model that
+   contradicts a working blueprint is wrong, and this costs seconds to run. Do it
+   *before* asking John to stamp anything.
+
+4. **Check the margin, not just the bounds.** A label body must stay within `[3,16]`
+   on a 1x1 — one cell inside the buildable window. Nothing else needs that. Do not
+   assume a building may use every buildable cell.
+
+**And the symptom is a clue, not noise.** These two rules produce *different*
+failures: an overlap makes the game discard the **whole file** (it never appears in
+the folder), while a margin violation alone imports fine and **fails to stamp**. We
+kept re-diagnosing because the symptom changed. **Ask John which of the two he is
+seeing — "missing from the folder" and "red X on stamp" are different bugs.**
+
+### Ask for a purpose-built reference sooner
+John built `For Claude Labels.spz2bp` — labels at the corners and edges, boxed in
+belt — and it settled in one read what six rounds of inference had not. This is the
+same lesson the Goal Receiver taught (`For Claude Signal Receiver.spz2bp`), and we
+paid it twice. **The moment a footprint is in doubt, ask for the box trick.** It is
+minutes of his time and replaces a whole session of ours.
+
+### Encode every rule as a build-time check
+`validate_layout()` now refuses out-of-bounds cells, collisions **including the
+invisible cells of multi-cell buildings**, label margins, and any multi-cell building
+whose anchor has never been extracted. It is regression-tested against every layout
+that actually failed in-game. **When a rule is learned, land it as a check the same
+session, with the failing layouts as test cases** — otherwise it will be re-learned.
