@@ -131,7 +131,45 @@ mixed base shapes (1/4 belt)
 
 `check_configs()` now guards (1) over every module in the build loop.
 
-## >>> IN FLIGHT: John's goal-driven test of VN-12 (2026-09-03) <<<
+## >>> PHASE 1 DONE — John built it (2026-09-04) <<<
+John hand-built the re-plumb rather than have Claude author it (see PLAYBOOK
+"Division of labour"). Both machines tested in-game against 3 random single-layer
+goal signals; each passed, and **the machine self-flushes on a goal change**.
+
+- **`For Claude Single layer MAM, no-paint`** — 334 islands, **72,832 buildings**,
+  ~1/4 belt out. 4 lanes, each fed its own uniform uncoloured base shape by
+  **rail** (`Layout_TrainUnloader_Shapes_Flipped` x4 + a quick station).
+- **`For Claude Working Full Belt Single Layer MAM no-paint`** — 1,373 islands,
+  **289,828 buildings**, saturates one full space belt. Exactly **4x** the unit
+  (16 filters, 16 splitters, 40 Fancy A+B, 20 stacker clusters).
+
+### The merge: John's solution beats the one Claude proposed
+Claude proposed merging the four lanes' filter outputs **band-by-band** into a
+single stacker. John instead gave **each lane its own stacker cluster** and added a
+**5th cluster to merge the four lane outputs**:
+
+```
+lane T: rail -> Quad Splitter -> Demuxer -> Quaded Filter -> stacker cluster
+        -> a PARTIAL shape: type T in the positions the goal wants T, empty elsewhere
+4 lanes -> 5th stacker cluster -> the four partials are DISJOINT, so rigid-body
+        stacking merges them into ONE layer = the complete goal shape
+```
+
+That is the same rigid-body rule the whole design rests on, reused as the merger —
+no new belt geometry, only already-validated components. Cost: 5 clusters per unit
+instead of 1, i.e. **+~32k buildings/unit** over the band-merge idea (72.8k actual
+vs ~42k predicted; the gap is exactly the 4 extra clusters). **Recorded as a
+possible future optimisation, not a defect** — it is built, validated and simple.
+
+### Verified by `tools/verify_mam.py` (new)
+Audits the failures that are silent in-game — a stamped machine looks fine and just
+makes subtly wrong shapes. All three machines pass:
+`Fancy A+B` units all lane-FIXED (10 / 40 / 8, zero pre-fix copies), no stale
+warning labels, every `Quaded Filter` cell-identical to the goal-driven reference,
+all Goal Receiver channels agree on 123, component ratios consistent, and no
+malformed configs. Re-run it on any new MAM variant.
+
+### Historical: John's goal-driven test of VN-12 (2026-09-03)
 John repurposed `For Claude Wiring Shapes.spz2bp` as a **hand-set goal source**:
 `ControlledSignalTransmitter` on **channel 123** sending the test shape
 **`Su--WuCu`** (NE=`Su`, SE=**empty**, SW=`Wu`, NW=`Cu`) — uncoloured, single-layer,
