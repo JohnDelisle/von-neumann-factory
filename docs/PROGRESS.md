@@ -1,411 +1,267 @@
 # Project status & session handoff
 
-_Last updated: 2026-09-03. **Read this first when resuming.** Then read
-`docs/PLAYBOOK.md` (how we build — method, patterns, gotchas), and skim
-`docs/architecture.md` (the MAM design + ecosystem) and `docs/conventions.md`
-(file formats + reverse-engineered game constraints)._
+_Last updated: **2026-09-04**. **Read this first when resuming**, then
+`docs/PLAYBOOK.md` (method, patterns, gotchas), and skim `docs/architecture.md`
+(the MAM design) and `docs/conventions.md` (file formats + game constraints)._
 
 ## What this is
-Co-building an elegant, symmetric **constructive Make Anything Machine (MAM)** in
-Shapez 2 with John. Claude authors blueprints from code (`tools/`); John imports &
-tests them in-game; we iterate. GitHub is the source of truth; every change is
+Co-building a **Make Anything Machine (MAM)** in Shapez 2 with John. John builds
+physical layouts in-game; Claude decodes, verifies, designs logic and codifies (see
+PLAYBOOK "Division of labour"). GitHub is the source of truth; every change is
 committed + pushed.
 
 ---
 
-## >>> REASSEMBLY TEST: VALIDATED (2026-09-03) <<<
-The quarter-scale reassembly test is **done and confirmed working in-game by John**:
-one base shape -> `Quad Splitter` (-> NE/SE/SW/NW) -> `Demuxer` (normalizes
-orientation) -> `Stacker supporting empty quadrants` -> reassembled, matching the
-original input (tested with one blank quadrant too, per John). The
-compose-and-assemble approach is proven.
+# >>> START HERE: THE FIRST QUESTION TO ATTACK NEXT SESSION <<<
 
-- **The missing piece was `Demuxer`**: Quad Splitter's 4 outputs need normalizing
-  (each output belt must carry its quadrant shape in its ORIGINAL orientation, not
-  rotated) before they reach the Stacker. `Demuxer` (`Foundation_2x4_Flipped`) does
-  that, sitting with **zero gap** directly against Quad Splitter's west edge —
-  adjacent platform edges connect straight across the island boundary, no
-  `SpaceBelt_*` tile needed, as long as ports line up.
-- **`Stacker.spz2bp` (plain, 4-platform chain) is already the complete 4-quadrant
-  stack as one unit** — no need to chain 3 copies (that was a wrong assumption
-  from before we could read the game's own labels). For robustness (handles empty
-  quadrants), John pointed to **`Stacker supporting empty quadrants.spz2bp`** (38
-  islands, ~7.7k buildings, 4 distinct quadrant inputs via west-side ports, order
-  irrelevant) instead — that's what's wired into `VN-07`.
-- **Red X's on stamp are expected, not errors**: each Stacker platform's "Top"
-  input has two alternate physical ports with a "USE ONE INPUT ONLY" label between
-  them; the game flags the unused one's adjacent empty cell as a warning.
-- **`vn07_reassembly_test()` in `build_modules.py` reproduces John's tested layout
-  from code**, diffed byte-for-byte against his hand-built
-  `blueprints/The Von Neumann Factory/For Claude Splitter and Stacker.spz2bp` —
-  exact match on every foundation and every wiring tile except the 4 disposal-only
-  `Trash` sinks (same building count, trivially different internal content,
-  harmless — they're test scaffolding, not reassembly logic).
-- **Key technique unlocked this session: read the labels, don't guess.**
-  `LabelDefaultInternalVariant` buildings carry real base64-encoded text (decode:
-  `raw = base64.b64decode(C["$value"]); text = raw[2:].decode("utf-8")` — 2-byte
-  length prefix then UTF-8). John's reference blueprints are fully annotated
-  ("Bottom", "Top", "Stacked", "Passthrough", "USE ONE INPUT ONLY"). Pair a label
-  to its port by nearest-neighbor distance on the same floor. Use this on every
-  future reference blueprint before attempting to reverse-engineer ports from
-  coordinates alone.
+## Do we refactor to the band-merge before adding paint — or keep the current architecture and use 16 painters?
 
-## >>> ARCHITECTURE SESSION (2026-09-03): the gap list collapsed <<<
-Read `docs/architecture.md` ">>> BIG FINDING <<<" for the full write-up. Summary:
+**This is John's call and it blocks Phase 2.** Everything else about paint is
+settled.
 
-**Decoding `Full Belt Any Shape Maker.spz2bp` showed John already has ~85% of the
-MAM built.** It is byte-for-byte the same machine as `MAM working` (64 972
-buildings, same islands, translated +1 in X), and it is **exactly VN-07 plus one
-platform**: the `Quaded Filter`.
+### Why it comes up now
+A lane's partial shape can need **two different colours**. Goal `CrCgSuWu` has the
+`Cu` lane supplying **NE red and SE green**, and a `Painter` colours a *whole shape*.
+So with the current architecture, paint has to go **per band, before each lane's
+stacker** — 4 bands x 4 lanes = **16 painters per unit**.
 
-Per lane (x4 = full belt):
-`mixed base shapes -> Quad Splitter -> Demuxer -> Quaded Filter -> Stacker
-supporting empty quadrants -> the requested shape`.
+The **band-merge** alternative: merge the four lanes' band-P streams *per position*
+first, paint once per position, then feed **one** stacker cluster. Exactly one lane
+is ever active on a given band, so the merge needs no arbitration and does not
+depend on the goal.
 
-The `Quaded Filter` (`Foundation_1x4`, 4 bands NW/SW/SE/NE x 12 lanes, 48
-`BeltFilter`s) contains **both** things PROGRESS.md called missing:
-- **the brain** — a `VirtualRotator`/`VirtualAnalyzer` fan that decomposes ONE
-  target-shape signal into its four quadrant signals;
-- **per-position type select** — each band's 12 filters gated by its quadrant signal.
+| Per 1/4-belt unit, painted | Buildings | At full belt (x4) |
+|---|---|---|
+| keep current architecture + **16 painters** | ~121k | ~486k |
+| **band-merge** + **4 painters** | **~54k** | **~216k** |
 
-The only hardcoded part is *where the target shape comes from*: 4 `ButtonDefault` +
-4 `ConstantSignalDefault` presets (`CuCuCuCu` / `RuRuRuRu` / `SuSuSuSu` / `WuWuWuWu`)
-through a `LogicGateIf` priority chain. `Shape Filter` and `Smart Filter` already
-show the replacement — `ControlledSignalReceiver` (config = int32 `2`), the **Goal
-Receiver**. `Quaded Color Filter` likewise already does **per-position colour
-select** (r/g/b/null, independently per band).
+The band-merge saves **4 stacker clusters AND 12 painters** per unit. **Note this
+reverses Claude's earlier advice** — when only stacker clusters were at stake it
+wasn't worth disturbing a working machine; with paint it roughly halves the factory.
 
-### Real remaining gaps
-1. Target shape from the HUB, not buttons (graft `ControlledSignalReceiver` in).
-2. Colour — filter a coloured supply vs paint each quadrant stream (John's call);
-   `Quaded Color Filter` covers only 3 of 8 colours.
-3. Multi-layer assembly — unbuilt.
-4. Base supply — patch locations in the working save still TBD.
-5. Quadrant waste — a 4-type mixed supply means each band rejects ~3/4 of arrivals.
-6. Goal-change transient — stale quadrants on the belts when the HUB request changes.
-7. Pins / crystals — out of scope for v1 (no crystals in the working save).
+### The trade
+- **Keep current**: it is built, tested, and uses only validated components. A
+  refactor is real work and risks a working machine.
+- **Band-merge**: ~2.2x cheaper painted, and it is a re-plumb — John's territory,
+  and it would be the last one. Claude's band-merge idea was never built, so it
+  carries the usual unvalidated-geometry risk.
 
-## >>> THE MAM IS VALIDATED IN-GAME (2026-09-03) <<<
-John confirmed: **`VN-11` good; `VN-12` both good** — the goal-driven MAM and the
-preset-driven A/B both work.
+### Either way, this is Claude's job next
+**The analyzer fan must be re-laid to expose the colour outputs.** The four fan
+analyzers sit stacked at `X=10, Y=17..20` on the `Quaded Filter`, all facing R0, so
+each one's side-output cell is occupied by the next analyzer — only the top has a
+free neighbour at `(10,16)`. Getting all four colour signals out needs the fan
+re-laid (or four extra analyzers placed in the free block at **X2-12 x Y24-26**,
+33 cells), **plus** `ControlledSignalTransmitter`s to carry them to the paint
+platforms.
 
-**`VN-12 MAM goal driven` is the machine.** Full belt of mixed uncoloured base
-shapes in; full belt of whatever single-layer shape the HUB requests out. Four
-identical lanes of:
+---
 
-```
-mixed base shapes (1/4 belt)
-  -> Quad Splitter -> Demuxer -> Quaded Filter (goal-driven)
-  -> Stacker supporting empty quadrants -> the requested shape
-```
+# Phase plan
 
-- **The goal-driven `Quaded Filter` is John's own** —
-  `For Claude Filter with Signal.spz2bp`, used verbatim as a black box after our
-  two placement attempts failed. He tore out the preset bank and put a
-  `ControlledSignalReceiverMirrored` at `(4,22)` R3 (3x3 over X3-5 x Y21-23), its
-  channel `ConstantSignal` = **123** at `(6,22)`, a wire column north up X4 into a
-  `Compare`/`Not` stage. 1096 -> 1082 buildings.
-- **Channel 123 is the right one** — the goal-driven build works, so that is the
-  channel the HUB's requested shape rides on in this world.
-- Our generated `VN-12` swaps that payload into all four filter islands of the
-  lane-fixed Any Shape Maker; verified cell-identical to John's file, lane fix
-  intact, each island keeping its own X/Y/Z/R.
+**0 base supply → 1 single-layer shape → 2 single-layer paint → 3 multi-layer →
+4 pins/supports → 5 scale 4x to full belt.**
+Cross-cutting, not a phase: the **goal-change flush** (John reports the machine
+already self-flushes — confirm it stays true as complexity grows).
 
-### Module status
-| | |
+| Phase | State |
 |---|---|
-| `VN-10 any shape maker lane fixed` | VALIDATED — all 8 `Fancy A+B` units lane-fixed |
-| `VN-11 quaded filter goal driven` | VALIDATED — John's platform, component blueprint |
-| `VN-12 MAM goal driven` | **VALIDATED — the MAM** |
-| `VN-12 MAM preset CuRuSuWu` | VALIDATED — preset-driven A/B |
-| `VN-11a filter verbatim` | stock filter, known-good baseline |
+| 0 base supply | **DONE for testing** — rail delivery, 4 `Layout_TrainUnloader_Shapes_Flipped` per unit. Map shape/fluid patch locations when it needs to be self-sustaining. |
+| 1 single-layer shape | **DONE + VALIDATED IN-GAME** (below) |
+| 2 paint | **semantics settled, blocked on the decision above** |
+| 3 multi-layer | designed, not built — `VirtualUnstacker` is the layer-extract primitive |
+| 4 pins | not started — `VirtualPinPusher` + `Pin Setter` exist |
+| 5 scale 4x | **DONE for Phase 1** — John's full-belt build is exactly 4x the unit |
 
-### Three silent failure modes we hit getting here (all in conventions.md)
-1. A building `C` without `$type` => the game discards the **whole file**; it never
-   appears in the folder, which reads like a failed refresh.
-2. One invalid building => the game places the foundation and discards **every
-   building on that island**. A bare platform, no red X.
-3. The **same** invalid building reports a normal placement warning in a
-   single-island blueprint but blanks the island in a multi-island assembly —
-   so isolate a suspect building on its own blueprint to get the real error.
+---
 
-`check_configs()` now guards (1) over every module in the build loop.
+# PHASE 1: DONE AND VALIDATED (2026-09-04)
 
-## >>> PHASE 1 DONE — John built it (2026-09-04) <<<
-John hand-built the re-plumb rather than have Claude author it (see PLAYBOOK
-"Division of labour"). Both machines tested in-game against 3 random single-layer
-goal signals; each passed, and **the machine self-flushes on a goal change**.
+John hand-built the re-plumb and tested both machines against **3 random
+single-layer goal signals — all passed, and the machine self-flushes on a goal
+change**.
 
 - **`For Claude Single layer MAM, no-paint`** — 334 islands, **72,832 buildings**,
-  ~1/4 belt out. 4 lanes, each fed its own uniform uncoloured base shape by
-  **rail** (`Layout_TrainUnloader_Shapes_Flipped` x4 + a quick station).
+  ~1/4 belt out. 4 lanes, each fed its own uniform uncoloured base shape by **rail**.
 - **`For Claude Working Full Belt Single Layer MAM no-paint`** — 1,373 islands,
   **289,828 buildings**, saturates one full space belt. Exactly **4x** the unit
   (16 filters, 16 splitters, 40 Fancy A+B, 20 stacker clusters).
 
-### The merge: John's solution beats the one Claude proposed
-Claude proposed merging the four lanes' filter outputs **band-by-band** into a
-single stacker. John instead gave **each lane its own stacker cluster** and added a
-**5th cluster to merge the four lane outputs**:
+Both in `blueprints/reference/`.
 
+### How it works
 ```
-lane T: rail -> Quad Splitter -> Demuxer -> Quaded Filter -> stacker cluster
+lane T: rail -> Quad Splitter -> Demuxer -> Quaded Filter -> its own stacker cluster
         -> a PARTIAL shape: type T in the positions the goal wants T, empty elsewhere
 4 lanes -> 5th stacker cluster -> the four partials are DISJOINT, so rigid-body
         stacking merges them into ONE layer = the complete goal shape
 ```
+**John's merge beat the one Claude proposed** — it reuses the same rigid-body rule
+the whole design rests on, with no new belt geometry and only validated components.
 
-That is the same rigid-body rule the whole design rests on, reused as the merger —
-no new belt geometry, only already-validated components. Cost: 5 clusters per unit
-instead of 1, i.e. **+~32k buildings/unit** over the band-merge idea (72.8k actual
-vs ~42k predicted; the gap is exactly the 4 extra clusters). **Recorded as a
-possible future optimisation, not a defect** — it is built, validated and simple.
+### Why the filter needs no per-lane logic
+With each lane fed a uniform uncoloured `TTTT`, band `P` of lane `T` carries exactly
+`"T at position P"`. The fan drives that band with `Q_P` = the goal's quadrant at
+`P`. The `BeltFilter` passes on equality, so
+`band P of lane T passes  <=>  goal[P] == T` — the desired behaviour on all four
+lanes, from **one unmodified filter design**.
 
-### Verified by `tools/verify_mam.py` (new)
-Audits the failures that are silent in-game — a stamped machine looks fine and just
-makes subtly wrong shapes. All three machines pass:
-`Fancy A+B` units all lane-FIXED (10 / 40 / 8, zero pre-fix copies), no stale
-warning labels, every `Quaded Filter` cell-identical to the goal-driven reference,
-all Goal Receiver channels agree on 123, component ratios consistent, and no
-malformed configs. Re-run it on any new MAM variant.
+### Verified by `tools/verify_mam.py`
+Audits what fails **silently** in-game (a stamped machine looks fine and just makes
+subtly wrong shapes): every `Fancy A+B` is the lane-FIXED version cell-for-cell, no
+stale warning labels, every `Quaded Filter` identical to the goal-driven reference,
+all Goal Receiver channels agree, component ratios consistent, no malformed configs.
+**All three machines pass** (10 / 40 / 8 Fancy units, all fixed; all channels 123).
+Re-run it on any new MAM variant:
+```
+python tools/verify_mam.py "blueprints/reference/<file>.spz2bp"
+```
 
-### Historical: John's goal-driven test of VN-12 (2026-09-03)
-John repurposed `For Claude Wiring Shapes.spz2bp` as a **hand-set goal source**:
-`ControlledSignalTransmitter` on **channel 123** sending the test shape
-**`Su--WuCu`** (NE=`Su`, SE=**empty**, SW=`Wu`, NW=`Cu`) — uncoloured, single-layer,
-with an empty quadrant. Good test goal, and exactly the Phase 1 validation path
-(hand-set goal, not the live HUB).
+---
 
-**The supply is what decides what this proves.** VN-12 still has ONE input split
-four ways (the re-plumb is not built), so all four Quad Splitters see the same
-stream:
+# PHASE 2 (paint): semantics settled
 
-| Feed all four splitters | Expected output | What it proves |
-|---|---|---|
-| `Su--WuCu` (the goal itself) | `Su--WuCu` | signal path + reassembly only — this is VN-07 with a goal-driven filter |
-| **mixed `CuCuCuCu`/`RuRuRuRu`/`SuSuSuSu`/`WuWuWuWu`** | **`Su--WuCu` at ~1/4 rate** | **the real test — selection across types** |
-| one uniform type, e.g. all `SuSuSuSu` | `Su------` (partial) | expected, not a bug: only the NE band matches |
+**John confirmed the Shape Analyzer contract:** it reads the **NE** part of the input
+shape and emits the **uncoloured shape signal** on the top/forward output and that
+part's **colour signal** on the side output. For a **Pin or empty** part the colour
+output is **null**.
 
-Feeding **four distinct uniform shapes, one per splitter**, needs the Phase 1
-re-plumb (four separate inputs + band-by-band merge into one stacker) — **not built
-yet**.
+Consequences:
+1. **The filter is ALREADY colour-blind.** The fan's band signals are analyzer
+   forward outputs, so they carry no colour. **The Phase 1 machine already builds the
+   correct shape for a coloured goal, today.** Phase 2 needs **no filter-logic
+   change**. (Claude's paint-both-sides normaliser circuit is dropped — obsolete.)
+2. **The colour signal is free** on the analyzer's side output, currently unused, and
+   `null` for empty is a ready-made "this quadrant needs no paint" flag.
 
-## >>> PHASE 2 (paint): semantics settled, ONE decision for John <<<
-John confirmed the **Shape Analyzer** contract: reads the **NE** part, emits the
-**uncoloured shape** on the top output and that part's **colour** on the side
-output; **null colour** for a Pin or an empty part.
+### The paint router already exists — `Paint 4 Filter`
+`Painter` (3,041 buildings, 192 painters) has **no logic at all** — it paints with
+whatever fluid arrives. So brain-driven colour is a **fluid routing** problem.
 
-**So the filter is already colour-blind** — the fan's band signals are analyzer
-forward outputs. The Phase 1 machine already builds the right *shape* for a
-*coloured* goal today, and Phase 2 needs **no filter-logic change at all**. Claude's
-paint-normaliser circuit is dropped. Full detail in architecture.md "PHASE 2".
+`Paint 4 Filter` is the router: `Foundation_1x4`, 1,066 buildings, 84 fluid ports,
+**48 signal-driven `PipeGateDefaultInternalVariantMirrored`**, selected by a 4-way
+`Button`/`ConstantSignal`/`LogicGateIf` bank — **the same 4-band shape as the
+`Quaded Filter`**, so swap its button bank for the analyzer's colour signal exactly
+as John did for the shape filter. (`Paint 3 Filter` is the 3-way version.)
 
-### THE DECISION: 16 painters, or refactor to the band-merge and use 4?
-A lane's partial shape can need **two colours** (goal `CrCgSuWu`: the `Cu` lane
-supplies NE red and SE green) and a `Painter` colours a whole shape. So:
+**Caveat: it selects among 4 paints; the palette is 8.** Full colour needs chaining,
+a wider selector, or feeding pre-mixed colours in.
 
-| Per 1/4-belt unit, painted | Buildings |
-|---|---|
-| keep the current architecture, paint per band = **16 painters** | ~121k |
-| **band-merge** the four lanes per position, paint once per position = **4 painters** | **~54k** |
+---
 
-The band-merge saves 4 stacker clusters *and* 12 painters. This **reverses** the
-earlier "not worth doing now" — Phase 2 is the moment to choose. At full belt it is
-roughly **486k vs 216k buildings**.
-
-### The paint router already exists
-`Painter` has **no logic** — it paints with whatever fluid arrives, so colour control
-is **fluid routing**. `Paint 4 Filter` is the router: `Foundation_1x4`, 84 fluid
-ports, **48 signal-driven `PipeGate`s**, selected by a `Button`/`ConstantSignal`/`If`
-bank — the same shape as the `Quaded Filter`, so swap its buttons for the analyzer's
-colour signal exactly as John did for the shape filter. **It selects among 4 paints;
-the palette is 8**, so that needs chaining or a wider selector.
-
-### Blocker to solve either way
-The four fan analyzers are stacked at `X=10, Y=17..20` facing R0, so each side
-output cell is the next analyzer — only the top has a free neighbour at `(10,16)`.
-Getting all four colours out needs the fan re-laid (or four extra analyzers in the
-free block) **plus** `ControlledSignalTransmitter`s to reach the paint platforms.
-
-## >>> WHAT'S LEFT (the single-layer uncoloured MAM is done) <<<
+# Remaining gaps after Phase 2
 
 | # | Gap | Notes |
 |---|-----|-------|
-| 1 | **Colour** | **Decided: paint each quadrant stream** between `Quaded Filter` and the stacker. Needs a **signal-driven paint selector** — the one real unbuilt block. `Quaded Color Filter` (per-position r/g/b/null) is the filter-based fallback; it covers 3 of 8 colours. |
-| 2 | **Base supply** | A full belt of mixed uncoloured Cu/Ru/Su/Wu. Patch locations in the working save still TBD — read the save map or ask John. |
-| 3 | **Quadrant waste** | With a 4-type mixed supply each band rejects ~3/4 of arrivals. Acceptable, or add a signal-driven type router upstream? |
-| 4 | **Multi-layer** | Unbuilt. Needs layer decompose in the brain + a layer stacker chain. |
-| 5 | **Goal-change transient** | Stale quadrants sit on the belts when the HUB request changes. Tolerable, or purge? |
-| 6 | **Pins / crystals** | Out of scope for v1 (no crystals in the working save). |
-
-**Suggested next: (2) then (1).** Base supply makes the validated machine actually
-run on its own; colour is the next real design problem and the only one needing a
-new building block.
-
-Reference blueprints are committed under `blueprints/reference/` (Full Belt Any
-Shape Maker, Filter, Quaded Filter, Quaded Color Filter, Smart Filter, Shape
-Filter, Painter, Overflow, For Claude Signal Receiver, For Claude Filter with
-Signal).
-
-## Fancy A+B lane-swap bug: FIXED + VALIDATED IN-GAME (2026-09-03)
-_John confirmed VN-08, VN-09 and VN-07 all working in-game._
-- **Symptom** (John): outer lanes of In A / In B overflow to "A+B Overflow" as the
-  inner lanes, and vice versa. Inconsequential in practice, fixed for cleanliness.
-- **Root cause**: each band's OUTER rows tap overflow at splitter column X=9 (In B)
-  / X=8 (In A); INNER rows tap at X=7 / X=6. The downstream weave sends the X=9/X=8
-  taps to the INNER final outputs and X=7/X=6 to the OUTER ones.
-- **Fix**: swap the splitter columns between outer and inner rows in each band, and
-  shift each outer row's launcher hop one cell east (launchers fly over belts — a
-  trick John's own design already uses). 168 retyped cells across all four bands,
-  no buildings added or removed (bar 2 stale warning labels), no crossings introduced.
-- **The component has FOUR bands** (In A / In B x north / south = 48 lanes), one per
-  island-row of the 2x4 foundation. The first pass only fixed the north half,
-  because only that half carried the "SHIT" warning labels; **John caught this and
-  mirrored the fix to the south half.** The patch is now generated from two base
-  patterns stamped at four band offsets (In B: 0, -20; In A: 0, -60).
-- **Cross-validated against John's own fix**: the generated patch is asserted at
-  build time to be cell-for-cell identical to his hand-mirrored version. Zero
-  differing cells; the build breaks if that ever stops holding.
-- **Verified by graph-walking the belts**: all 16 lanes map outer->outer /
-  inner->inner, and all 48 primary pass-through paths (16 lanes x 3 floors) stay
-  lane-preserving.
-- **Shipped + VALIDATED IN-GAME**: `VN-08 fancy A+B lane fixed` (standalone),
-  `VN-09 stacker empty quadrants fixed` (both embedded copies patched), and
-  `VN-07` rebuilt on top of the fixed stacker — John confirmed all three working.
-- **The lane fix is now the baseline.** Build any further stacker work on
-  `load_fixed_stacker_islands()`, not the stock reference.
+| 1 | **Multi-layer** | `VirtualUnstacker` (1x1, in behind, **two outputs: forward + left**) is the layer extract. Architecture: **N single-layer engines + a layer-stacking chain**. A layer join is a single `Foundation_2x2` stacker platform (**1,361 buildings**), *not* a whole cluster — so joining 4 layers is ~4,100. **Layer stacking is only safe when every upper-layer quadrant sits above an occupied lower-layer quadrant**, else it falls through and merges — matches the game's own support rule, but confirm with John. |
+| 2 | **Base supply self-sufficiency** | Rail delivery works for testing. Shape/fluid patch locations in the working save still TBD. |
+| 3 | **Quadrant waste** | Consumption ratio = **the number of distinct types in the target layer** (1:1 for `CuCuCuCu` up to 4:1 for `CuRuSuWu`). Inherent to decompose-then-select, not a defect. |
+| 4 | **8-colour palette** | `Paint 4 Filter` selects 4. |
+| 5 | **Pins / crystals** | Pins are Phase 4. **No crystals in the working save** — out of scope. |
 
 ---
 
-## ACCESS / SETUP CHECKLIST (do these first on resume)
+# Environment & workflow (LOCAL Windows session — the normal case)
 
-1. **Device**: this session is linked to `jmd-486-dx4` (Windows; `device_bash` runs in
-   its Linux VM). If `mcp__remote-devices__*` tools are absent/failing, ask John to open
-   the Claude desktop app on that computer.
-
-2. **Folder access** (via `device_request_folder_access`):
-   - **Shapez 2 game folder** — `C:\Users\jdeli\AppData\LocalLow\tobspr Games\shapez 2`
-     (mounts at `$HOME/mnt/shapez 2`). Holds `blueprints/2026/` (John's reference library),
-     `blueprints/The Von Neumann Factory/` (our in-game folder), and `savegames/`.
-   - NOTE: the repo is NOT under `~/source/repos` (that's empty). Don't go hunting other
-     folders — John declined broad folder browsing before.
-
-3. **GitHub access** (this has been the recurring friction — do it right):
-   - The repo working copy lives ON THE DEVICE VM at `~/von-neumann-factory`, remote
-     `github.com/JohnDelisle/von-neumann-factory` (**private**).
-   - **The cloud container CANNOT reach GitHub** (egress locked). The **device VM CAN**.
-     => run ALL git (clone/pull/commit/push) via `device_bash`, never cloud `bash`.
-   - **VM recycling wipes the working copy + credentials.** If `~/von-neumann-factory` is
-     gone or `git` auth fails: ask John for a **fine-grained PAT** (Repository access =
-     only `von-neumann-factory`; Repository permission = **Contents: Read and write**;
-     Metadata auto-included). Then on the device VM:
-     ```
-     git config --global user.name "John Delisle"
-     git config --global user.email "jdelisle@gmail.com"
-     git config --global credential.helper store
-     umask 077; printf 'https://x-access-token:%s@github.com\n' "<PAT>" > ~/.git-credentials
-     git clone https://github.com/JohnDelisle/von-neumann-factory.git ~/von-neumann-factory
-     git -C ~/von-neumann-factory remote set-url origin https://github.com/JohnDelisle/von-neumann-factory.git
-     ```
-   - Do NOT use the GitHub CLI device flow: that app has no per-repo grant -> 403 on clone.
-   - The injected `GITHUB_TOKEN`/`GH_TOKEN` in the cloud container are invalid; ignore them.
-
-4. **Reading a private repo without a PAT** (fallback, read-only): John can log into GitHub
-   in the built-in browser pane; then blob pages are readable (raw.githubusercontent needs a
-   token). But for real work you need the PAT + device VM clone above.
-
-5. **Per-change workflow** (once set up):
-   ```
-   edit tools/build_modules.py  ->  python3 tools/build_modules.py blueprints
-   cp "blueprints/<name>.spz2bp" "$HOME/mnt/shapez 2/blueprints/The Von Neumann Factory/"
-   git add -A && git commit && git push        # all via device_bash
-   ```
-   Verify the copy landed (`cmp`). John must **force an in-game blueprint-folder refresh**
-   to see newly added files (the game scans on startup / panel reopen).
-   - Commit trailer: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
-     plus `Claude-Session: <session url>`.
-
----
+- Repo: this working directory. Game folder:
+  `C:\Users\jdeli\AppData\LocalLow\tobspr Games\shapez 2`
+  (`blueprints\2026\` = John's library, `blueprints\The Von Neumann Factory\` = ours,
+  `savegames\`). Read/write directly; git is local — commit and push normally.
+- Regenerate: `python tools\build_modules.py blueprints`, then copy the `.spz2bp`
+  into the in-game folder and hash-compare. John forces an in-game blueprint-folder
+  refresh to see new files.
+- Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>` plus
+  `Claude-Session: <session url>`.
+- **The Cowork/cloud access checklist (device_bash, `$HOME/mnt`, PAT-in-VM) is
+  IRRELEVANT to a local session** — it was for cloud sessions only. If you are a
+  cloud session, see git history for `docs/PROGRESS.md` before 2026-09-04.
 
 ## Working save & world
 - **`savegames/5589333c-...`** ("Bullshitting") — fully unlocked (Level 107, ~44%
-  research; **NO crystals**), cleared to ~28.5k structures (vortex + feeder belts).
-  Blueprint cost = 0. `ResearchShapeCostMultiplier`=60.
-- Base-supply shape/fluid patch locations in this world: still TBD (read the save map
-  or ask John) — needed once we wire real base supply.
+  research; **NO crystals**), cleared to ~28.5k structures. Blueprint cost = 0.
+  `ResearchShapeCostMultiplier` = 60.
 
-## Design decisions (see architecture.md for detail)
-- **Constructive interpreter** MAM (Goal Receiver + Virtual Processing), NOT
-  generate-and-filter.
-- **Single-layer first**, grow to multi-layer. **Quarter (12-lane) scale first**, tile
-  x4 to full 48-lane belt. **Brain-driven color** (really discrete N-select; build the
-  first version UNCOLORED).
-- **No isolator waste**: decompose base shapes with the `Quad Splitter` (use all 4
-  quadrants), do NOT isolate-and-discard 3/4.
-- **Discrete-function platforms** (one function per platform) + **blueprint-of-blueprints
-  assemblies**. Ship both component and assembly blueprints.
-- Clean/beautiful > tangled. Use launchers on straight runs (traversal speed). **Ask John
-  before trading elegance for performance.** Second-guess/critique his designs freely (he
-  asked for it).
+---
 
-## John's proven ecosystem = the primitives to COMPOSE (in `blueprints/2026/`)
-- **`Quad Splitter`** (Foundation_2x4): shape -> NE/SE/SW/NW (1/4-belt in, 4 outs).
-- **`Demuxer`** (2x4_Flipped): normalizes NE-SE-SW-NW streams.
-- **`Stacker`** (multi-platform, SpaceBelt I/O): 2-input stacker, **Bottom + Top ->
-  Stacked** (also Passthrough / USE-ONE-INPUT-ONLY). Assembler = chain 3 of these.
-- **`Painter`** (2x4 + pipes): **Shapes + Paint -> Painted Shapes**.
-- **`Overflow`** (1x1): eats excess to keep belts compressed.
-- `Full Belt Quad Splitter` = 4 Quad Splitters + Demuxer + Overflow -> full belt
-  (reference for how John composes a full-throughput assembly).
-- Also: `Rotator`, `Clockwise`/`Counter Clockwise` (12-lane 90 CW/CCW), `Pin Setter`,
-  `Half Destroyer`, `Trash`, `Shape Filter`, `Paint Mixer`, `Lift*`. "MAM working" =
-  245-platform generate-and-filter MAM (reference only).
+# Hard-won facts worth not relearning
 
-## Our module inventory (`blueprints/`, generated by `tools/build_modules.py`)
-- `VN-00 coord test` — coordinate/rotation sanity check. VALIDATED.
-- `VN-01 quad isolator 1lane` — HalfDestroy->Rot90CW->HalfDestroy, isolates SE. VALIDATED.
-- `VN-02 half-destroy 12lane` — 12-lane launcher-optimized half-destroy (John's redesign,
-  186 bldgs; = `Clockwise` butterfly with cutters). VALIDATED.
-- `VN-03 rotate90CW 12lane` — launcher-optimized `Clockwise` (VN-02 layout, cut->rot).
-- `VN-04 stacker 2in 1lane`, `VN-05 assembler 1lane 4quad` — hand-built stacker/assembler
-  **mechanic proofs; SUPERSEDED** by composing John's `Stacker` module. (VN-05's earlier
-  bugs taught us: stacker top-feed needs a lift; platform ports only exist on the 4-lane
-  edge bands — see conventions.md.) Keep for reference; don't build on them.
-- `VN-06 quad splitter test` — John's real `Quad Splitter` (Foundation_2x4, reused
-  verbatim/black-box) + 5 SpaceBelt stub tiles (1 input east, 4 outputs west, one per
-  quadrant row). Structurally validated (round-tripped, building count intact); NOT
-  yet in-game confirmed. See PROGRESS "NEXT SESSION OBJECTIVE" for status.
-- `VN-08 fancy A+B lane fixed` — `Fancy A+B Side Overflow` with the inner/outer
-  lane-swap bug fixed on all 4 bands (see above). Generated from the pre-fix
-  reference and asserted identical to John's own fixed version. **VALIDATED IN-GAME.**
-- `VN-09 stacker empty quadrants fixed` — `Stacker supporting empty quadrants`
-  with both embedded Fancy A+B units lane-fixed. Drop-in replacement; everything
-  else byte-identical to John's original. **VALIDATED IN-GAME.**
-- `VN-10 any shape maker lane fixed` — John's `Full Belt Any Shape Maker` with all
-  8 embedded `Fancy A+B` units lane-fixed. **NOT yet in-game confirmed.**
-- `VN-11 quaded filter goal driven` — `Quaded Filter` platform with its last preset
-  slot replaced by the HUB Goal Receiver. **NOT yet in-game confirmed.**
-- `VN-12 MAM goal driven` — VN-10 + VN-11 x4 lanes. **The MAM.** **NOT yet
-  in-game confirmed** — see the test recipe above.
-- `VN-07 reassembly test` — `Quad Splitter` -> `Demuxer` -> `Stacker supporting
-  empty quadrants` (LANE-FIXED) -> test-rig `Trash` sinks. **VALIDATED IN-GAME by
-  John**, both before and after the lane fix
-  (2026-09-03): full round-trip, reassembles the original shape, tolerates one
-  blank quadrant. All foundations verbatim/black-box from `blueprints/reference/`;
-  wiring in `VN07_WIRING`, diffed byte-for-byte against John's tested file.
+### Three SILENT failure modes (full detail in conventions.md)
+1. A building `C` **without `$type`** => the game discards the **whole file**; it
+   never appears in the blueprint folder, which reads like a failed refresh.
+   `check_configs()` guards this over every generated module.
+2. **One invalid building** => the game places the foundation and discards **every
+   building on that island**. A bare platform, no red X.
+3. The **same** invalid building warns normally in a single-island blueprint but
+   blanks the island in a multi-island assembly. **Isolate a suspect building on its
+   own blueprint to get the real error message.**
 
-## Key reverse-engineered facts (full detail in conventions.md)
-- Blueprint = `SHAPEZ2-5-<base64(gzip(JSON))>[]_2$`; our verbose encoder imports fine.
-- +X East / +Y South; R = 90 CW steps (R0 E, R1 S, R2 W, R3 N). 1x1 = 20x20, buildable
-  ~[2,17], floors L0-2. Bus = 4 cols (X8-11) x 3 floors = 12 lanes, south-in/north-out.
-- Cutter/Rotator/Stacker are single-cell inline (no config). HalfDestroy keeps world-EAST.
-- **Stacking is rigid-body**: pieces merge into one layer only if DISJOINT quadrants;
-  any overlap puts the top shape on a new layer.
-- **StackerStraight ports**: bottom from behind (south), top from the cell ABOVE (L1) via
-  a `Lift1UpForward`(col+1,row+1)->L1->`BeltDefaultLeftMirrored` turn; output forward.
-- **Launchers** = `BeltPortSender`(launcher)/`BeltPortReceiver`(catcher) placed
-  mid-platform; span 1-4 tiles; same throughput as belts (cut travel time only).
-- **Edge ports only on the 4-lane band per edge**: N/S at X8-11, E/W at Y8-11, per floor.
-  Off-band ports won't stamp (red X).
-- **Assemblies** = Island blueprint of foundation-platforms (each carrying its `B`) +
-  `SpaceBelt_*` routing tiles at island X,Y,Z,R.
+### Method rules that were learned the hard way
+- **Never infer a building's footprint from in-situ copies** — ask John for a minimal
+  reference, ideally with the building outlined in belt **on the floor above**. That
+  trick settled the 3x3 Goal Receiver in one read after two failed guesses.
+- **Read the labels, don't guess.** `LabelDefaultInternalVariant` `C` =
+  base64(2-byte LE length + UTF-8). John annotates everything.
+- **Enumerate from the game, not from John's library**: all 98 `*InternalVariant`
+  building ids are plain ASCII in
+  `shapez 2_Data/resources.assets`. That is how `VirtualUnstacker` and
+  `VirtualPainter` were found.
+
+### Fancy A+B lane-swap bug — FIXED, VALIDATED, and now the baseline
+Outer/inner lanes crossed over in the overflow tap. Root cause: outer rows tapped at
+splitter column X=9/X=8, inner at X=7/X=6, and the downstream weave delivered them to
+the opposite classes. Fixed by swapping those columns per band and shifting each
+outer row's launcher hop one cell east. **Four bands, not two** — John caught that the
+first pass only fixed the labelled north half. 168 retyped cells, no buildings added
+or removed (bar 2 stale labels). The generated patch is asserted **cell-for-cell
+identical to John's own hand-mirrored fix** at build time. **Build all further stacker
+work on `load_fixed_stacker_islands()`, never the stock reference.**
+
+### Key game facts (full detail in conventions.md)
+- Blueprint = `SHAPEZ2-5-<base64(gzip(JSON))>[]_2$`.
+- +X East / +Y South; R = 90 CW steps (R0 E, R1 S, R2 W, R3 N). 1x1 platform =
+  20x20, buildable ~[2,17], floors L0-2. Bus = 4 cols x 3 floors = 12 lanes.
+- **1 space belt = 12 lanes; "full belt" = 4 of them = 48 lanes.**
+- **Stacking is rigid-body**: DISJOINT quadrants merge into one layer; any overlap
+  puts the top shape on a NEW layer. Both halves of this rule are load-bearing —
+  disjoint for the 5th-cluster merge, overlapping for multi-layer.
+- **Multi-cell buildings record only their ORIGIN cell**; the other cells are absent
+  from the entry list, so an "empty" neighbour may not be free.
+- Edge ports only on the 4-lane band per edge (N/S at X8-11, E/W at Y8-11, per floor).
+- Wire-layer port map (analyzer, painter, unstacker, gates): **conventions.md**.
+
+---
+
+# Module inventory (`blueprints/`, generated by `tools/build_modules.py`)
+
+| Module | State |
+|---|---|
+| `VN-00 coord test` | VALIDATED — coordinate/rotation sanity check |
+| `VN-01 quad isolator 1lane` | VALIDATED — HalfDestroy->Rot90CW->HalfDestroy |
+| `VN-02 half-destroy 12lane` | VALIDATED — John's launcher-optimised redesign |
+| `VN-03 rotate90CW 12lane` | launcher-optimised `Clockwise` (VN-02 layout, cut->rot) |
+| `VN-04`, `VN-05` | **SUPERSEDED** hand-built mechanic proofs. Keep for reference; don't build on them |
+| `VN-06 quad splitter test` | structural only, never in-game confirmed |
+| `VN-07 reassembly test` | VALIDATED — Quad Splitter -> Demuxer -> lane-fixed Stacker |
+| `VN-08 fancy A+B lane fixed` | VALIDATED — asserted identical to John's own fix |
+| `VN-09 stacker empty quadrants fixed` | VALIDATED — drop-in replacement |
+| `VN-10 any shape maker lane fixed` | VALIDATED — all 8 embedded Fancy units fixed |
+| `VN-11 quaded filter goal driven` | VALIDATED — **John's own platform, used verbatim** |
+| `VN-11a filter verbatim` | control: stock preset-driven filter, known-good baseline |
+| `VN-12 MAM goal driven` | VALIDATED — superseded by John's Phase 1 build |
+| `VN-12 MAM preset CuRuSuWu` | VALIDATED — preset-driven A/B |
+
+**Superseded by John's Phase 1 machines** (`blueprints/reference/For Claude Single
+layer MAM, no-paint` and `... Working Full Belt ...`) — the VN-1x series is history
+now, but keep it: it is what the verifier diffs against.
+
+## Reference blueprints (`blueprints/reference/`)
+John's, used verbatim as black boxes: `Quad Splitter`, `Demuxer`, `Stacker`,
+`Stacker supporting empty quadrants`, `Fancy A+B Side Overflow` (+ pre-lane-fix),
+`Filter`, `Quaded Filter`, `Quaded Color Filter`, `Smart Filter`, `Shape Filter`,
+`Painter`, `Overflow`, `Trash`, `Full Belt Any Shape Maker`, and the four
+purpose-built `For Claude *` references (`Signal Receiver`, `Filter with Signal`,
+`Wiring Shapes`, and the two Phase 1 MAMs).
+
+`For Claude Wiring Shapes` doubles as the **goal source for testing** — a
+`ControlledSignalTransmitter` on **channel 123** sending a hand-set shape, which is
+what the MAM's filters listen to.

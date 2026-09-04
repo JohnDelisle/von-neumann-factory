@@ -26,16 +26,25 @@ validated in-game (`VN-07`: `Quad Splitter` -> `Demuxer` -> lane-fixed
 `Stacker supporting empty quadrants`), as is the Fancy A+B lane fix (`VN-08`/`VN-09`).
 Everything built so far is a **fixed recipe** — nothing chooses anything yet.
 
-**THE MAM WORKS (validated in-game 2026-09-03).** `VN-12 MAM goal driven` — full
-belt of mixed uncoloured base shapes in, full belt of whatever single-layer shape
-the HUB requests out. Built by composing John's own platforms: `Quad Splitter` ->
-`Demuxer` -> goal-driven `Quaded Filter` -> `Stacker supporting empty quadrants`,
-x4 lanes, on the lane-fixed `Fancy A+B` baseline.
+**PHASE 1 IS DONE — a working single-layer MAM, validated in-game (2026-09-04).**
+John built it: 4 lanes, each fed a distinct uniform uncoloured base shape by rail ->
+`Quad Splitter` -> `Demuxer` -> goal-driven `Quaded Filter` -> per-lane stacker
+cluster -> a 5th cluster merging the four disjoint partial shapes into one layer.
+`For Claude Single layer MAM, no-paint` (~1/4 belt) and
+`For Claude Working Full Belt Single Layer MAM no-paint` (full belt, 4x the unit).
 
-Read PROGRESS.md ">>> THE MAM IS VALIDATED" and ">>> WHAT'S LEFT", plus
-architecture.md ">>> BIG FINDING". Next up (John's call): **base supply**, then
-**colour** — decided as paint-per-quadrant-stream, which needs a signal-driven
-paint selector, the one genuinely unbuilt block. Then multi-layer.
+**FIRST THING NEXT SESSION — read PROGRESS.md ">>> START HERE".** One decision blocks
+Phase 2 (paint): **refactor to the band-merge (4 painters/unit, ~54k) or keep the
+current architecture (16 painters/unit, ~121k)?** It is John's call. Either way
+Claude's next job is re-laying the analyzer fan to expose the four colour outputs.
+
+Phases: 0 supply / **1 single-layer DONE** / 2 paint / 3 multi-layer / 4 pins /
+**5 scale-4x DONE**.
+
+**Division of labour (agreed):** John builds physical layouts in-game — stamping
+known platforms and wiring them is minutes for him and is Claude's slowest, most
+error-prone path. Claude decodes, verifies (`tools/verify_mam.py`), designs logic,
+and codifies. See PLAYBOOK "Division of labour".
 
 ## Workflow per change
 Edit `tools/build_modules.py` -> regenerate -> copy the `.spz2bp` into the in-game
