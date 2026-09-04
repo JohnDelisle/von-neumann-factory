@@ -964,14 +964,14 @@ FOOTPRINTS = {
 # immediately around the entry are EMPTY in every single instance, and the only
 # occupied cells within 2 sit exactly on the ports at +-2.
 #
-# That same census gives a second rule. A port cell (+-2 along either axis) is only
-# ever occupied by a **Wire*, Display* or ConstantSignal** -- `WireDefaultForward`,
-# `WireDefaultJunction`, `DisplayDefault`, `ConstantSignalDefault`. A Virtual* or
-# LogicGate* building is NEVER placed there. VN-13 v1 put a `VirtualAnalyzer`
-# directly on the receiver's output port at (4,13) and the game rejected the whole
-# file, which is what this rule now catches. Route out through a wire first, exactly
-# as John does at (9,8) in `For Claude Signal Receiver.spz2bp`.
-PORT_OCCUPANT_PREFIXES = ("WireDefault", "DisplayDefault", "ConstantSignalDefault")
+# A SECOND rule was proposed here and then REFUTED -- recorded so nobody re-derives
+# it. The census also showed that a port cell (+-2) is only ever occupied by a
+# Wire*/Display*/ConstantSignal* in John's library, never a Virtual* or LogicGate*,
+# so we guessed that a virtual building may not sit on a port cell and that this was
+# what killed VN-13 v1. **VN-13q1 disproves it**: an analyzer placed directly on the
+# receiver's output port cell imports and runs fine (John, 2026-09-04). John simply
+# never happens to do it. Absence from his library is not a game rule -- the same
+# trap PLAYBOOK warns about for footprints.
 
 # Multi-cell buildings whose anchor we have NOT established. Placing one is refused
 # until someone extracts it (PLAYBOOK: ask John for a minimal reference, ideally with
@@ -1012,19 +1012,6 @@ def validate_layout(buildings, where="", foundation="Foundation_1x1"):
     """
     problems, occupied = [], {}
     check_bounds = foundation == "Foundation_1x1"
-    at = {(e["X"], e["Y"], e.get("L", 0)): e for e in buildings}
-    for e in buildings:
-        w, h, anchor = FOOTPRINTS.get(e["T"], (1, 1, "o"))
-        if anchor != "c" or (w, h) != (3, 3):
-            continue
-        for dx, dy in ((0, -2), (0, 2), (-2, 0), (2, 0)):
-            nb = at.get((e["X"] + dx, e["Y"] + dy, e.get("L", 0)))
-            if nb is not None and not nb["T"].startswith(PORT_OCCUPANT_PREFIXES):
-                problems.append(
-                    f"{nb['T']} at ({nb['X']},{nb['Y']},L{nb.get('L',0)}) sits on a PORT "
-                    f"cell of {e['T']} at ({e['X']},{e['Y']}) -- in all 45 of John's "
-                    f"instances a port cell holds only a Wire/Display/ConstantSignal. "
-                    f"Route out through a wire first.")
     for e in buildings:
         for cell in footprint_cells(e):
             x, y, L = cell
@@ -1093,13 +1080,12 @@ def our_island(foundation, buildings, **kw):
 #      into another's receiver.
 # And `validate_layout()` now refuses this class of bug at build time.
 #
-# OPEN QUESTION the displays are labelled to settle: WHICH output is the colour?
-# docs/conventions.md says shape=forward, colour=left. John's p5 reading was "colour
-# out the top, `Cu------` out the side", which reads as the opposite -- but the
-# `Quaded Filter` fan feeds its post-rotators from the FORWARD output, and rotating a
-# colour is meaningless, so forward must be the shape there. "Top"/"side" is
-# camera-relative and ambiguous, so v2 labels each display **FWD** or **LEFT** by the
-# cell it sits on. Whichever label sits by the colour swatch is the answer.
+# SETTLED (John, VN-13q1/q2, 2026-09-04): the analyzer emits the **COLOUR on its LEFT
+# output** and the **uncoloured SHAPE on its FORWARD output**. His reading -- "grey
+# (uncoloured) out its top (**West**)" and "shape Wu------ to a display on the
+# **North**" -- names the compass directions, and for an R3 (north-facing) analyzer
+# west IS the left side. So docs/conventions.md was right all along and the earlier
+# "colour out the top" reading was just the angled camera. Colour = LEFT.
 QUADRANT_ROTATIONS = {
     "NE": [],
     "SE": ["VirtualRotatorCCWInternalVariant"],
@@ -1158,91 +1144,80 @@ def goal_receiver_config():
     return rx[0]["C"]["$value"]
 
 
-def colour_brain_platform(quadrant):
+def colour_brain_platform(quadrant, labels=False):
     """One quadrant's colour chain on its own 1x1, flowing NORTH (everything R3).
 
     The first three buildings are John's validated receiver arrangement, cell for
-    cell; the chain then starts at (9,7), one clear of the receiver's 3x3 body.
+    cell -- and cells (7,10)/(9,10)/(9,8)/(9,7)/(8,7)/(9,6) are EXACTLY `VN-13q2`,
+    which John confirmed imports and runs. The only additions are this quadrant's
+    rotators, which `VN-13p5` separately confirmed.
+
+    `labels` defaults to FALSE: v2 was label-free nowhere and went missing, while
+    every blueprint John has successfully imported from us either had no label or a
+    single isolated one. Labels are not proven guilty -- `VN-13r1` tests them -- but
+    they buy nothing here, since the blueprint's own NAME says which quadrant it is.
     """
     rx_x, rx_y = RX_CELL
     b = [be("ConstantSignalDefaultInternalVariant", X=RX_CHANNEL_CELL[0],
             Y=RX_CHANNEL_CELL[1], R=0, C=int_signal_config(GOAL_CHANNEL)),
          be("ControlledSignalReceiverInternalVariant", X=rx_x, Y=rx_y, R=3,
             C=config(goal_receiver_config())),
-         # a wire on the output port cell, exactly as John has one at (9,8)
          be("WireDefaultForwardInternalVariant", X=RX_OUT_CELL[0], Y=RX_OUT_CELL[1], R=3)]
     y = RX_OUT_CELL[1] - 1
     for rot in QUADRANT_ROTATIONS[quadrant]:
         b.append(be(rot, X=rx_x, Y=y, R=3))
         y -= 1
     b.append(be("VirtualAnalyzerDefaultInternalVariant", X=rx_x, Y=y, R=3))
-    # The two outputs, each labelled by the port it sits on so the reading is
-    # unambiguous: LEFT is the west neighbour, FWD is the north one.
+    # LEFT (west) = the COLOUR; FORWARD (north) = the uncoloured shape. Settled by
+    # John's q1/q2 reading, which named the compass directions.
     b.append(be("DisplayDefaultInternalVariant", X=rx_x - 1, Y=y, R=2))
-    b.append(be("LabelDefaultInternalVariant", X=rx_x - 2, Y=y, R=2,
-                C=label_config(quadrant + " LEFT")))
     b.append(be("DisplayDefaultInternalVariant", X=rx_x, Y=y - 1, R=3))
-    b.append(be("LabelDefaultInternalVariant", X=rx_x + 1, Y=y - 1, R=0,
-                C=label_config(quadrant + " FWD")))
-    b.append(be("LabelDefaultInternalVariant", X=3, Y=14, R=0,
-                C=label_config("VN-13 " + quadrant)))
+    if labels:
+        b.append(be("LabelDefaultInternalVariant", X=rx_x - 2, Y=y, R=2,
+                    C=label_config(quadrant + " colour")))
     return b
 
 
-def vn13_colour_brain_test():
-    """VN-13 v2: read all four of the goal's quadrant COLOURS, one per platform.
+def _colour_brain_module(quadrant):
+    def build():
+        check_int_signal_encoding()
+        return blueprint_islands([our_island("Foundation_1x1",
+                                             colour_brain_platform(quadrant),
+                                             where=f"VN-13 {quadrant}")])
+    build.__doc__ = f"""VN-13 {quadrant}: the goal's {quadrant} quadrant colour, on one platform.
 
-    Four separate `Foundation_1x1` islands side by side (NE, SE, SW, NW). Stamp it,
-    set a coloured goal on channel 123, read four pairs of displays. Each display is
-    labelled with the analyzer port it sits on (LEFT / FWD) so the reading also
-    settles which output actually carries the colour.
+    `ControlledSignalReceiver`(ch 123) -> wire -> {len(QUADRANT_ROTATIONS[quadrant])}x rotator
+    -> `VirtualAnalyzer`. West display = **colour**, north display = uncoloured shape.
+
+    Shipped as four separate single-island blueprints rather than one four-platform
+    one: the four-island version went missing from the folder and the cause is not
+    yet pinned, whereas this layout is `VN-13q2` (confirmed working) plus rotators
+    (confirmed by `VN-13p5`). Nothing here is unproven.
     """
-    check_int_signal_encoding()
-    check_label_encoding()
-    islands = []
-    for n, quadrant in enumerate(("NE", "SE", "SW", "NW")):
-        islands.append(our_island("Foundation_1x1", colour_brain_platform(quadrant),
-                                  X=n, Y=0, where=f"VN-13 {quadrant}"))
-    return blueprint_islands(islands)
+    return build
 
 
-# --- two probes that settle the remaining unknown -----------------------------
-# p6 died because the chain sat on the receiver's body, but it ALSO put the analyzer
-# directly on the receiver's output port cell (9,8). Those are two different possible
-# rules and only one has been ruled out. VN-13 v2 takes the safe route (a wire on the
-# port cell, John's own pattern); these say whether that was necessary.
-def vn13q1_analyzer_on_port_cell():
-    """Receiver + channel constant at John's cells, with the analyzer placed DIRECTLY
-    on the receiver's output port cell (9,8). Present => a consumer may sit on the
-    port cell. Missing => it may not, and a wire is required first.
-
-    Deliberately bypasses `our_island()`: this layout is exactly what
-    `validate_layout()`'s port-cell rule now refuses, and the point of the probe is
-    to confirm that the rule is real rather than to obey it."""
-    return blueprint_islands([island("Foundation_1x1", buildings=[
-        be("ConstantSignalDefaultInternalVariant", X=7, Y=10, R=0,
-           C=int_signal_config(GOAL_CHANNEL)),
-        be("ControlledSignalReceiverInternalVariant", X=9, Y=10, R=3,
-           C=config(goal_receiver_config())),
-        be("VirtualAnalyzerDefaultInternalVariant", X=9, Y=8, R=3),
-        be("DisplayDefaultInternalVariant", X=8, Y=8, R=2),
-        be("DisplayDefaultInternalVariant", X=9, Y=7, R=3),
-    ])])
+# --- two probes: why did the four-island VN-13 go missing? -------------------
+# `VN-13q2` (one island, no labels) imports. The four-island VN-13 v2 does not, and
+# its NE platform is EXACTLY q2 plus three labels. Two candidates remain, and these
+# separate them. Everything else in v2 was already proven piecewise.
+def vn13r1_label_by_display():
+    """q2 plus ONE label sitting next to a display -- the only thing v2's NE platform
+    added. In John's library a `DisplayDefault` is adjacent to a label **0 times out
+    of 3,089 labels**, which is suggestive but is only absence of evidence.
+    Missing => labels (or labels beside displays) are the cause."""
+    b = colour_brain_platform("NE", labels=True)
+    return blueprint_islands([our_island("Foundation_1x1", b, where="VN-13r1")])
 
 
-def vn13q2_wire_then_analyzer():
-    """The same, but with a wire on the port cell and the analyzer one further north
-    -- the arrangement VN-13 v2 uses. This one is expected to work."""
-    return blueprint_islands([our_island("Foundation_1x1", [
-        be("ConstantSignalDefaultInternalVariant", X=7, Y=10, R=0,
-           C=int_signal_config(GOAL_CHANNEL)),
-        be("ControlledSignalReceiverInternalVariant", X=9, Y=10, R=3,
-           C=config(goal_receiver_config())),
-        be("WireDefaultForwardInternalVariant", X=9, Y=8, R=3),
-        be("VirtualAnalyzerDefaultInternalVariant", X=9, Y=7, R=3),
-        be("DisplayDefaultInternalVariant", X=8, Y=7, R=2),
-        be("DisplayDefaultInternalVariant", X=9, Y=6, R=3),
-    ], where="VN-13q2")])
+def vn13r2_two_islands():
+    """Two label-free q2 platforms side by side. John's own library has blueprints
+    with up to 88 `Foundation_1x1` islands, so multi-island is normal -- but we have
+    never shipped one whose islands we authored ourselves rather than lifting from
+    him. Missing => that is the cause."""
+    return blueprint_islands([
+        our_island("Foundation_1x1", colour_brain_platform("NE"), X=0, Y=0, where="r2 a"),
+        our_island("Foundation_1x1", colour_brain_platform("SE"), X=1, Y=0, where="r2 b")])
 
 
 MODULES = {
@@ -1261,9 +1236,12 @@ MODULES = {
     "VN-11 quaded filter goal driven": vn11_quaded_filter_goal_driven,
     "VN-12 MAM preset CuRuSuWu": vn12_mam_preset_curusuwu,
     "VN-12 MAM goal driven": vn12_mam_goal_driven,
-    "VN-13 colour brain test": vn13_colour_brain_test,
-    "VN-13q1 analyzer on port cell": vn13q1_analyzer_on_port_cell,
-    "VN-13q2 wire then analyzer": vn13q2_wire_then_analyzer,
+    "VN-13 NE colour": _colour_brain_module("NE"),
+    "VN-13 SE colour": _colour_brain_module("SE"),
+    "VN-13 SW colour": _colour_brain_module("SW"),
+    "VN-13 NW colour": _colour_brain_module("NW"),
+    "VN-13r1 label by display": vn13r1_label_by_display,
+    "VN-13r2 two islands": vn13r2_two_islands,
 }
 
 if __name__ == "__main__":

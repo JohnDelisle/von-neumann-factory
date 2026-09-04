@@ -383,7 +383,7 @@ outputs. All coordinates below are relative to the building's own cell and `R`
 | `VirtualRotatorDefault` / `CCW` | behind | forward |
 | `VirtualPinPusherDefault` | behind | forward |
 | `VirtualHalfCutterDefault` | behind | forward |
-| `VirtualAnalyzerDefault` | behind | **forward + left** (two) — *which one carries the colour is OPEN, see below* |
+| `VirtualAnalyzerDefault` | behind | **forward = uncoloured SHAPE, left = COLOUR** (confirmed 2026-09-04) |
 | `VirtualUnstackerDefault` | behind | **forward + left** (two) |
 | `VirtualPainterDefault` | shape behind, **colour from left** | forward |
 | `VirtualCrystalGeneratorDefault` | shape behind, **colour from left** | forward |
@@ -632,23 +632,45 @@ use (X=2 appears 2,804 times, Y=17 856 times). The old "~[2,17]" tilde can go.
 **On a MULTI-platform foundation the seam is buildable**, so in-platform offsets
 0, 1, 18 and 19 do occur there. Do not carry the 1x1 bound across to a `1x2`/`1x4`.
 
-## OPEN: which analyzer output carries the colour?
+## SETTLED: analyzer forward = shape, left = COLOUR (2026-09-04)
 
-The table above records **forward = shape, left = colour**. Two pieces of evidence
-disagree and it is not yet settled:
+John, reading `VN-13q1`/`q2` in-game: "the analyzer outputs Grey color (uncolored)
+out its **top (West)** to a display, and a shape (`Wu------`) to a display on the
+**North**." The analyzer is R3 (north-facing), so **west is its left side** and
+north is forward. The table above was right all along; an earlier reading of
+"colour out the top" was the angled camera, not a contradiction. It also agrees with
+the `Quaded Filter` fan, whose post-rotators hang off the **forward** output — you
+can only rotate a shape.
 
-- **For forward = shape:** the `Quaded Filter` fan feeds its *post-rotators* from the
-  analyzer's **forward** output (`(10,17)` R0 -> `(11,17)`/`(12,17)` rotators).
-  Rotating a colour is meaningless, so forward must be the shape there.
-- **For forward = colour:** John's reading of `VN-13p5` (2026-09-04) — a
-  `CrCgCbCu` constant through 1x CW into an analyzer — was "colour `u` out the **top**
-  and `Cu------` out the **side**", and the top display sits on the forward port.
+The colour maths was separately validated by `VN-13p5`: `CrCgCbCu` through 1x CW
+returned colour `u` and shape `Cu------`, exactly the original **NW** quadrant. So
+the rotation mapping **NE none / SE 1x CCW / SW 2x CW / NW 1x CW** is correct.
 
-"Top"/"side" is camera-relative and the game's view is angled, so the reading is
-probably just ambiguous rather than contradictory. **VN-13 v2 labels each display
-`FWD` or `LEFT` by the cell it occupies** to settle it. Until then, do not rely on
-the table row above.
+## REFUTED: "a port cell may only hold a Wire/Display/ConstantSignal"
 
-**Independently of that, the colour MATHS is validated**: p5 returned colour `u` and
-shape `Cu------` for `CrCgCbCu` rotated 1x CW, which is exactly the original **NW**
-quadrant. The rotation mapping (NE none / SE 1x CCW / SW 2x CW / NW 1x CW) is correct.
+Recorded so it is not re-derived. The census above is real — across all 45
+controlled-signal buildings in John's library, the occupied ±2 port cells only ever
+hold a `Wire*`, `Display*` or `ConstantSignal*`, never a `Virtual*` or `LogicGate*`
+— and we inferred a game rule from it. **`VN-13q1` disproves the rule**: an analyzer
+placed directly on a receiver's output port cell imports and runs fine. John simply
+never happens to do it.
+
+**The lesson is the one PLAYBOOK already gives for footprints, and it cost a round
+trip here: absence from John's library is not a game rule.** A census tells you what
+he does, not what the game permits. Only an in-game test tells you the latter.
+
+## STILL OPEN: what makes a multi-island blueprint we authored go missing?
+
+`VN-13q2` (one 1x1 island, 6 buildings) imports. The four-island `VN-13 colour brain
+test` v2 does not appear in the folder at all — and its NE platform is **exactly q2
+plus three `Label`s**. Ruled out so far:
+- island entry structure — key-for-key identical to John's own multi-island files;
+- multi-island as such — John's library has blueprints with up to **88**
+  `Foundation_1x1` islands. (But we have never authored the islands ourselves rather
+  than lifting them from him.)
+- labels being multi-cell — 3,089 labels in his library, 364 of them orthogonally
+  adjacent to another label, so they are 1x1 and may touch things.
+
+Suggestive but unproven: a `DisplayDefault` is adjacent to a label **0 times out of
+3,089**. `VN-13r1` (q2 + one label beside a display) and `VN-13r2` (two label-free
+q2 islands) separate the two remaining candidates.
