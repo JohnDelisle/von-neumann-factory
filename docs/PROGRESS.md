@@ -149,6 +149,42 @@ existing 5th cluster, which already handles that unit's full 12-lane output toda
 never in conflict, and then has to undo it. Merging within a unit is the part that
 matters, because that is where "exactly one lane is active" holds.
 
+### STEP 3b — `VN-14 band merge aggregator` (Claude, 2026-09-04) — the per-unit version
+**198 islands** (174 at Z=0, 24 at Z=1) vs 1,526 for John's four-unit version. Every
+piece is lifted from `For Claude Space Belt.spz2bp` with its exact rotation, and the
+build asserts each one still exists there:
+
+| role | piece |
+|---|---|
+| west-flowing belt / north trunk / south run | `SpaceBelt_Forward` R2 / R3 / R1 |
+| merge an east input onto a north trunk | `SpaceBelt_LeftFwdMerger` R3 |
+| hop up, across, down | `Lift1UpForward` R2 -> `Forward` R2 at **Z=1** -> `Lift1DownForward` R2 |
+| W->N, N->W, W->S, S->W | `RightTurn` R2, `LeftTurn` R3, `LeftTurn` R2, `RightTurn` R1 |
+
+**Interface** — inputs on the filters' west edge at **X=9**, outputs into the surviving
+cluster's east edge at **X=-6**:
+
+| band | trunk X | input rows | exits west along | delivery column | into cluster at |
+|---|---|---|---|---|---|
+| NW | 8 | -10, -4, 2, 8 | -14 | -5 | `(-6,-10)` |
+| SW | 7 | -9, -3, 3, 9 | -13 | -4 | `(-6,-9)` |
+| SE | 6 | -8, -2, 4, 10 | -12 | -3 | `(-6,-8)` |
+| NE | 5 | -7, -1, 5, 11 | -11 | -2 | `(-6,-7)` |
+
+**Only the 12 input hops ever change level.** Everything else is flat, because each
+band's northernmost source is one row further south than the previous band's: trunk NW
+leaves west along row -14, north of where SW/SE/NE even begin (-13/-12/-11); SW leaves
+along -13, north of SE and NE; and the delivery columns nest the same way. Same
+"outermost gets the longest run" trick John already uses to stop the four lane-cluster
+outputs crossing — it just falls out in the other direction here.
+
+**Paint goes on the four trunks**, anywhere along their straight runs. A trunk is
+uniform in colour by construction — that is the entire point of merging by position.
+
+**Not yet verified:** which cluster input row wants which quadrant. Because stacking is
+rigid-body and the four streams are disjoint single quadrants, the order should not
+matter — but confirm with Step 4's single-quadrant goals before trusting it.
+
 ### STEP 4 — validate ONE band before building four
 Do **NE only**: merge rows `-7, -1, 5, 11` into a single stream and feed it into the
 5th cluster's input at `(-6,-7)`. Leave the other three inputs unfed.

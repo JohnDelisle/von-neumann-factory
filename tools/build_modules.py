@@ -1271,6 +1271,152 @@ def vn13t2_one_island_labelled():
                                          colour_brain_platform("NE"), where="t2")])
 
 
+# ---------------------------------------------------------------- VN-14
+# THE BAND-MERGE AGGREGATOR, per unit.
+#
+# 16 filter band outputs -> 4 trunks, one per quadrant POSITION -> 4 outputs into the
+# unit's single surviving stacker cluster. Paint goes on the four trunks (Phase 2a).
+#
+# This is the per-unit answer to John's `For Claude Space Belt.spz2bp`, which does the
+# same job for all four units at once (64 in / 4 trunks / 64 out). His version merges
+# across units, and that is a **4x throughput bottleneck**: within one unit exactly one
+# of four lanes is live on a band (12 lanes = one space belt), but the four units run
+# in parallel, so four of his sixteen inputs per trunk are live at once = 48 lanes on a
+# 12-lane belt. Merging per unit keeps every trunk at the 12 lanes it already carries,
+# and needs 4 stacker clusters instead of 16 (~91,300 buildings less).
+#
+# EVERY PIECE IS EXTRACTED FROM JOHN'S BLUEPRINT, not guessed (PLAYBOOK):
+#   west-flowing belt            SpaceBelt_Forward            R2
+#   north-flowing trunk          SpaceBelt_Forward            R3
+#   south-flowing belt           SpaceBelt_Forward            R1
+#   merge east input onto trunk  SpaceBelt_LeftFwdMerger      R3
+#   hop up out of the way        SpaceBelt_Lift1UpForward     R2   (Z0 -> Z1, one west)
+#   hop across                   SpaceBelt_Forward            R2   at Z=1
+#   hop back down                SpaceBelt_Lift1DownForward   R2   at Z=1 (-> Z0, one west)
+#   west -> north                SpaceBelt_RightTurn          R2
+#   north -> west                SpaceBelt_LeftTurn           R3
+#   west -> south                SpaceBelt_LeftTurn           R2
+#   south -> west                SpaceBelt_RightTurn          R1
+# The hop chain is John's exactly: lift up at the input column, run west at Z=1 over
+# the trunks in the way, drop down one cell east of the target trunk.
+#
+# GEOMETRY (island coordinates in `For Claude Single layer MAM, no-paint`):
+#   Lanes at r = -9, -3, 3, 9. Each `Quaded Filter` stands north-south at X=10 over
+#   rows r-1..r+2, one band per row (NW, SW, SE, NE north->south), all leaving WEST
+#   at X=9. The surviving 5th cluster takes its four inputs on its EAST edge at
+#   X=-6, rows -10..-7.
+#
+#   band  trunk X  input rows          exit row  delivery X  cluster input
+#   NW    8        -10, -4,  2,  8     -14       -5          (-6,-10)
+#   SW    7         -9, -3,  3,  9     -13       -4          (-6, -9)
+#   SE    6         -8, -2,  4, 10     -12       -3          (-6, -8)
+#   NE    5         -7, -1,  5, 11     -11       -2          (-6, -7)
+#
+# WHY THIS ORDERING HAS NO CROSSINGS ANYWHERE EXCEPT THE 12 INPUT HOPS:
+# each band's northernmost source is one row further south than the previous band's,
+# so a trunk only spans rows from its own first input downward. Trunk NW leaves west
+# along row -14, north of where trunks SW/SE/NE even begin (-13/-12/-11); trunk SW
+# leaves along -13, north of SE and NE; and so on. The delivery columns nest the same
+# way. It is the same "outermost gets the longest run" trick John already uses to keep
+# the four lane clusters' outputs from crossing -- it just falls out in the other
+# direction here.
+BANDS = ("NW", "SW", "SE", "NE")
+LANE_ROWS = (-9, -3, 3, 9)
+INPUT_X = 9                                  # west of the filters at X=10
+TRUNK_X = {"NW": 8, "SW": 7, "SE": 6, "NE": 5}
+EXIT_ROW = {"NW": -14, "SW": -13, "SE": -12, "NE": -11}
+DELIVERY_X = {"NW": -5, "SW": -4, "SE": -3, "NE": -2}
+CLUSTER_IN = {"NW": (-6, -10), "SW": (-6, -9), "SE": (-6, -8), "NE": (-6, -7)}
+
+SB_W = ("SpaceBelt_Forward", 2)
+SB_N = ("SpaceBelt_Forward", 3)
+SB_S = ("SpaceBelt_Forward", 1)
+SB_MERGE_N = ("SpaceBelt_LeftFwdMerger", 3)
+SB_UP = ("SpaceBelt_Lift1UpForward", 2)
+SB_DOWN = ("SpaceBelt_Lift1DownForward", 2)
+SB_W_TO_N = ("SpaceBelt_RightTurn", 2)
+SB_N_TO_W = ("SpaceBelt_LeftTurn", 3)
+SB_W_TO_S = ("SpaceBelt_LeftTurn", 2)
+SB_S_TO_W = ("SpaceBelt_RightTurn", 1)
+
+
+def check_spacebelt_vocabulary():
+    """Assert every piece we use appears in John's blueprint with that exact rotation
+    (and Z where it matters). If he re-exports a different design this fails loudly
+    rather than silently generating belts that do not connect."""
+    isls = load_reference_islands("For Claude Space Belt.spz2bp")
+    have = {(i["T"], i.get("R", 0), i.get("Z", 0)) for i in isls}
+    for name, (T, R), Z in (("west", SB_W, 0), ("north", SB_N, 0), ("south", SB_S, 0),
+                            ("merge", SB_MERGE_N, 0), ("lift up", SB_UP, 0),
+                            ("hop", SB_W, 1), ("lift down", SB_DOWN, 1),
+                            ("W->N", SB_W_TO_N, 0), ("N->W", SB_N_TO_W, 0),
+                            ("W->S", SB_W_TO_S, 0), ("S->W", SB_S_TO_W, 0)):
+        assert (T, R, Z) in have, f"{name}: {T} R{R} Z{Z} not present in John's design"
+
+
+def sb(piece, X, Y, Z=0):
+    T, R = piece
+    return island(T, X=X, Y=Y, Z=Z, R=R)
+
+
+def vn14_band_merge_aggregator():
+    """VN-14: the per-unit band-merge aggregator, space-belt only.
+
+    Drop-in for the strip freed by deleting the four per-lane stacker clusters. Takes
+    the 16 filter band outputs at X=9 and delivers four per-position streams to the
+    surviving cluster at X=-6. Insert `Paint 4 Filter` -> `Painter` on each trunk for
+    Phase 2a; the trunk is uniform in colour by construction, which is the whole point
+    of merging by position rather than by lane.
+    """
+    check_spacebelt_vocabulary()
+    out = []
+    for b_i, band in enumerate(BANDS):
+        tx, exit_row, dx = TRUNK_X[band], EXIT_ROW[band], DELIVERY_X[band]
+        rows = [r - 1 + b_i for r in LANE_ROWS]          # this band's four input rows
+        tail = max(rows)                                  # southern end of the trunk
+
+        # --- the sixteen inputs: west out of the filter, then hop over any trunks in
+        #     the way at Z=1 and drop onto this band's own trunk
+        for y in rows:
+            if b_i == 0:
+                out.append(sb(SB_W, INPUT_X, y))          # NW: nothing to hop
+            else:
+                out.append(sb(SB_UP, INPUT_X, y))
+                for x in range(INPUT_X - 1, tx + 1, -1):  # Z=1, over the trunks east of us
+                    out.append(sb(SB_W, x, y, Z=1))
+                out.append(sb(SB_DOWN, tx + 1, y, Z=1))
+
+        # --- the trunk: north from its southernmost input up to its exit row
+        for y in range(exit_row, tail + 1):
+            if y == tail:
+                out.append(sb(SB_W_TO_N, tx, y))          # first input starts the trunk
+            elif y in rows:
+                out.append(sb(SB_MERGE_N, tx, y))         # later inputs merge in
+            elif y == exit_row:
+                out.append(sb(SB_N_TO_W, tx, y))          # head: turn west
+            else:
+                out.append(sb(SB_N, tx, y))
+
+        # --- west along the exit row, then south down the delivery column
+        for x in range(tx - 1, dx, -1):
+            out.append(sb(SB_W, x, exit_row))
+        out.append(sb(SB_W_TO_S, dx, exit_row))
+        cx, cy = CLUSTER_IN[band]
+        for y in range(exit_row + 1, cy):
+            out.append(sb(SB_S, dx, y))
+        out.append(sb(SB_S_TO_W, dx, cy))
+        for x in range(dx - 1, cx - 1, -1):
+            out.append(sb(SB_W, x, cy))
+
+    # --- structural check: no two islands may share a platform cell at the same level
+    seen = {}
+    for i in out:
+        key = (i["X"], i["Y"], i["Z"])
+        assert key not in seen, f"island collision at {key}: {i['T']} vs {seen[key]}"
+        seen[key] = i["T"]
+    return blueprint_islands(out)
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
@@ -1293,6 +1439,7 @@ MODULES = {
     "VN-13 NW colour": _colour_brain_module("NW"),
     "VN-13 colour brain all": vn13_colour_brain_all,
     "VN-13t2 one island labelled": vn13t2_one_island_labelled,
+    "VN-14 band merge aggregator": vn14_band_merge_aggregator,
 }
 
 if __name__ == "__main__":
