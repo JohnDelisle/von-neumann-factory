@@ -659,39 +659,53 @@ never happens to do it.
 trip here: absence from John's library is not a game rule.** A census tells you what
 he does, not what the game permits. Only an in-game test tells you the latter.
 
-## A LABEL IS FIVE CELLS LONG — and labels are still not fully understood
+## LABELS — SOLVED (2026-09-04). Two rules, two different symptoms
 
-`LabelDefaultInternalVariant` is **not 1x1**. It occupies **five cells, centred on its
-entry, along the axis it faces** (R0/R2 horizontal, R1/R3 vertical), and the size is
-**fixed — it does not scale with the text**.
+`LabelDefaultInternalVariant` is **not 1x1**, and it also needs a margin.
 
-Measured from `For Claude Labels.spz2bp`, which John built for exactly this purpose
-(2026-09-04), boxing labels in belt. Every box interior is 5 cells whatever the text:
+### Rule 1 — the body is FIVE cells, centred, along the facing axis
+R0/R2 run horizontally (`x-2 .. x+2`), R1/R3 vertically (`y-2 .. y+2`). The size is
+**fixed — it does not scale with the text.**
 
-| box | label | text | interior |
+Two independent confirmations:
+- **John's `For Claude Labels.spz2bp`** (built for this): every belt box has a 5-cell
+  interior for texts of 10, 16 and 22 characters.
+- **Whole-library test**: applying an N-cell model to all **3,100** labels gives
+  **0 collisions at N=5** (and at N=3), but **2,569 collisions at N=7** and 5,172 at
+  N=9. So the body is at most 5, and John's snug boxes make it exactly 5.
+
+### Rule 2 — a label needs ONE CELL OF MARGIN from the platform edge
+Its body must stay within **[3,16]** on a 1x1 — never the outer ring at 2 or 17.
+- John's reference demonstrates the extremes deliberately: every label he named
+  "North West **Corner**", "South West Corner", "North side", "South side" sits
+  **exactly one cell in** from the buildable edge.
+- Census: on `Foundation_1x1` platforms, label body cells occupy offsets
+  **[3..7, 12..16] and never 2 or 17**, while every other building type uses the
+  full 2..17.
+
+### The two rules have DIFFERENT symptoms — which is why this took four rounds
+| violation | symptom |
+|---|---|
+| label body **overlaps another building** | the game discards the **whole FILE** — it never appears in the blueprint folder |
+| label body only **breaks the edge margin** | the file imports fine but **fails to stamp** (red X) |
+
+That matches the file-vs-placement distinction already documented above. Every
+observation is now accounted for:
+
+| blueprint | label | body | outcome |
 |---|---|---|---|
-| `(17,8)`-`(23,10)` | "Center-ish" | 10 | X18-22 |
-| `(17,3)`-`(23,4)` | "North side, center-ish" | 22 | X18-22 |
-| `(25,9)`-`(31,11)` R2 | "Upside-down text" | 16 | X26-30 |
-| `(4,3)`-`(6,8)` R1 | "Text running N-S" | 16 | Y3-7 |
+| `p1` | `(9,9)` R0 alone | X7-11 | **imported** |
+| `p6` | `(2,13)` R2 + display `(3,13)` | X0-4 | overlap + margin -> **file discarded** |
+| `VN-13 v1`, `v2` | several over displays | — | overlap -> **file discarded** |
+| `r1`,`s1`,`s2` | `(7,7)` + display `(8,7)` | X5-9 | overlap -> **file discarded** |
+| `t1` | `(4,14)` R0 | X2-6 | margin only -> **failed to stamp** |
+| `t1` | `(5,7)` R0 | X3-7 | legal — this one was innocent |
 
-It agrees with a whole-library census: along the axis, **both ±1 and ±2 are occupied 0
-times out of 3,089 labels**, while the perpendicular neighbours are used freely. (An
-earlier reading of that census concluded 3 cells — one ring too small.)
-
-### !! But 5 cells does NOT explain everything, so labels are OFF
-`VN-13t1` failed to stamp with labels at `(4,14)` and `(5,7)` — spans X2-6 and X3-7,
-both inside the buildable window and hitting nothing. John: "the labels appear to
-extend past the edge of the platform." So either the footprint is larger than John's
-own boxes allow, or a label may not occupy the outermost buildable ring, or labels do
-not collide at all and the earlier disappearances had another cause entirely.
-
-Note also that John never places a label body below offset 3 — his westmost label
-body starts at X=3, never X=2.
-
-**Policy: generated blueprints carry NO labels.** They are cosmetic, the filename
-already identifies a platform, and this has cost four round trips. `FOOTPRINTS` keeps
-the 5-cell entry so that anything placed deliberately is still checked.
+**Why it hid:** a label may sit beside another building, just never along its own
+axis, so a census that did not split by rotation cleared them; and the 3-cell reading
+that followed was one ring short. **When censusing a footprint, split by `R`, and
+prefer a purpose-built reference over inference.** `validate_layout()` now encodes
+both rules and reproduces every row of that table.
 
 ## STILL OPEN: multi-island blueprints whose islands we author
 

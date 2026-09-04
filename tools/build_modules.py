@@ -975,6 +975,22 @@ FOOTPRINTS = {
 # Buildings whose footprint turns with them (w/h swap on R1/R3).
 ROTATION_SWAPS_AXIS = {"LabelDefaultInternalVariant"}
 
+# ...and a label needs ONE CELL OF MARGIN inside the buildable window: its 5-cell
+# body must lie within [3,16] on a 1x1, never touching the outer ring at 2 or 17.
+# From John's `For Claude Labels.spz2bp`, which demonstrates the extremes on purpose
+# -- every label he named "Corner" / "North side" / "South side" sits exactly one cell
+# in from the edge -- and from the library census: on Foundation_1x1 platforms, label
+# body cells use offsets [3..7, 12..16] and NEVER 2 or 17, while every other building
+# type uses the full 2..17.
+#
+# The two rules produce DIFFERENT symptoms, which is why this took so long to read:
+#   * a label OVERLAPPING another building  -> the game discards the whole FILE
+#     (never appears in the blueprint folder) -- p6, VN-13 v1, VN-13 v2, r1, s1, s2;
+#   * a label only breaking the MARGIN      -> the file imports fine but FAILS TO
+#     STAMP (red X) -- VN-13t1, whose one bad label at (4,14) spans X2..6.
+# That matches the file-vs-placement distinction already in conventions.md.
+LABEL_EDGE_MARGIN = 1
+
 # The 3x3 body is now strongly evidenced, not inferred from one reference: across
 # **all 45 controlled-signal buildings in John's library**, the eight cells
 # immediately around the entry are EMPTY in every single instance, and the only
@@ -1033,11 +1049,14 @@ def validate_layout(buildings, where="", foundation="Foundation_1x1"):
     for e in buildings:
         for cell in footprint_cells(e):
             x, y, L = cell
-            if check_bounds and not (PLATFORM_MIN <= x <= PLATFORM_MAX
-                                     and PLATFORM_MIN <= y <= PLATFORM_MAX):
+            margin = LABEL_EDGE_MARGIN if e["T"] == "LabelDefaultInternalVariant" else 0
+            lo, hi = PLATFORM_MIN + margin, PLATFORM_MAX - margin
+            if check_bounds and not (lo <= x <= hi and lo <= y <= hi):
+                why = ("-- a label body needs one cell of margin, so it must stay "
+                       f"within [{lo},{hi}]" if margin else
+                       f"-- outside the buildable [{lo},{hi}] window")
                 problems.append(
-                    f"{e['T']} at ({e['X']},{e['Y']},L{e.get('L',0)}) occupies {cell} "
-                    f"-- outside the buildable [{PLATFORM_MIN},{PLATFORM_MAX}] window")
+                    f"{e['T']} at ({e['X']},{e['Y']},L{e.get('L',0)}) occupies {cell} {why}")
             if cell in occupied:
                 problems.append(
                     f"{e['T']} at ({e['X']},{e['Y']},L{e.get('L',0)}) and "
@@ -1162,7 +1181,7 @@ def goal_receiver_config():
     return rx[0]["C"]["$value"]
 
 
-def colour_brain_platform(quadrant, labels=False):
+def colour_brain_platform(quadrant, labels=True):
     """One quadrant's colour chain on its own 1x1, flowing NORTH (everything R3).
 
     The first three buildings are John's validated receiver arrangement, cell for
@@ -1170,12 +1189,11 @@ def colour_brain_platform(quadrant, labels=False):
     which John confirmed imports and runs. The only additions are this quadrant's
     rotators, which `VN-13p5` separately confirmed.
 
-    `labels` defaults to **False**, and should stay that way. A label is 5 cells long
-    (see FOOTPRINTS) but even a validated 5-cell model does not explain why `VN-13t1`
-    failed to stamp with labels at `(4,14)`/`(5,7)`, whose spans X2-6 and X3-7 are
-    inside the buildable window and hit nothing. Something about labels is still not
-    understood, they are purely cosmetic, and the blueprint's filename already says
-    what each platform is. Not worth another round trip.
+    Labels are on and correctly placed. A label is 5 cells centred on its entry along
+    its facing axis AND needs one cell of margin, so its body must stay within
+    [3,16]. `VN-13t1` failed to stamp on exactly one label -- `(4,14)` R0, body X2-6,
+    touching the outer ring -- while its `(5,7)` label (body X3-7) was fine. The title
+    label now sits at `(10,13)` (body X8-12), well clear.
     """
     rx_x, rx_y = RX_CELL
     b = [be("ConstantSignalDefaultInternalVariant", X=RX_CHANNEL_CELL[0],
@@ -1193,12 +1211,11 @@ def colour_brain_platform(quadrant, labels=False):
     b.append(be("DisplayDefaultInternalVariant", X=rx_x - 1, Y=y, R=2))
     b.append(be("DisplayDefaultInternalVariant", X=rx_x, Y=y - 1, R=3))
     if labels:
-        # A label is THREE cells along its facing axis, so an R0 label at (5,y)
-        # occupies (4,y),(5,y),(6,y) -- clear of the colour display at (8,y).
-        # Placing one at (7,y) is what broke r1/s1/s2: it reached into (8,y).
+        # body X3-7, clear of the colour display at (8,y) and inside the [3,16] margin
         b.append(be("LabelDefaultInternalVariant", X=5, Y=y, R=0,
                     C=label_config("COLOUR ->")))
-        b.append(be("LabelDefaultInternalVariant", X=4, Y=14, R=0,
+        # body X8-12 on an empty row -- (4,14) was what killed VN-13t1 (body X2-6)
+        b.append(be("LabelDefaultInternalVariant", X=10, Y=13, R=0,
                     C=label_config("VN-13 " + quadrant)))
     return b
 
@@ -1231,7 +1248,7 @@ def _colour_brain_module(quadrant):
 # `VN-13r2` -- two label-free islands, each of which imports standalone -- is NOT
 # explained by it and is still open. These two separate the last question.
 def vn13_colour_brain_all():
-    """All four quadrants on one blueprint: four islands, NO labels.
+    """All four quadrants on one blueprint: four islands, labels placed legally.
 
     A clean test of the one thing still open. Each island is byte-for-byte one of the
     four `VN-13 * colour` platforms that John validated in-game, so if this fails the
@@ -1239,9 +1256,19 @@ def vn13_colour_brain_all():
     multi-island and validated, but every one of those lifts its islands from John's
     files rather than building them. If it works it replaces the four separate files."""
     check_int_signal_encoding()
+    check_label_encoding()
     return blueprint_islands([
         our_island("Foundation_1x1", colour_brain_platform(q), X=n, Y=0, where=f"all {q}")
         for n, q in enumerate(("NE", "SE", "SW", "NW"))])
+
+
+def vn13t2_one_island_labelled():
+    """Control: one island, the confirmed NE chain plus two CORRECTLY placed labels.
+    Separates "labels are fixed" from "multi-island works" -- if this stamps and
+    `VN-13 colour brain all` does not, the remaining problem is multi-island."""
+    check_label_encoding()
+    return blueprint_islands([our_island("Foundation_1x1",
+                                         colour_brain_platform("NE"), where="t2")])
 
 
 MODULES = {
@@ -1265,6 +1292,7 @@ MODULES = {
     "VN-13 SW colour": _colour_brain_module("SW"),
     "VN-13 NW colour": _colour_brain_module("NW"),
     "VN-13 colour brain all": vn13_colour_brain_all,
+    "VN-13t2 one island labelled": vn13t2_one_island_labelled,
 }
 
 if __name__ == "__main__":
