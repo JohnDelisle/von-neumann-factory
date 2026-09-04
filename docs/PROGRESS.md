@@ -131,6 +131,27 @@ mixed base shapes (1/4 belt)
 
 `check_configs()` now guards (1) over every module in the build loop.
 
+## >>> IN FLIGHT: John's goal-driven test of VN-12 (2026-09-03) <<<
+John repurposed `For Claude Wiring Shapes.spz2bp` as a **hand-set goal source**:
+`ControlledSignalTransmitter` on **channel 123** sending the test shape
+**`Su--WuCu`** (NE=`Su`, SE=**empty**, SW=`Wu`, NW=`Cu`) — uncoloured, single-layer,
+with an empty quadrant. Good test goal, and exactly the Phase 1 validation path
+(hand-set goal, not the live HUB).
+
+**The supply is what decides what this proves.** VN-12 still has ONE input split
+four ways (the re-plumb is not built), so all four Quad Splitters see the same
+stream:
+
+| Feed all four splitters | Expected output | What it proves |
+|---|---|---|
+| `Su--WuCu` (the goal itself) | `Su--WuCu` | signal path + reassembly only — this is VN-07 with a goal-driven filter |
+| **mixed `CuCuCuCu`/`RuRuRuRu`/`SuSuSuSu`/`WuWuWuWu`** | **`Su--WuCu` at ~1/4 rate** | **the real test — selection across types** |
+| one uniform type, e.g. all `SuSuSuSu` | `Su------` (partial) | expected, not a bug: only the NE band matches |
+
+Feeding **four distinct uniform shapes, one per splitter**, needs the Phase 1
+re-plumb (four separate inputs + band-by-band merge into one stacker) — **not built
+yet**.
+
 ## >>> WHAT'S LEFT (the single-layer uncoloured MAM is done) <<<
 
 | # | Gap | Notes |

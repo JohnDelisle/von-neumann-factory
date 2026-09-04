@@ -401,8 +401,18 @@ comparison mode.
 (origin-2, left) and its display at `(-5,5)` (origin-2, forward);
 `ControlledSignalTransmitter` at `(-5,12)` R3 takes its shape from `(-5,14)`
 (origin+2, behind) and its channel from `(-7,12)`. `WireGlobalTransmitterReceiver`
-is the same 3x3 shape. **The channel here is 1111** (`03 57 04 00 00`), vs 123 in
-the goal-driven filter — so the channel number is per-link, not a global constant.
+is the same 3x3 shape.
+
+**Updated 2026-09-03 (2nd revision):** John repurposed this blueprint from a pure
+reference into the **goal source for testing** — both channel constants are now
+**123** (`03 7b 00 00 00`), matching the MAM's filters, and the transmitter's shape
+input is the test goal **`Su--WuCu`**. So the goal is hand-set from this platform
+rather than read from the HUB, which is exactly the Phase 1 validation path.
+
+Note the config byte `2` appears on the **transmitter** as well as the receiver, and
+the channel is a separate wire input — so `2` is **not** a goal-slot index as we
+first recorded. It is identical in all instances, so copy it verbatim and don't
+attach meaning to it.
 
 ## Virtual (wire-layer) processing semantics (inferred 2026-09-03)
 
