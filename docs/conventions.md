@@ -530,3 +530,72 @@ platform's "Top" input has two alternate physical entry points with a
 `"USE ONE INPUT ONLY"` label between them (see above) — the game flags the unused
 one's adjacent empty `SpaceBelt` cell as a warning. That's intentional per John,
 not a bug.
+
+## `Paint 4 Filter` / `Paint 3 Filter` selector bank (EXTRACTED 2026-09-04)
+
+`Foundation_1x4` **R2**, buildings span local **X-35..32, Y2..17** (the 1x4 runs
+along X; Y is a single platform). 1,066 buildings: 396 `PipeForward`, 144
+`PipeLeft`, 84 `FluidPortSender` + 84 `FluidPortReceiver`, **48
+`PipeGateDefaultInternalVariantMirrored`**, and a small wire bank.
+
+**The bank is a first-wins priority selector over four signal constants:**
+
+| cell | building | note |
+|---|---|---|
+| `(15,4)` `(17,4)` `(19,4)` `(21,4)` R1 | `ConstantSignal` | `r`, `g`, `b`, **null** (`05`) |
+| `(15,5)` `(17,5)` `(19,5)` `(21,5)` R1 | `LogicGateIf` | value from behind (the constant), **condition from its LEFT side**, output forward |
+| `(16,5)` `(18,5)` `(20,5)` `(22,5)` R2 | `ButtonDefault` | **the four enable inputs — this is the swap point** |
+| rows 6-8 `(19,6)/(20,6)`, `(17,7)/(18,7)`, `(15,8)/(16,8)` | `LogicGateIf` + `LogicGateNot` | priority chain: a later slot passes only if no earlier one fired |
+| `(21,10)` `(22,11)` `(23,12)` R2 | `LogicGateIfMirrored` | tail of the chain |
+| row 16, `(25,16)` west | wire bus | carries the winning colour to all 48 `PipeGate`s; relayed across platforms by `WireTransmitterSender/Receiver` |
+| `(26,4)` | `Display2x2` | shows the selected colour — free probe point |
+
+- **No slot enabled => the bus carries nothing => every gate shuts.** That is the
+  correct no-paint behaviour, so an empty/pin quadrant (analyzer colour = null)
+  needs no special case.
+- **`Paint 3 Filter` has the SAME four constants** (`r`, `g`, `b`, null) at
+  `(26,3)`..`(32,3)` with buttons at `(27,4)`..`(33,4)`. **The 3/4 in the names is
+  not the palette size** — both select 3 paints + off.
+- Free build space: **L1 has 246 free cells and L2 247** in X13-32/Y2-17. John
+  already bridges floors here with `WireDefault1UpBackward` `(26,5)` /
+  `WireDefault2UpBackward` `(27,5)`.
+
+## `LogicGateIf` condition side — CONFIRMED (2026-09-04)
+
+`LogicGateIfInternalVariant` takes its **condition from its LEFT (`R-1`) side**;
+`...Mirrored` from the right. Value in from behind, result out forward. Confirmed
+independently on two of John's platforms:
+- `Quaded Filter` `(5,17)` R0: constant behind at `(4,17)`, button routed up column
+  X3 and along row 16 to enter at `(5,16)` = north = left of R0.
+- `Paint 4 Filter` `(15,5)` R1: constant behind at `(15,4)`, button at `(16,5)` =
+  east = left of R1.
+
+## `Quaded Filter` analyzer fan: row -> quadrant mapping (DECODED 2026-09-04)
+
+The fan sits at local **X8-12, Y17-20, L0**, four `VirtualAnalyzer`s stacked in
+column **X=10**, all **R0**. Each row rotates the goal so its quadrant lands in NE,
+analyzes, then rotates back by the inverse:
+
+| row | pre-rotators | quadrant |
+|---|---|---|
+| `Y=17` | `(8,17)` + `(9,17)` `VirtualRotator` (2x CW) | **SW** |
+| `Y=18` | `(9,18)` `VirtualRotatorCCW` (1x CCW) | **SE** |
+| `Y=19` | none | **NE** |
+| `Y=20` | `(9,20)` `VirtualRotator` (1x CW) | **NW** |
+
+(k CW rotations bring the quadrant k steps CCW from NE into NE: 1 CW <- NW,
+2 CW <- SW, 1 CCW <- SE.)
+
+**The colour outputs are unreachable here and we are not going to free them.** R0's
+left side is **north**, so each analyzer's colour output cell is the next analyzer;
+only the top has a free neighbour at `(10,16)`. **Re-laying the fan is unnecessary
+anyway** — the colour signals are goal-derived, identical on all 16 filters, so the
+colour logic belongs on the paint platform instead. See PROGRESS "START HERE".
+
+## `ControlledSignalTransmitter` carries a NULL config (2026-09-04)
+
+In `For Claude Wiring Shapes` the transmitter at `(-5,12)` R3 has `C = null`; only
+the **receiver** (and `WireGlobalTransmitterReceiver`) carry `00 00 00 02`. The
+earlier note that "the config byte 2 appears on the transmitter as well" was wrong.
+Channel is a separate wire input from the left (`(-7,12)`), shape input from behind
+(`(-5,14)`).

@@ -679,3 +679,48 @@ our side to place the 3x3 Goal Receiver.
   the same machine; we should keep one.)
 - **Goal-change transient**: stale quadrants sit on the belts when the HUB request
   changes. Tolerable, or does it need a purge?
+
+---
+
+# PHASE 2 DECISION TAKEN (John, 2026-09-04): the band-merge
+
+`docs/PROGRESS.md` "START HERE" carries the build spec and the costing. The
+architectural points worth keeping here:
+
+## The 4 per-lane stacker clusters were always redundant
+All five clusters run at the full unit output rate — they must, to feed the 5th at
+full rate. So the 5th cluster can assemble directly from the four band streams, and
+the other four are doing throw-away partial-shape assembly. Paint is only what made
+the redundancy expensive enough to fix (a lane's partial shape can need two
+different colours, and a `Painter` colours a whole shape, so paint would otherwise
+have to go per band *and* per lane: 16 painters instead of 4).
+
+## The merge needs no arbitration
+Band `P` of lane `T` passes iff `goal[P] == T`, so **exactly one lane is ever active
+on a given band**. A plain 4-way space-belt merge is correct for every goal, and it
+does not depend on the goal. After merging, each band carries exactly one item per
+output shape — the surviving cluster's four inputs become **per-position** rather
+than per-lane, which is precisely the `Full Belt Any Shape Maker` pattern.
+
+## Where the colour brain lives — NOT in the filter
+The colour signals are a function of the **goal**, not of the lane. All four lanes'
+`Quaded Filter`s (sixteen at full belt) decompose the same goal, so computing colour
+there would be sixteen copies of one calculation, on a platform whose analyzer fan
+has no free side-output cells (see conventions.md).
+
+Instead each `Paint 4 Filter` grows its own three-building front end and keeps the
+rest of the platform untouched:
+
+```
+ControlledSignalReceiver(ch 123)      the goal, same channel the shape filters use
+   -> rotate this band's quadrant into NE   NE: -   SE: 1x CCW   SW: 2x CW   NW: 1x CW
+   -> VirtualAnalyzer
+        forward output = uncoloured shape   (unused)
+        LEFT output    = colour[band]       <- what we want; null for empty/pin
+   -> 4x LogicGateCompare vs r / g / b / null
+   -> replaces the four ButtonDefaults of the priority bank
+```
+
+No post-rotation is needed: rotation does not change colour, so unlike the shape fan
+the chain does not have to rotate back. Four blueprint variants, one per band; the
+validated `Quaded Filter` is not touched at all.

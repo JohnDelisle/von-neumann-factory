@@ -12,48 +12,101 @@ committed + pushed.
 
 ---
 
-# >>> START HERE: THE FIRST QUESTION TO ATTACK NEXT SESSION <<<
+# >>> START HERE: PHASE 2 IS UNBLOCKED — BUILD THE BAND-MERGE <<<
 
-## Do we refactor to the band-merge before adding paint — or keep the current architecture and use 16 painters?
+## The decision is made (John, 2026-09-04): **band-merge**.
 
-**This is John's call and it blocks Phase 2.** Everything else about paint is
-settled.
+The 4 per-lane stacker clusters are removed; the four lanes' band-P streams merge
+per position, get painted once per position, and feed the ONE surviving cluster.
 
-### Why it comes up now
-A lane's partial shape can need **two different colours**. Goal `CrCgSuWu` has the
-`Cu` lane supplying **NE red and SE green**, and a `Painter` colours a *whole shape*.
-So with the current architecture, paint has to go **per band, before each lane's
-stacker** — 4 bands x 4 lanes = **16 painters per unit**.
+### Why this is right, in one line
+**The 4 per-lane clusters are pure redundancy.** All five clusters already run at
+the full unit output rate (they must, to feed the 5th at full rate). The 5th cluster
+can assemble straight from the four band streams, so the other four are doing
+throw-away partial-shape assembly. Paint is what made this worth fixing; the
+redundancy was always there.
 
-The **band-merge** alternative: merge the four lanes' band-P streams *per position*
-first, paint once per position, then feed **one** stacker cluster. Exactly one lane
-is ever active on a given band, so the merge needs no arbitration and does not
-depend on the goal.
+### Cost, from real building counts (recomputed 2026-09-04, includes `Paint 4 Filter`)
+Cluster = 2x `Fancy A+B` (1,763) + 3x `Stacker` (1,361) = **7,609**.
 
 | Per 1/4-belt unit, painted | Buildings | At full belt (x4) |
 |---|---|---|
-| keep current architecture + **16 painters** | ~121k | ~486k |
-| **band-merge** + **4 painters** | **~54k** | **~216k** |
+| keep current + 16 painters | 72,832 + 16x3,041 + 16x1,066 = **138,544** | **554,176** |
+| **band-merge** + 4 painters | 42,396 + 4x3,041 + 4x1,066 = **58,824** | **235,296** |
 
-The band-merge saves **4 stacker clusters AND 12 painters** per unit. **Note this
-reverses Claude's earlier advice** — when only stacker clusters were at stake it
-wasn't worth disturbing a working machine; with paint it roughly halves the factory.
+Saving **~79.7k per unit / ~319k at full belt — 2.35x**.
 
-### The trade
-- **Keep current**: it is built, tested, and uses only validated components. A
-  refactor is real work and risks a working machine.
-- **Band-merge**: ~2.2x cheaper painted, and it is a re-plumb — John's territory,
-  and it would be the last one. Claude's band-merge idea was never built, so it
-  carries the usual unvalidated-geometry risk.
+---
 
-### Either way, this is Claude's job next
-**The analyzer fan must be re-laid to expose the colour outputs.** The four fan
-analyzers sit stacked at `X=10, Y=17..20` on the `Quaded Filter`, all facing R0, so
-each one's side-output cell is occupied by the next analyzer — only the top has a
-free neighbour at `(10,16)`. Getting all four colour signals out needs the fan
-re-laid (or four extra analyzers placed in the free block at **X2-12 x Y24-26**,
-33 cells), **plus** `ControlledSignalTransmitter`s to carry them to the paint
-platforms.
+## JOHN'S JOB: the re-plumb (per 1/4-belt unit)
+
+Unchanged: 4x rail unloader, 4x `Quad Splitter`, 4x `Demuxer`, 4x `Quaded Filter`.
+
+1. **Delete** the 4 per-lane stacker clusters (each = 2x `Fancy A+B` +
+   3x `Stacker supporting empty quadrants`). -30,436 buildings.
+2. **Add 4 band merges.** For each band P in {NE, SE, SW, NW}, merge the band-P
+   output of ALL FOUR lanes' filters into one stream. **Exactly one lane is ever
+   active on a given band** (band P of lane T passes iff `goal[P] == T`), so a plain
+   4-way space-belt merge is enough — **no arbitration, and it does not depend on
+   the goal**.
+3. **Add per band:** `Paint 4 Filter` -> `Painter` on the merged stream.
+4. **Keep the 5th cluster**, now fed by the four painted band streams. Its four
+   inputs become **per-position** instead of per-lane — which is exactly the
+   `Full Belt Any Shape Maker` pattern.
+
+**Throughput is unchanged and better balanced**: each merged band carries exactly
+one item per output shape, so the surviving cluster sees the same rate it already
+handles today. Keep `Stacker supporting empty quadrants` — goals still have empty
+quadrants.
+
+**Validate narrow first (PLAYBOOK):** build ONE unit band-merged, no paint, and
+re-run the 3-random-goal test before touching the full-belt machine.
+
+---
+
+## CLAUDE'S JOB: the colour brain — and it is smaller than PROGRESS assumed
+
+### !! The analyzer fan does NOT need re-laying. That task is cancelled.
+The colour signals are derived from the **goal**, not from the lane — so all four
+lanes' `Quaded Filter`s (and all sixteen at full belt) compute the same thing. The
+colour logic therefore does not belong in the filter at all. It goes **on the
+`Paint 4 Filter` platform**, replacing its button bank:
+
+```
+ControlledSignalReceiver (channel 123)      <- the goal shape, same channel the filters use
+  -> rotate so this band's quadrant lands NE  (NE: none / SE: 1x CCW / SW: 2x CW / NW: 1x CW)
+  -> VirtualAnalyzer
+  -> its LEFT output = colour[band]          (forward output is the uncoloured shape; ignore it)
+  -> 4x LogicGateCompare against r / g / b / null
+  -> the four booleans replace the four Buttons
+```
+No fan surgery, no new platform, **no new signal channels**, and the 16 validated
+filters are untouched. Four blueprint variants, one per band.
+
+### The interface to preserve on `Paint 4 Filter` (decoded 2026-09-04)
+`Foundation_1x4` R2, spans X-35..32, Y2..17. The selector is a **priority bank**:
+- constants `(15,4)`=`r`, `(17,4)`=`g`, `(19,4)`=`b`, `(21,4)`=**null** (`05`), all R1
+- `LogicGateIf` at `(15,5)`, `(17,5)`, `(19,5)`, `(21,5)` R1 — value from behind
+  (the constant), **condition from the LEFT side**, output forward (south)
+- **`ButtonDefault` at `(16,5)`, `(18,5)`, `(20,5)`, `(22,5)` R2 — these are the
+  four cells to replace.**
+- `LogicGateIf`/`Not` at rows 6-8 and `IfMirrored` at `(21,10)`,`(22,11)`,`(23,12)`
+  chain them first-wins; the winner leaves west along the row-16 wire bus to the
+  48 `PipeGate`s. `Display2x2` at `(26,4)` shows the selected colour — a free probe.
+- If **no** slot is enabled the bus carries nothing and the gates stay shut. That is
+  exactly the wanted behaviour for a quadrant that needs no paint (the analyzer's
+  colour output is **null** for an empty or pin quadrant), so it needs no special case.
+- **Room to build in: L1 above the bank has 246 free cells** in X13-32/Y2-17
+  (L2 has 247). Drop to L0 with `WireDefault1Up/2UpBackward`, as John already does
+  at `(26,5)`/`(27,5)`.
+
+### !! Palette correction: it is 3 paints + off, not 4
+Both `Paint 3 Filter` and `Paint 4 Filter` carry the **same** four constants —
+`r`, `g`, `b`, and **null**. The "3"/"4" is not the palette size. So:
+- **Phase 2a — r/g/b + none.** Complete and testable with `Paint 4 Filter`'s fluid
+  side untouched. Do this first.
+- **Phase 2b — the full 8.** Needs pre-mixed colours fed in (`Paint Mixer` exists in
+  John's library) AND a wider selector + wider fluid routing. Deferred.
 
 ---
 
@@ -68,7 +121,7 @@ already self-flushes — confirm it stays true as complexity grows).
 |---|---|
 | 0 base supply | **DONE for testing** — rail delivery, 4 `Layout_TrainUnloader_Shapes_Flipped` per unit. Map shape/fluid patch locations when it needs to be self-sustaining. |
 | 1 single-layer shape | **DONE + VALIDATED IN-GAME** (below) |
-| 2 paint | **semantics settled, blocked on the decision above** |
+| 2 paint | **UNBLOCKED — band-merge chosen 2026-09-04.** John: re-plumb. Claude: signal-driven `Paint 4 Filter`. Phase 2a = r/g/b+none. |
 | 3 multi-layer | designed, not built — `VirtualUnstacker` is the layer-extract primitive |
 | 4 pins | not started — `VirtualPinPusher` + `Pin Setter` exist |
 | 5 scale 4x | **DONE for Phase 1** — John's full-belt build is exactly 4x the unit |
@@ -119,7 +172,9 @@ python tools/verify_mam.py "blueprints/reference/<file>.spz2bp"
 
 ---
 
-# PHASE 2 (paint): semantics settled
+# PHASE 2 (paint): semantics settled — background
+
+_The decision this section used to block on is made; see START HERE._
 
 **John confirmed the Shape Analyzer contract:** it reads the **NE** part of the input
 shape and emits the **uncoloured shape signal** on the top/forward output and that
@@ -144,8 +199,10 @@ whatever fluid arrives. So brain-driven colour is a **fluid routing** problem.
 `Quaded Filter`**, so swap its button bank for the analyzer's colour signal exactly
 as John did for the shape filter. (`Paint 3 Filter` is the 3-way version.)
 
-**Caveat: it selects among 4 paints; the palette is 8.** Full colour needs chaining,
-a wider selector, or feeding pre-mixed colours in.
+**Caveat, corrected 2026-09-04: it selects among `r` / `g` / `b` / `null` — 3
+paints plus off, not 4 paints.** `Paint 3 Filter` carries the identical constant
+set, so the 3/4 in the names is not the palette size. Full colour needs pre-mixed
+colours fed in plus a wider selector and wider fluid routing (Phase 2b).
 
 ---
 
@@ -156,7 +213,7 @@ a wider selector, or feeding pre-mixed colours in.
 | 1 | **Multi-layer** | `VirtualUnstacker` (1x1, in behind, **two outputs: forward + left**) is the layer extract. Architecture: **N single-layer engines + a layer-stacking chain**. A layer join is a single `Foundation_2x2` stacker platform (**1,361 buildings**), *not* a whole cluster — so joining 4 layers is ~4,100. **Layer stacking is only safe when every upper-layer quadrant sits above an occupied lower-layer quadrant**, else it falls through and merges — matches the game's own support rule, but confirm with John. |
 | 2 | **Base supply self-sufficiency** | Rail delivery works for testing. Shape/fluid patch locations in the working save still TBD. |
 | 3 | **Quadrant waste** | Consumption ratio = **the number of distinct types in the target layer** (1:1 for `CuCuCuCu` up to 4:1 for `CuRuSuWu`). Inherent to decompose-then-select, not a defect. |
-| 4 | **8-colour palette** | `Paint 4 Filter` selects 4. |
+| 4 | **8-colour palette** | `Paint 4 Filter` selects **r/g/b + null**, i.e. 3 paints + off — *not* 4 paints (`Paint 3 Filter` has the identical constant set). Full 8 needs pre-mixed feeds (`Paint Mixer`) plus a wider selector AND wider fluid routing. Phase 2b. |
 | 5 | **Pins / crystals** | Pins are Phase 4. **No crystals in the working save** — out of scope. |
 
 ---
