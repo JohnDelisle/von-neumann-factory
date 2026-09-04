@@ -659,18 +659,46 @@ never happens to do it.
 trip here: absence from John's library is not a game rule.** A census tells you what
 he does, not what the game permits. Only an in-game test tells you the latter.
 
-## STILL OPEN: what makes a multi-island blueprint we authored go missing?
+## UNRESOLVED: some blueprints we generate never appear in the folder
 
-`VN-13q2` (one 1x1 island, 6 buildings) imports. The four-island `VN-13 colour brain
-test` v2 does not appear in the folder at all — and its NE platform is **exactly q2
-plus three `Label`s**. Ruled out so far:
-- island entry structure — key-for-key identical to John's own multi-island files;
-- multi-island as such — John's library has blueprints with up to **88**
-  `Foundation_1x1` islands. (But we have never authored the islands ourselves rather
-  than lifting them from him.)
-- labels being multi-cell — 3,089 labels in his library, 364 of them orthogonally
-  adjacent to another label, so they are 1x1 and may touch things.
+Not solved. Recording the full evidence so the next session does not restart the
+bisection. Every file below was written to the in-game folder in the same copy
+operation as its neighbours, with identical timestamps, and every one is still on
+disk afterwards — the game does not delete them, it just never lists them.
 
-Suggestive but unproven: a `DisplayDefault` is adjacent to a label **0 times out of
-3,089**. `VN-13r1` (q2 + one label beside a display) and `VN-13r2` (two label-free
-q2 islands) separate the two remaining candidates.
+| blueprint | islands | labels | other buildings | in-game |
+|---|---|---|---|---|
+| `p0` John's own file re-encoded | 1 | 0 | 21 | **present** |
+| `p1` label only | 1 | 1 (R0) | 0 | **present** |
+| `p2` display only | 1 | 0 | 1 | **present** |
+| `p3` receiver at John's cells | 1 | 0 | 2 | **present** |
+| `p4` receiver at our cells | 1 | 0 | 2 | present (looked invalid) |
+| `p5` virtual chain | 1 | 0 | 5 | **present** |
+| `p6` one chain | 1 | 1 (R2) | 5 | **MISSING** |
+| `q1` analyzer on port cell | 1 | 0 | 5 | **present** |
+| `q2` wire then analyzer | 1 | 0 | 6 | **present** |
+| `VN-13 v1` | 1 | 5 | 25 | **MISSING** |
+| `VN-13 v2` | 4 | 12 | 28 | **MISSING** |
+| `VN-13 NE/SE/SW/NW colour` | 1 | 0 | 6-8 | **present** |
+| `r1` q2 + one label | 1 | 1 (R2) | 6 | **MISSING** |
+| `r2` two label-free islands | 2 | 0 | 13 | **MISSING** |
+
+**Pattern:** a `Label` paired with any other building is missing **4 for 4**; a label
+alone is fine; every label-free single-island file is fine. **This cannot be a game
+rule** — John's `Quaded Filter` has a label beside 1,067 other buildings and imports.
+So something about *our* label entries is subtly wrong, even though `label_config()`
+is asserted byte-identical to his `Quaded Filter` label.
+
+The one difference that stands out: **rotation**. p1's working label was **R0**; every
+missing blueprint contains at least one **R2** label. John does use R2 labels
+(`Painter`), so this is a guess. `VN-13s1`/`VN-13s2` are identical but for that R and
+test it directly.
+
+`r2` is **not** explained by any of this — two label-free islands, each of which is
+byte-for-byte a blueprint that imports on its own. Multi-island as such works
+(VN-07/VN-10/VN-12 are multi-island and validated in-game) but every one of those
+*lifts* its islands from John's files rather than authoring them.
+
+**Workaround that is known to work, and what everything should be built as until this
+is understood: ONE island, NO labels.** The four `VN-13 * colour` blueprints are built
+that way and all four validated in-game.

@@ -1197,27 +1197,37 @@ def _colour_brain_module(quadrant):
     return build
 
 
-# --- two probes: why did the four-island VN-13 go missing? -------------------
-# `VN-13q2` (one island, no labels) imports. The four-island VN-13 v2 does not, and
-# its NE platform is EXACTLY q2 plus three labels. Two candidates remain, and these
-# separate them. Everything else in v2 was already proven piecewise.
-def vn13r1_label_by_display():
-    """q2 plus ONE label sitting next to a display -- the only thing v2's NE platform
-    added. In John's library a `DisplayDefault` is adjacent to a label **0 times out
-    of 3,089 labels**, which is suggestive but is only absence of evidence.
-    Missing => labels (or labels beside displays) are the cause."""
-    b = colour_brain_platform("NE", labels=True)
-    return blueprint_islands([our_island("Foundation_1x1", b, where="VN-13r1")])
+# --- the packaging puzzle: two label probes ----------------------------------
+# UNRESOLVED. Full evidence table in docs/conventions.md. Summary: every blueprint we
+# have shipped that pairs a `Label` with ANY other building has gone missing from the
+# folder (p6, VN-13 v1, VN-13 v2, r1 -- 4 for 4), while a label ALONE on a platform
+# imports fine (p1) and every label-free blueprint imports fine. That cannot be a game
+# rule -- John's own `Quaded Filter` carries a label beside 1,067 other buildings --
+# so something about OUR label entries is subtly wrong, even though `label_config()`
+# is asserted byte-identical to his.
+#
+# One difference stands out and is worth one cheap test: **rotation**. p1's working
+# label was R0; every failing blueprint contains at least one **R2** label. John does
+# use R2 labels (`Painter`), so this is a guess, not a deduction -- hence a probe
+# rather than a rule. These two are identical apart from that R.
+#
+# (`VN-13r2`, two label-free islands, also went missing and is NOT explained by this.
+# Multi-island as such works -- VN-07/VN-10/VN-12 are multi-island and validated --
+# but every one of those lifts its islands from John rather than authoring them.)
+def _labelled_ne(rot):
+    b = colour_brain_platform("NE")
+    b.append(be("LabelDefaultInternalVariant", X=7, Y=7, R=rot, C=label_config("NE colour")))
+    return blueprint_islands([our_island("Foundation_1x1", b, where=f"label R{rot}")])
 
 
-def vn13r2_two_islands():
-    """Two label-free q2 platforms side by side. John's own library has blueprints
-    with up to 88 `Foundation_1x1` islands, so multi-island is normal -- but we have
-    never shipped one whose islands we authored ourselves rather than lifting from
-    him. Missing => that is the cause."""
-    return blueprint_islands([
-        our_island("Foundation_1x1", colour_brain_platform("NE"), X=0, Y=0, where="r2 a"),
-        our_island("Foundation_1x1", colour_brain_platform("SE"), X=1, Y=0, where="r2 b")])
+def vn13s1_label_r0():
+    """`VN-13 NE colour` (confirmed working) plus one label at R0 -- p1's rotation."""
+    return _labelled_ne(0)
+
+
+def vn13s2_label_r2():
+    """The same, with the label at R2 -- the rotation every failing blueprint had."""
+    return _labelled_ne(2)
 
 
 MODULES = {
@@ -1240,8 +1250,8 @@ MODULES = {
     "VN-13 SE colour": _colour_brain_module("SE"),
     "VN-13 SW colour": _colour_brain_module("SW"),
     "VN-13 NW colour": _colour_brain_module("NW"),
-    "VN-13r1 label by display": vn13r1_label_by_display,
-    "VN-13r2 two islands": vn13r2_two_islands,
+    "VN-13s1 label r0": vn13s1_label_r0,
+    "VN-13s2 label r2": vn13s2_label_r2,
 }
 
 if __name__ == "__main__":

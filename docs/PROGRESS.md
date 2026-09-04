@@ -193,56 +193,44 @@ uncoloured **shape** (forward/north) output, all labelled.
 
 Only once this passes do the compare-bank + graft onto `Paint 4 Filter` get built.
 
-### THE COLOUR LOGIC IS VALIDATED IN-GAME (2026-09-04)
-Two things are now settled by John's readings, and neither needs revisiting:
+### >>> THE COLOUR BRAIN IS DONE — VALIDATED IN-GAME (2026-09-04) <<<
+John stamped `VN-13 NE/SE/SW/NW colour` and read them against live goals:
 
-1. **The analyzer emits the COLOUR on its LEFT output and the uncoloured SHAPE on
-   its FORWARD output.** His `VN-13q1`/`q2` reading named compass directions —
-   "grey (uncoloured) out its top (**West**)", "shape `Wu------` on the **North**" —
-   and west is the left side of an R3 analyzer. `conventions.md` was right; the
-   earlier "colour out the top" was the angled camera.
-2. **The rotation mapping is correct**: `VN-13p5` fed `CrCgCbCu` through 1x CW and
-   returned colour `u` + shape `Cu------`, exactly the original **NW** quadrant.
-   So **NE none / SE 1x CCW / SW 2x CW / NW 1x CW** stands.
+| goal | NE | SE | SW | NW |
+|---|---|---|---|---|
+| `CrCgCbCu` | **red** | **green** | **blue** | **uncoloured** |
+| `Cr--CbCu` | red | **null** | blue | uncoloured |
 
-### A rule I invented and John's game disproved
-The `VN-13p6` post-mortem claimed a `Virtual*` building may not sit on a
-`ControlledSignal*` port cell — inferred from a census where 45/45 of John's port
-cells hold only a `Wire`/`Display`/`ConstantSignal`. **`VN-13q1` shows an analyzer
-directly on the output port works fine.** The census described John's habits, not
-the game's rules. Removed from `validate_layout()`; recorded in `conventions.md` so
-it is not re-derived. **Absence from John's library is not a game rule** — the same
-trap PLAYBOOK already flags for footprints.
+Exactly as predicted, including the **null for an empty quadrant** — the no-paint
+flag the whole of Phase 2 depends on. Settled and not to be revisited:
+- **analyzer: forward = uncoloured shape, LEFT = colour** (John named the compass
+  directions: "grey out its top (**West**)", "shape on the **North**"; west is the
+  left side of an R3 analyzer);
+- **rotation mapping: NE none / SE 1x CCW / SW 2x CW / NW 1x CW.**
 
-### TEST NEXT: four standalone blueprints, no labels
-The four-island version still goes missing, so VN-13 now ships as **four separate
-single-island blueprints** — `VN-13 NE colour`, `SE`, `SW`, `NW`. Each is
-**`VN-13q2` (confirmed working in-game) plus that quadrant's rotators**
-(confirmed by `p5`). Nothing in them is unproven, and the blueprint name does the job
-the labels were doing.
+Each platform is 6-8 buildings: `ConstantSignal`(123) `(7,10)` ->
+`ControlledSignalReceiver` `(9,10)` -> wire `(9,8)` -> rotators -> `VirtualAnalyzer`,
+west display = colour. **This is the block to copy for the paint filters.**
 
-Per platform: `ConstantSignal`(123) `(7,10)` -> `ControlledSignalReceiver` `(9,10)`
--> wire `(9,8)` -> rotators -> `VirtualAnalyzer`.
-**West display = COLOUR. North display = uncoloured shape.**
+### A rule I invented that John's game disproved
+The p6 post-mortem claimed a `Virtual*` may not sit on a `ControlledSignal*` port
+cell, inferred from a census where 45/45 of John's port cells hold only
+`Wire`/`Display`/`ConstantSignal`. **`VN-13q1` shows an analyzer directly on the
+output port works fine.** The census described John's habits, not the game's rules.
+Removed from `validate_layout()`. **Absence from John's library is not a game rule.**
 
-1. Stamp all four. Set the goal on `For Claude Wiring Shapes` to **`CrCgCbCu`**
-   (four *different* colours — a single-colour goal proves nothing here).
-2. Expect west displays: **NE=r, SE=g, SW=b, NW=uncoloured**.
-3. Then `Cr--CbCu` -> SE's colour goes **null**. That null is the no-paint flag.
+### UNRESOLVED: some generated blueprints never appear in the folder
+Full evidence table in `conventions.md`. A `Label` paired with any other building has
+gone missing **4 for 4** (p6, v1, v2, r1) while a label alone is fine (p1) — which
+cannot be a game rule, since John's `Quaded Filter` has a label beside 1,067
+buildings. `r2` (two label-free islands, each of which imports standalone) is also
+missing and is not explained by that.
 
-### Still open: why does a multi-island blueprint we authored go missing?
-`q2` (one island) imports; the four-island v2 does not, and its NE platform is
-*exactly* q2 plus three labels. Ruled out: island entry structure (identical to
-John's), multi-island as such (his library has files with up to **88** 1x1 islands),
-labels being multi-cell (3,089 labels, 364 adjacent to another label). Two probes
-separate what is left:
-- **`VN-13r1 label by display`** — q2 + one label beside a display. A
-  `DisplayDefault` is adjacent to a label **0 times in 3,089** of John's labels:
-  suggestive, not proof.
-- **`VN-13r2 two islands`** — two label-free q2 platforms we authored ourselves
-  (every multi-island blueprint we have shipped so far lifted its islands from John).
-
-This matters beyond VN-13: the Phase 2 paint work will need multi-island blueprints.
+**Workaround, proven: ONE island, NO labels.** Build everything that way until this is
+understood. Two optional probes are in the folder — `VN-13s1 label r0` and
+`VN-13s2 label r2`, identical but for the label's rotation (every missing file had an
+R2 label; p1's working one was R0). Low priority; ignore them if you would rather
+push on with the re-plumb.
 
 ### !! Palette correction: it is 3 paints + off, not 4
 Both `Paint 3 Filter` and `Paint 4 Filter` carry the **same** four constants —
