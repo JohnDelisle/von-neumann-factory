@@ -38,97 +38,119 @@ Saving **~79.7k per unit / ~319k at full belt — 2.35x**.
 
 ---
 
-## JOHN'S JOB: the re-plumb — BUILD SHEET (island coordinates, 2026-09-04)
+## JOHN'S JOB: the band-merge, step by step (2026-09-04)
 
-Island map of `For Claude Single layer MAM, no-paint` (footprints derived from each
-platform's own building coordinates, not from the foundation name — a `Foundation_1x4`
-at R1 runs along **Y**, which the name alone gets wrong):
+All coordinates are **island/platform coordinates** in
+`For Claude Single layer MAM, no-paint`, and all footprints below were derived from
+each platform's own building coordinates, not from its foundation name.
+
+### The shape of the machine
+Four identical lane blocks at **r = -9, -3, 3, 9**, each **four platform rows tall**
+(`r-1 .. r+2`), flowing **east -> west**:
 
 ```
-       Q=QuadSplitter D=Demuxer F=QuadedFilter A=FancyA+B S=Stacker o=Overflow X=Trash
-   X:  -21                   0         10        17    21
-  -10      +++++AA+SSAA+++++++++AA+SSAAFoDDQQ++++ =     lane 1  (r = -9)
-   -9      + SS+AA+SSAA+++++ SS+AA+SSAAFoDDQQ   + =
-   -8    +++oSS+AA+SSAA+++++oSS+AA+SSAAFoDDQQ   + =
-   -7    + +++++AA+SSAA+++ +++++AA+SSAAFoDDQQ   + =
-   -4                  +++ +++++AA+SSAAFoDDQQ+  + =     lane 2  (r = -3)
-   -3                  +++ + SS+AA+SSAAFoDDQQ+  + =
-   -2                  +++++oSS+AA+SSAAFoDDQQ+  + =
-   -1                  ++  +++++AA+SSAAFoDDQQ++++ =
-    2                  ++  +++++AA+SSAAFoDDQQ+  + =     lane 3  (r = 3)
-    ...                                                lane 4  (r = 9)
-      ^^^^^^^^^^^^^^^^      ^^^^^^^^^^^^
-      the 5th cluster       the 4 per-lane clusters -- THIS is what goes
-      (X-17..-8) KEEP       (X0..9, one per lane)   -- DELETE
+   X:  15..14      13..12     11     10        9..8    7..6   5..3   1..0    -1
+       QuadSplit   Demuxer    Ovf    FILTER    Fancy   Stkr   Fancy  Stkr    Ovf
+       <--------------- keep ------------->    <----- the lane cluster ----->
 ```
+The filter's west edge **abuts the Fancy at X=9 directly** — there is no belt between
+them. Each lane cluster = 2 Fancy + 3 Stacker + 1 Overflow, occupying **X = -1..9**.
 
-The unit is **four identical lane blocks** at `r = -9, -3, 3, 9`, each four platform
-rows tall, flowing **east -> west**:
-`rail (X21) -> Quad Splitter (X14-17) -> Demuxer (X12-13) -> Quaded Filter (X10)
--> per-lane cluster (X0-9) -> [space belts west] -> 5th cluster (X-17..-8) -> out`.
+The **5th cluster is the same cluster, translated**: Fancy `(-8,-8)` and `(-13,-8)`,
+Stackers `(-10,-9)` `(-10,-8)` `(-16,-8)`, Overflow `(-17,-8)`, occupying **X = -17..-7,
+rows -10..-7**. **Its four inputs arrive on its EAST edge at X = -6, rows -10, -9, -8,
+-7** (the belts at `(-6,-10)`, `(-6,-9)`, `(-6,-8)` R2, plus the turn at `(-6,-7)`).
 
-### 1. DELETE, for each of the four lanes `r` in `-9, -3, 3, 9`
+Today the four lane clusters reach it on four northbound trunks in the corridor
+X = -6..-3, and **they avoid crossing by column ordering** — the southernmost lane
+gets the westmost trunk, so each lane's westward run stops short of the trunks
+belonging to lanes further south. Remember this trick; it is why the current machine
+has no belt crossings.
 
-| island | foundation | what |
+### STEP 1 — delete the four lane clusters
+For each lane `r` in `-9, -3, 3, 9`:
+
+| entry | occupies | what |
 |---|---|---|
-| `(3, r+1)` | `Foundation_2x4` | Fancy A+B |
-| `(8, r+1)` | `Foundation_2x4` | Fancy A+B |
-| `(0, r+1)` | `Foundation_2x2` | Stacker |
-| `(6, r+1)` | `Foundation_2x2_Flipped` | Stacker |
-| `(6, r)`   | `Foundation_2x2` | Stacker |
-| `(-1, r+1)`| `Foundation_1x1` | that cluster's Overflow |
+| `(8, r+1)` | X8-9, rows r-1..r+2 | Fancy A+B |
+| `(3, r+1)` | X3-4, rows r-1..r+2 | Fancy A+B |
+| `(6, r)`   | X6-7, rows r-1..r   | Stacker |
+| `(6, r+1)` | X6-7, rows r+1..r+2 | Stacker (flipped) |
+| `(0, r+1)` | X0-1, rows r..r+1   | Stacker |
+| `(-1, r+1)`| X-1                 | Overflow |
 
-...plus the space belts between the filter and the cluster and from the cluster west.
-**16 platforms x 4 lanes, -30,436 buildings.** That frees the whole strip **X0..X9**.
+...plus the space belts inside X0..5 of that block. **-30,436 buildings**, and it
+frees the whole strip **X = -1..9** across all four lane blocks.
 
-**KEEP** everything at X10 and east (splitters, demuxers, filters, rail, the X11
-overflows), **and the 5th cluster** — Fancy `(-13,-8)` `(-8,-8)`, Stacker `(-16,-8)`
-`(-10,-8)` `(-10,-9)`, Overflow `(-17,-8)`, Trash `(-21,-6..-3)`.
+**Keep** everything at X=10 and east (filters, their four Overflows at X=11, demuxers,
+splitters, rail), **and the whole 5th cluster**.
 
-### 2. WHERE THE FOUR BANDS COME OUT (this is the bit the old spec hand-waved)
+### STEP 2 — know where the sixteen band outputs are
+Each `Quaded Filter` is a `Foundation_1x4` standing **north-south at X=10**, covering
+rows `r-1 .. r+2`, **one band per row**, in your labelled north->south order. All
+sixteen leave **westward at X=9**:
 
-Each `Quaded Filter` is a `Foundation_1x4` running **north-south at X=10**, occupying
-platform rows `r-1 .. r+2`, **one band per row**, in the north->south order John
-labelled: **NW, SW, SE, NE**. Output is on the **west** edge of each. So:
-
-| band | comes out west at platform rows |
+| band | leaves west at X=9, on rows |
 |---|---|
 | **NW** | `-10`, `-4`, `2`, `8` |
 | **SW** | `-9`, `-3`, `3`, `9` |
 | **SE** | `-8`, `-2`, `4`, `10` |
 | **NE** | `-7`, `-1`, `5`, `11` |
 
-The four lanes are 6 rows apart, so **each band's four sources are 6 rows apart and
-the four bands are on adjacent rows** — four interleaved combs. That means **four
-separate north-south collector lines** in the freed X0..X9 strip, one per band, each
-picking up every 6th row; they cannot share a column.
+Merge the four rows in each table row together. **No arbitration needed**: band P of
+lane T only passes when `goal[P] == T`, so exactly one of the four is ever flowing and
+the other three are hard-blocked. A plain merger is correct for every goal.
 
-### 3. ADD, per band (4 of them)
+### !! STEP 3 — the routing problem, and why column ordering will NOT save you here
+Each band needs one north-south trunk, and **all four trunks span nearly the whole
+row range** (band NW's sources run from row -10 to row 8; SW's from -9 to 9; etc).
+So every band's westward run from X=9 must cross every trunk lying east of its own.
+Unlike the current machine, **no ordering of the four trunks avoids this** — the
+sources interleave.
 
-```
-the band's 4 lane outputs --> 4-way merge --> Paint 4 Filter --> Painter --> 5th cluster
-```
-The merge needs **no arbitration**: band P of lane T passes iff `goal[P] == T`, so
-exactly one of the four is ever flowing and the other three are hard-blocked. A plain
-space-belt merge is correct for every goal.
+The clean fix is **one Z level per band**: lift each band's stream to its own space-belt
+level immediately west of the filter, run west and then north on that level, and drop
+back down at the 5th cluster. Crossings become free because nothing shares a level.
+That is 12 lifts (bands SW/SE/NE on each of 4 lanes) plus 4 trunks.
 
-Each merged band is **12 lanes = one space belt** (a filter band is 12 lanes), which
-is also what the 5th cluster already eats today — so **throughput is unchanged**, and
-its four inputs simply become **per-position instead of per-lane**. Keep
-`Stacker supporting empty quadrants`; goals still have empty quadrants.
+**This is your call and your expertise** — I can read the island grid's `Z` field but I
+have never seen a multi-level space belt in your library (every island in the unit is
+`Z=0`), so I cannot tell you it works, only that the geometry needs *something* like
+it. If elevated space belts are awkward, the alternative is to accept four crossings
+and solve them however you normally do.
 
-### !! One question for John before stamping the painters
-`Painter` = `Foundation_2x4`, **3,041** buildings, **192** painters, 1,488 belts.
-`Painter Small` = `Foundation_1x2`, **812** buildings, **48** painters, 372 belts —
-exactly a quarter of the big one, with the same 48 fluid ports. If `Painter` is sized
-for a **full belt (48 lanes)** and `Painter Small` for **one space belt (12 lanes)**,
-then a merged band wants **`Painter Small`**, and the unit drops from 58,824 to
-**~49,900** buildings. Claude can't tell capacity from the blueprint — **which is it?**
+### STEP 4 — validate ONE band before building four
+Do **NE only**: merge rows `-7, -1, 5, 11` into a single stream and feed it into the
+5th cluster's input at `(-6,-7)`. Leave the other three inputs unfed.
 
-### 4. Validate narrow first (PLAYBOOK)
-Do **one** lane-block's worth: band-merge a single unit with **no paint at all**
-(4 merges straight into the 5th cluster) and re-run the 3-random-goal test. Only then
-add paint, and only then scale to the full-belt machine.
+Set a goal whose **NE quadrant** is the only non-empty one — e.g. **`Cu------`** — and
+confirm the machine still produces it. Then try `Ru------`, `Su------`, `Wu------` so
+all four lanes take a turn on that one band. **If those four pass, the merge concept
+is proven** and the other three bands are the same construction.
+
+### STEP 5 — the other three bands, then re-test unpainted
+Build SW, SE, NW the same way into `(-6,-8)`, `(-6,-9)`, `(-6,-10)`.
+
+**Careful — confirm which input row is which band.** I know the four inputs are at
+rows -10..-7 and that the cluster is a translated copy of a lane cluster, but I have
+NOT verified which physical input corresponds to which quadrant position. Get this
+wrong and the machine builds mirrored/rotated shapes that still look plausible. Feed
+the single-quadrant goals from Step 4 one at a time and watch which input row carries
+traffic.
+
+Then re-run the **3 random single-layer goals** that validated Phase 1, plus a
+goal-change to confirm it still self-flushes. At this point the unit should be
+**~42,400 buildings** and behave exactly as before.
+
+### STEP 6 — only then, paint
+Per band: merged stream -> `Paint 4 Filter` -> `Painter` -> the 5th cluster input.
+Do **not** start this until Step 5 passes. See "CLAUDE'S JOB" below for the button
+swap that makes the paint filter goal-driven, and the open `Painter` vs
+`Painter Small` question.
+
+### Do NOT touch the full-belt machine
+`For Claude Working Full Belt Single Layer MAM no-paint` stays as it is until one unit
+is proven end to end. It is exactly 4x this unit, so the same procedure replicates.
 
 ## CLAUDE'S JOB: the colour brain — and it is smaller than PROGRESS assumed
 
