@@ -21,6 +21,21 @@ here the moment it recurs; keep it practical. Read this + PROGRESS on resume._
 6. Keep the docs current every session: game facts -> conventions.md, design
    choices -> architecture.md, patterns/gotchas -> here, state/handoff -> PROGRESS.md.
 
+## Division of labour (agreed 2026-09-03)
+
+**John builds physical layouts in-game; Claude decodes, verifies, designs logic and
+codifies.** Re-plumbing an assembly out of already-validated platforms is ~10
+minutes of stamping and belt-dragging for John, and is Claude's slowest and most
+error-prone path — every placement failure this project has had came from Claude
+authoring unfamiliar geometry blind. Conversely Claude is fast at what John can't
+easily do by eye: decoding blueprints, walking belt/wire graphs to find lane
+crossings, costing designs from real building counts, and turning a working layout
+into reproducible generated code.
+
+So: **when the next step is "stamp these known platforms and wire them up", ask John
+to build it and send the blueprint.** Then codify it, verify it, and generalise it.
+Claude's build effort is best spent on new logic and on replication/parameterisation.
+
 ## Design patterns
 - **Compose, don't fuse.** One function per platform (discrete-function platforms).
   Build complex machines as **assemblies** (blueprint-of-blueprints): place function
