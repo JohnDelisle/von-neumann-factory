@@ -193,6 +193,41 @@ uncoloured **shape** (forward/north) output, all labelled.
 
 Only once this passes do the compare-bank + graft onto `Paint 4 Filter` get built.
 
+### !! VN-13 DID NOT APPEAR IN THE BLUEPRINT FOLDER — bisecting (2026-09-04)
+John: "there is no VN-13 blueprint". That is the documented signature of a file the
+game rejects **wholesale** — no error, no red X, it just never shows up. Inspection
+cleared every known cause:
+
+| checked | result |
+|---|---|
+| all 7 building type ids vs the game's own string table in `resources.assets` | all present (96 ids found) |
+| `check_configs()` — every `C` carries its `$type` | passes |
+| emitted JSON vs John's own `For Claude Signal Receiver.spz2bp` | key-for-key identical shape |
+| `Player.log` | **no blueprint error logged at all** |
+| file on disk in the VN folder, byte-identical to `blueprints/` | yes, 775 bytes |
+
+So it is being bisected instead of guessed at (PLAYBOOK: isolate a suspect building
+on its own blueprint). **Seven probes are in the in-game folder now** — one folder
+look answers it; the first MISSING one names the culprit:
+
+| probe | isolates | if MISSING it means |
+|---|---|---|
+| `VN-13p0 roundtrip control` | John's **own** Signal Receiver decoded and re-encoded by our encoder, content untouched | **our ENCODER is broken** — nothing else in the ladder matters, and every module we have ever shipped is suspect |
+| `VN-13p1 label only` | one `Label` via our `label_config()` | our label byte encoding |
+| `VN-13p2 display only` | one `Display`, no config at all | a config-free building we place ourselves |
+| `VN-13p3 receiver johns cells` | receiver + channel constant at **John's** cells `(9,10)`/`(7,10)` | the receiver itself, or `int_signal_config` |
+| `VN-13p4 receiver our cells` | the same two at **our** cells `(4,15)`/`(2,15)` | our **placement** (3x3 body at X3-5/Y14-16, or the constant on the X=2 edge) — not the buildings |
+| `VN-13p5 virtual chain` | shape constant -> rotator -> analyzer -> 2 displays, **no receiver** | the virtual buildings or our shape-signal encoding |
+| `VN-13p6 one chain` | exactly the NE quarter of VN-13, at its real cells | four chains collide (receiver bodies too close, or a channel constant landing on a neighbour's ring) |
+
+If **all seven appear and VN-13 still does not**, the fault is in the combination —
+almost certainly the four receivers' invisible 3x3 bodies at X3-5/7-9/11-13/15-17.
+If **none** appear, it is the folder refresh, not the files.
+
+`VN-13p5` doubles as a real colour test with no receiver needed: it feeds the
+constant `CrCgCbCu` through 1x CW (which puts **NW** into NE), so its colour display
+should read **uncoloured** and its shape display a single NE circle.
+
 ### !! Palette correction: it is 3 paints + off, not 4
 Both `Paint 3 Filter` and `Paint 4 Filter` carry the **same** four constants —
 `r`, `g`, `b`, and **null**. The "3"/"4" is not the palette size. So:

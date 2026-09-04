@@ -1081,6 +1081,126 @@ def vn13_colour_brain_test():
     return blueprint_islands([island("Foundation_1x1", buildings=b)])
 
 
+# ---------------------------------------------------------------- VN-13 probes
+# VN-13 did not appear in the in-game blueprint folder (John, 2026-09-04). That is
+# the documented signature of a file the game rejects WHOLESALE -- no error, no red
+# X, it simply never shows up (conventions.md "Same invalid building, two different
+# symptoms"). Inspection cleared the obvious causes:
+#   * every one of its 7 building type ids is present in the game's own string
+#     table in resources.assets (96 ids found; all 7 matched);
+#   * check_configs() passes -- every `C` carries its `$type`;
+#   * the emitted JSON is key-for-key the same shape as John's own
+#     `For Claude Signal Receiver.spz2bp`, which imports fine;
+#   * Player.log records no blueprint error at all.
+#
+# So stop guessing and bisect. PLAYBOOK: "Isolate a suspect building on its own
+# blueprint to get the real error message." Each probe below is the smallest
+# blueprint that exercises ONE suspect. John looks at the folder once and reports
+# which are present; the first missing one names the culprit.
+#
+#   p0  round-trip control -- John's OWN Signal Receiver, decoded and re-encoded by
+#       our encoder with its content untouched. If p0 is MISSING the fault is our
+#       ENCODER, not anything we placed, and nothing else in the ladder matters.
+#   p1  one Label, using our label_config()      -> our label byte encoding
+#   p2  one Display, no config at all            -> a config-free building we place
+#   p3  receiver + channel constant, at JOHN'S OWN cells (9,10)/(7,10)
+#       -> the receiver + our int_signal_config, at coordinates known to work
+#   p4  receiver + channel constant at OUR cells (4,15)/(2,15)
+#       -> same buildings, our placement: catches a bad position/edge clearance
+#   p5  shape constant -> rotator -> analyzer -> 2 displays, NO receiver
+#       -> the virtual chain on its own
+#   p6  the NE chain alone (receiver + analyzer + displays), one quarter of VN-13
+#       -> catches "one chain is fine, four is not" (e.g. receivers too close)
+#
+# Everything here is deliberately tiny and boring. Delete the whole block once the
+# answer is known and VN-13 loads.
+PROBE_SHAPE = "CrCgCbCu"
+
+
+def shape_signal_config(code):
+    """A `ConstantSignal` shape config: tag 06 01, then 01 <len:u16 LE> <ASCII>."""
+    raw = code.encode("ascii")
+    body = b"\x06\x01\x01" + len(raw).to_bytes(2, "little") + raw
+    return config(base64.b64encode(body).decode("ascii"))
+
+
+def check_shape_signal_encoding():
+    """Self-check: reproduce John's `Su--WuCu` goal constant byte-for-byte from
+    `For Claude Wiring Shapes.spz2bp`."""
+    isl = load_reference_island("For Claude Wiring Shapes.spz2bp")
+    want = {e["C"]["$value"] for e in gv(isl["B"]["Entries"])
+            if e["T"] == "ConstantSignalDefaultInternalVariant" and isinstance(e.get("C"), dict)}
+    ours = shape_signal_config("Su--WuCu")["$value"]
+    assert ours in want, f"shape signal encoding mismatch: ours {ours!r} not among John's"
+
+
+def vn13p0_roundtrip_control():
+    """John's `For Claude Signal Receiver` re-emitted by OUR encoder, content
+    untouched. Present in-game => our encoder is fine. Missing => it is not, and
+    every other probe is moot."""
+    _, d = decode_bp(os.path.join(REF_DIR, "For Claude Signal Receiver.spz2bp"))
+    return d
+
+
+def _one(*buildings):
+    return blueprint_islands([island("Foundation_1x1", buildings=list(buildings))])
+
+
+def vn13p1_label_only():
+    """One Label, encoded by our label_config()."""
+    check_label_encoding()
+    return _one(be("LabelDefaultInternalVariant", X=9, Y=9, R=0,
+                   C=label_config("VN-13p1")))
+
+
+def vn13p2_display_only():
+    """One Display, C=null -- a building we place that carries no config at all."""
+    return _one(be("DisplayDefaultInternalVariant", X=9, Y=9, R=3))
+
+
+def vn13p3_receiver_johns_cells():
+    """Receiver + channel constant at JOHN'S OWN coordinates from his minimal
+    reference: receiver (9,10) R3, constant (7,10) R0. Only his L1 belt outline is
+    dropped. Missing => the receiver or our int_signal_config is the problem."""
+    check_int_signal_encoding()
+    return _one(be("ControlledSignalReceiverInternalVariant", X=9, Y=10, R=3,
+                   C=config(goal_receiver_config())),
+                be("ConstantSignalDefaultInternalVariant", X=7, Y=10, R=0,
+                   C=int_signal_config(GOAL_CHANNEL)))
+
+
+def vn13p4_receiver_our_cells():
+    """The same two buildings at OUR VN-13 coordinates: receiver (4,15), constant
+    (2,15). p3 present but p4 missing => the placement is the problem (the 3x3 body
+    at X3-5/Y14-16, or the constant sitting at X=2 on the platform edge), not the
+    buildings."""
+    return _one(be("ControlledSignalReceiverInternalVariant", X=4, Y=15, R=3,
+                   C=config(goal_receiver_config())),
+                be("ConstantSignalDefaultInternalVariant", X=2, Y=15, R=0,
+                   C=int_signal_config(GOAL_CHANNEL)))
+
+
+def vn13p5_virtual_chain_no_receiver():
+    """Shape constant -> rotator -> analyzer -> both displays. Exercises the virtual
+    buildings and our shape-signal encoding with no receiver involved. Feed is a
+    constant so it is also a standalone colour-logic test in its own right:
+    `CrCgCbCu` rotated 1x CW puts NW in NE, so expect colour = **uncoloured**."""
+    check_shape_signal_encoding()
+    return _one(be("ConstantSignalDefaultInternalVariant", X=9, Y=12, R=3,
+                   C=shape_signal_config(PROBE_SHAPE)),
+                be("VirtualRotatorDefaultInternalVariant", X=9, Y=11, R=3),
+                be("VirtualAnalyzerDefaultInternalVariant", X=9, Y=10, R=3),
+                be("DisplayDefaultInternalVariant", X=8, Y=10, R=2),   # colour (left)
+                be("DisplayDefaultInternalVariant", X=9, Y=9, R=3))    # shape (forward)
+
+
+def vn13p6_one_chain():
+    """Exactly one quarter of VN-13: the NE chain on its own, at its VN-13 cells.
+    p6 present but VN-13 missing => four chains collide (receiver bodies too close,
+    or a channel constant landing on a neighbouring receiver's ring)."""
+    return _one(*colour_brain_chain("NE", 4, 15))
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
@@ -1098,6 +1218,13 @@ MODULES = {
     "VN-12 MAM preset CuRuSuWu": vn12_mam_preset_curusuwu,
     "VN-12 MAM goal driven": vn12_mam_goal_driven,
     "VN-13 colour brain test": vn13_colour_brain_test,
+    "VN-13p0 roundtrip control": vn13p0_roundtrip_control,
+    "VN-13p1 label only": vn13p1_label_only,
+    "VN-13p2 display only": vn13p2_display_only,
+    "VN-13p3 receiver johns cells": vn13p3_receiver_johns_cells,
+    "VN-13p4 receiver our cells": vn13p4_receiver_our_cells,
+    "VN-13p5 virtual chain": vn13p5_virtual_chain_no_receiver,
+    "VN-13p6 one chain": vn13p6_one_chain,
 }
 
 if __name__ == "__main__":
