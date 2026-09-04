@@ -193,40 +193,63 @@ uncoloured **shape** (forward/north) output, all labelled.
 
 Only once this passes do the compare-bank + graft onto `Paint 4 Filter` get built.
 
-### !! VN-13 DID NOT APPEAR IN THE BLUEPRINT FOLDER — bisecting (2026-09-04)
-John: "there is no VN-13 blueprint". That is the documented signature of a file the
-game rejects **wholesale** — no error, no red X, it just never shows up. Inspection
-cleared every known cause:
+### VN-13 v1 was rejected by the game — CAUSE FOUND, v2 shipped (2026-09-04)
+John bisected it with seven probes. Results: **p0-p3 and p5 present, p4 present but
+invalid, p6 missing.** That cleared our encoder, our label/int/shape encodings, the
+receiver itself, the virtual chain, and the platform edge — and the follow-up census
+found the real rule.
 
-| checked | result |
-|---|---|
-| all 7 building type ids vs the game's own string table in `resources.assets` | all present (96 ids found) |
-| `check_configs()` — every `C` carries its `$type` | passes |
-| emitted JSON vs John's own `For Claude Signal Receiver.spz2bp` | key-for-key identical shape |
-| `Player.log` | **no blueprint error logged at all** |
-| file on disk in the VN folder, byte-identical to `blueprints/` | yes, 775 bytes |
+**A `ControlledSignal*` port cell may hold ONLY a `Wire*`, `Display*` or
+`ConstantSignal*`.** Measured across **all 45** such buildings in John's library: the
+occupied ±2 cells are always one of those three, never a `Virtual*` or `LogicGate*`.
+v1 put a `VirtualAnalyzer` straight onto a receiver's output port and the game
+**discarded the whole file** — a **fourth silent failure mode**, now in conventions.md.
+(My first hypothesis — a collision with the receiver's invisible 3×3 body — was
+wrong; the new validator proved v1 didn't actually collide.)
 
-So it is being bisected instead of guessed at (PLAYBOOK: isolate a suspect building
-on its own blueprint). **Seven probes are in the in-game folder now** — one folder
-look answers it; the first MISSING one names the culprit:
+Two things measured properly while there, both now in conventions.md:
+- the **3×3 body is confirmed** — in all 45 instances the eight cells around the
+  entry are empty;
+- **`[2,17]` is exact** on a 1×1, over 85,372 of John's own buildings (he uses X=2
+  2,804 times). On a multi-platform foundation the seam IS buildable, so offsets
+  0/1/18/19 occur there — don't carry the 1×1 bound across.
 
-| probe | isolates | if MISSING it means |
-|---|---|---|
-| `VN-13p0 roundtrip control` | John's **own** Signal Receiver decoded and re-encoded by our encoder, content untouched | **our ENCODER is broken** — nothing else in the ladder matters, and every module we have ever shipped is suspect |
-| `VN-13p1 label only` | one `Label` via our `label_config()` | our label byte encoding |
-| `VN-13p2 display only` | one `Display`, no config at all | a config-free building we place ourselves |
-| `VN-13p3 receiver johns cells` | receiver + channel constant at **John's** cells `(9,10)`/`(7,10)` | the receiver itself, or `int_signal_config` |
-| `VN-13p4 receiver our cells` | the same two at **our** cells `(4,15)`/`(2,15)` | our **placement** (3x3 body at X3-5/Y14-16, or the constant on the X=2 edge) — not the buildings |
-| `VN-13p5 virtual chain` | shape constant -> rotator -> analyzer -> 2 displays, **no receiver** | the virtual buildings or our shape-signal encoding |
-| `VN-13p6 one chain` | exactly the NE quarter of VN-13, at its real cells | four chains collide (receiver bodies too close, or a channel constant landing on a neighbour's ring) |
+**`validate_layout()` / `our_island()` now enforce all of this at build time**
+(John's request): out-of-bounds, cell collisions *including* invisible multi-cell
+bodies, port-cell violations, and any multi-cell building whose anchor we have never
+extracted. Regression-tested against the exact v1 layout.
 
-If **all seven appear and VN-13 still does not**, the fault is in the combination —
-almost certainly the four receivers' invisible 3x3 bodies at X3-5/7-9/11-13/15-17.
-If **none** appear, it is the folder refresh, not the files.
+### THE COLOUR MATHS IS ALREADY VALIDATED
+p5 fed `CrCgCbCu` through 1× CW into an analyzer and returned colour **`u`** and
+shape **`Cu------`** — exactly the original **NW** quadrant. The rotation mapping
+(NE none / SE 1× CCW / SW 2× CW / NW 1× CW) is **correct**. Only the plumbing was wrong.
 
-`VN-13p5` doubles as a real colour test with no receiver needed: it feeds the
-constant `CrCgCbCu` through 1x CW (which puts **NW** into NE), so its colour display
-should read **uncoloured** and its shape display a single NE circle.
+### OPEN: which analyzer output is the colour?
+`conventions.md` says forward = shape, left = colour. The `Quaded Filter` fan agrees
+(its post-rotators hang off the **forward** output, and rotating a colour is
+meaningless). John's p5 reading — "colour out the **top**, `Cu------` out the
+**side**" — reads the other way. The view is angled so "top"/"side" is probably just
+ambiguous. **VN-13 v2 labels every display `FWD` or `LEFT` by the cell it sits on**,
+which settles it on sight.
+
+### TEST NEXT: `VN-13 colour brain test` (v2) + two probes
+v2 is **four separate 1×1 platforms** (NE, SE, SW, NW) side by side. Each reproduces
+John's validated receiver arrangement cell for cell — constant `(7,10)`, receiver
+`(9,10)`, **wire on the port cell `(9,8)`** — then grows the chain north from `(9,7)`,
+clear of the 3×3 body.
+
+1. Stamp `VN-13 colour brain test`. Set the goal constant on
+   `For Claude Wiring Shapes` to **`CrCgCbCu`**.
+2. Read the eight displays. Expect **NE=r, SE=g, SW=b, NW=uncoloured** — and note
+   **which label (`FWD` or `LEFT`) sits by the colour swatch** rather than the shape.
+3. Then set `Cr--CbCu` and confirm SE's colour goes **null** — the no-paint flag.
+
+Also stamp the two probes; they pin the port-cell rule down:
+- **`VN-13q1 analyzer on port cell`** — analyzer placed *directly* on the port cell.
+  **Expected to be MISSING.** If it is present, the rule is wrong and something else
+  killed v1.
+- **`VN-13q2 wire then analyzer`** — wire on the port cell, analyzer beyond it.
+  **Expected to work**; it is exactly the pattern v2 uses.
 
 ### !! Palette correction: it is 3 paints + off, not 4
 Both `Paint 3 Filter` and `Paint 4 Filter` carry the **same** four constants —
