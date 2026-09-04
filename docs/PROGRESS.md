@@ -101,23 +101,53 @@ Merge the four rows in each table row together. **No arbitration needed**: band 
 lane T only passes when `goal[P] == T`, so exactly one of the four is ever flowing and
 the other three are hard-blocked. A plain merger is correct for every goal.
 
-### !! STEP 3 — the routing problem, and why column ordering will NOT save you here
-Each band needs one north-south trunk, and **all four trunks span nearly the whole
-row range** (band NW's sources run from row -10 to row 8; SW's from -9 to 9; etc).
-So every band's westward run from X=9 must cross every trunk lying east of its own.
-Unlike the current machine, **no ordering of the four trunks avoids this** — the
-sources interleave.
+### STEP 3 — SOLVED BY JOHN: `For Claude Space Belt` (2026-09-04)
+In `blueprints/reference/`. 1,526 space-belt islands, and it answers the crossing
+problem: **each band hops over the trunks east of it at Z=1, then drops into its own
+merger at Z=0.** 90 `Lift1UpForward` + 97 `Lift1DownForward` + 373 islands at Z=1.
+**Multi-level space belts work** — that was the open question and it is now closed.
 
-The clean fix is **one Z level per band**: lift each band's stream to its own space-belt
-level immediately west of the filter, run west and then north on that level, and drop
-back down at the 5th cluster. Crossings become free because nothing shares a level.
-That is 12 lifts (bands SW/SE/NE on each of 4 lanes) plus 4 trunks.
+Verified against the machine:
+- **64 inputs (east, X=16) and 64 outputs (west, X=-15)**, in **16 groups of 4
+  consecutive rows** — exactly 16 filters x 4 bands. Groups sit **6 rows apart**
+  within a block and there are **4 blocks**, matching the four lanes per unit and the
+  four units. The row geometry is right.
+- **Band -> trunk mapping is consistent across all 16 groups**: group-offset 0 (the
+  northmost row of a filter, = NW) merges into the trunk at X=15, offset 1 (SW) into
+  X=13, offset 2 (SE) into X=11, offset 3 (NE) into X=9. Trunk heads take the first
+  group directly, so 15 merge points each (14 on the column plus one at the crossover
+  at `(12,0)`, `(10,1)`, `(8,2)`). Symmetric splitters on the west.
+- The south half mirrors the north half, so the trunk order reverses across the
+  crossover rows -1..2 — expected, not a fault.
 
-**This is your call and your expertise** — I can read the island grid's `Z` field but I
-have never seen a multi-level space belt in your library (every island in the unit is
-`Z=0`), so I cannot tell you it works, only that the geometry needs *something* like
-it. If elevated space belts are awkward, the alternative is to accept four crossings
-and solve them however you normally do.
+### !! STEP 3a — THE ONE PROBLEM: the trunks are a 4x throughput bottleneck
+**Each trunk is a single space-belt column, but it aggregates all four UNITS.**
+
+Within one unit, exactly one of four lanes is active on a given band, so that band is
+**12 lanes = one space belt**. But the four units are independent parallel copies that
+all run at once, so **four of the sixteen inputs on each trunk are active
+simultaneously = 4 x 12 = 48 lanes** on a 12-lane belt. The full-belt machine would
+back up and run at unit speed.
+
+**Recommended fix: aggregate PER UNIT, not across units.** Four separate aggregators,
+each **16 in -> 4 trunks -> 4 out**, feeding that unit's single surviving cluster.
+No trunk ever carries more than the 12 lanes it already carries today.
+
+That is also far cheaper. Splitting one shared trunk set back out to 16 destinations
+means keeping **16 stacker clusters**; per-unit aggregation needs **4** (each unit's
+existing 5th cluster, which already handles that unit's full 12-lane output today):
+
+| | clusters | buildings |
+|---|---|---|
+| aggregate across units, re-split to 16 | 16 | 121,744 |
+| **aggregate per unit** | **4** | **30,436** |
+
+**~91,300 buildings saved**, plus a much shorter belt run — the per-unit aggregator is
+16-in/4-out instead of 64-in/64-out, so roughly a quarter of the islands.
+
+**Why the re-split exists at all:** merging across units combines streams that were
+never in conflict, and then has to undo it. Merging within a unit is the part that
+matters, because that is where "exactly one lane is active" holds.
 
 ### STEP 4 — validate ONE band before building four
 Do **NE only**: merge rows `-7, -1, 5, 11` into a single stream and feed it into the
