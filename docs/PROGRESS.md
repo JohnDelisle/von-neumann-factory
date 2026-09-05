@@ -1,6 +1,6 @@
 # Project status & session handoff
 
-_Last updated: **2026-09-04**. **Read this first when resuming**, then
+_Last updated: **2026-09-05**. **Read this first when resuming**, then
 `docs/PLAYBOOK.md` (method, patterns, gotchas), and skim `docs/architecture.md`
 (the MAM design) and `docs/conventions.md` (file formats + game constraints)._
 
@@ -12,7 +12,84 @@ committed + pushed.
 
 ---
 
-# >>> START HERE: PHASE 2 IS UNBLOCKED — BUILD THE BAND-MERGE <<<
+# >>> START HERE (2026-09-05 handoff): GET CLAUDE PLAYING SHAPEZ 2 <<<
+
+## What just happened, and why it changes the plan
+
+**Claude wrote islands directly into John's savegame and the game loaded them.**
+Twenty `Foundation_1x1` platforms spelling "HI" at X30..36 / Y4..8 in the sandbox
+world `d58e3f84-b198-411f-9f46-78fcbfe7dae4`. Confirmed in-game by John, first try.
+No mod, no console, no stamping. `tools/save_islands.py`; format in conventions.md
+under "Savegame binary".
+
+That means **a complete build/run/observe loop already exists today**, without any
+mod at all:
+
+> Claude writes a save -> John loads it -> runs it (`time.global-setspeed`, up to 25x)
+> -> saves -> Claude reads the new save.
+
+It is slow — John is the "load" and "save" button, and the game must reload to pick
+up a write — but it is *closed*, and every link is proven except the last one
+(reading machine state back out).
+
+## Tomorrow's objective, in order
+
+**1. Decode the BUILDING records.** This is the single highest-value unlock and it is
+pure offline work. Today we can write **bare islands only**; buildings on an island
+are the 474-byte / 1051-byte per-island records in `maps/main/buildings/<n>.bin` that
+are still undecoded. Crack those and Claude can write **entire machines** into the
+world — including, note, the Phase 2a paint platforms.
+
+The method that already worked twice is a **minimal known delta**, so ask John for it:
+
+> **ASK JOHN FIRST THING:** in the sandbox world, place ONE known thing on ONE bare
+> platform (say a single belt on a `Foundation_1x1`), save, then place a second,
+> save again. Two saves, one building apart. That is the whole specimen.
+
+We also have a **Rosetta stone**: the `.spz2bp` blueprint format carries the same
+logical content (islands, buildings, `X/Y/L/R`, config blobs) in JSON we fully
+understand, and `gamedata/basedata-v1138/buildings.json` names every internal variant.
+Align blueprint JSON against savegame binary for the *same* structure and the field
+mapping should fall out.
+
+**2. Then decide: keep going on saves, or build the mod.**
+The save route is proven but cannot observe a *running* simulation and needs a reload
+per iteration. The mod route (`IMapModel.CreateBuilding` / `CreateIsland`,
+`IDebugConsole.ParseAndExecute`, `SimulationSpeedManager`) is live and fast but needs
+John to build/run it and has one unresolved hop — how to reach `IMapModel` at runtime.
+See "THE VISION" below. **Recommendation: finish (1) first.** It is offline, it has no
+unknowns of the "will this even work" kind, and it makes Claude genuinely productive
+in the world today.
+
+**3. Reading machine state** is the last unproven link. `statistics.bin`,
+`maps/main/cargo.bin` and `maps/main/simulation/state.bin` are the candidates, and the
+same empty-vs-populated diff method applies.
+
+## Rules of engagement (agreed 2026-09-05)
+* **Sandbox world only** (`d58e3f84-...`). **Never** the 72.8h save
+  (`5589333c-...`). If `CreateBuilding`/save-writing skips the game's own validation,
+  our validator is the only thing between a generator bug and a corrupted map.
+* **Never modify or delete an existing save file.** Write a NEW `backup-v<N+1>-...`
+  and leave the previous one byte-identical, so undo is deleting one file. That is
+  what was done tonight and it is why the experiment was safe to run.
+* **Re-parse your own output before it goes near the save folder.** Counts in both
+  `islands` and `buildings` chunks, every original island still holding its buildings
+  entry in order, buffer lengths unchanged.
+
+## Still open from earlier, not forgotten
+* **Phase 2a — the `Paint 4 Filter` button swap** is the real MAM objective and is
+  parked, not cancelled. Drive cells `(16,5)/(18,5)/(20,5)/(22,5)` from
+  `colour[band] == r/g/b/null`. If (1) above lands, Claude may be able to place those
+  platforms directly rather than handing John a blueprint.
+* Unanswered: `Painter` (3,041 bldgs) vs `Painter Small` (812) for a merged band.
+* **The wiring sample platform never reached Claude.** v9 grew by 785 bytes but it was
+  all tutorial-state noise and `islands/0.bin` was byte-identical, so nothing was
+  placed in the world at that point. Now that the island format is readable, it can be
+  found in v10/v11 directly — or superseded by the two-save specimen asked for above.
+
+---
+
+# (superseded) PHASE 2 IS UNBLOCKED — BUILD THE BAND-MERGE
 
 ## The decision is made (John, 2026-09-04): **band-merge**.
 
