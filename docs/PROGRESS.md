@@ -1,6 +1,6 @@
 # Project status & session handoff
 
-_Last updated: **2026-09-05**. **Read this first when resuming**, then
+_Last updated: **2026-09-05** (afternoon). **Read this first when resuming**, then
 `docs/PLAYBOOK.md` (method, patterns, gotchas), and skim `docs/architecture.md`
 (the MAM design) and `docs/conventions.md` (file formats + game constraints)._
 
@@ -12,82 +12,76 @@ committed + pushed.
 
 ---
 
-# >>> START HERE (2026-09-05 handoff): GET CLAUDE PLAYING SHAPEZ 2 <<<
+# >>> START HERE (2026-09-05, afternoon): CLAUDE IS PLAYING SHAPEZ 2 <<<
 
-## What just happened, and why it changes the plan
+## It works. Claude built a machine in the world and it mined.
 
-**Claude wrote islands directly into John's savegame and the game loaded them.**
-Twenty `Foundation_1x1` platforms spelling "HI" at X30..36 / Y4..8 in the sandbox
-world `d58e3f84-b198-411f-9f46-78fcbfe7dae4`. Confirmed in-game by John, first try.
-No mod, no console, no stamping. `tools/save_islands.py`; format in conventions.md
-under "Savegame binary".
+No mod, no stamping, no mouse. Claude writes the savegame, John loads it, the
+machine runs. Confirmed in-game 2026-09-05: `VN-15`, a `Layout_ShapeMiner` on the
+circle patch at island (2,0) feeding a `SpaceBelt_Forward` at (1,0) into the
+Vortex's east face, plus 228 buildings of delivery lane on the HUB island.
 
-That means **a complete build/run/observe loop already exists today**, without any
-mod at all:
+### The loop, and who does what
+```
+Claude  tools/build_*.py  -> writes backup-v<N+1> into the sandbox save folder
+John    loads the newest backup, runs it (time.global-setspeed, up to 25x), SAVES
+Claude  tools/observe.py  -> reads the result back out
+```
+John's only jobs are load, run, save. Keep writing new `backup-v<N>` files into
+`savegames/d58e3f84-.../`; never modify or delete one of his.
 
-> Claude writes a save -> John loads it -> runs it (`time.global-setspeed`, up to 25x)
-> -> saves -> Claude reads the new save.
+## THE IMMEDIATE ASK: run VN-15 and save
 
-It is slow — John is the "load" and "save" button, and the game must reload to pick
-up a write — but it is *closed*, and every link is proven except the last one
-(reading machine state back out).
+`research.json -> Shapes.StoredShapes` is the scoreboard and it is plain JSON.
+The objective is `StoredShapes["CuCuCuCu"] >= 1000`. It currently reads `{}`
+because no save has been taken since the machine ran. One run at speed plus one
+save settles whether the machine DELIVERS or merely mines -- those are different
+claims and only mining has been observed.
 
-## Tomorrow's objective, in order
+## The three goals John broadcasts (read from the "HI..." periods)
+| channel | shape | status |
+|---|---|---|
+| 123 | `CuCuCuCu` | machine built; delivery unmeasured |
+| 456 | `WuWuWuWu` | **no windmill patch in any generated chunk** -- needs a source first |
+| 789 | `SuSuSuSu` | no star patch either, but `RuSuRu--` (-28,-28), `SuSuCu--` (19,-25) and `--Ru--Su` (10,-9) carry `Su` quadrants. This is real MAM work: split, filter, rotate, stack. |
 
-**1. Decode the BUILDING records.** This is the single highest-value unlock and it is
-pure offline work. Today we can write **bare islands only**; buildings on an island
-are the 474-byte / 1051-byte per-island records in `maps/main/buildings/<n>.bin` that
-are still undecoded. Crack those and Claude can write **entire machines** into the
-world — including, note, the Phase 2a paint platforms.
+## What to do next, in order
+1. **Measure VN-15.** One save. Everything below is guesswork until this lands.
+2. **If it delivers but slowly**, triple it: platform-to-platform adjacency is
+   proven (1,792 adjacent pairs in the 72.8h save, senders facing receivers), so
+   miners can abut the Vortex directly on circle tiles (1,-1) and (1,1) with no
+   space belt. Needs receivers on the hub's other two east faces -- band y 28..31
+   for tile (0,1), y -12..-9 for tile (0,-1) -- then a turn and a run to the
+   centre tile's north (y=19, R3) and south (y=0, R1) sender rows.
+3. **Then channel 789.** `SuSuSuSu` is the first goal that needs the MAM rather
+   than a miner, and `tools/stamp.py` can write the validated FSB MAM blueprint
+   straight into the world. Its filters are hard-wired to channel 123; retuning
+   them to 789 is a one-byte edit per `ConstantSignal` (`03` + int32).
 
-The method that already worked twice is a **minimal known delta**, so ask John for it:
+## The mod bridge: the hop is no longer unknown
+Last night's open question -- "how to reach `IMapModel` at runtime" -- is answered
+(`tools/spz2api -- refs`):
+```
+IGameSessionManagers.EntityPlacementRunner    public property, Shifter hands it to mods
+  -> cast to Game.Interaction.EntityPlacementRunner
+    -> private field IMapModel Map
+      -> CreateBuilding / CreateIsland / DeleteBuilding / FinishBunchEdit
+```
+No method anywhere *returns* an `IMapModel`, which is why it looked unreachable;
+it is only ever passed in or held. The same interface also exposes `HubObserver`
+(live delivered-shape counts), `SimulationSpeed`, `ShapeRegistry` and `Research`
+-- place, control and measure on one object.
 
-> **ASK JOHN FIRST THING:** in the sandbox world, place ONE known thing on ONE bare
-> platform (say a single belt on a `Foundation_1x1`), save, then place a second,
-> save again. Two saves, one building apart. That is the whole specimen.
+**This is still a separate project from the MAM, and a bigger one.** The save loop
+works today and costs John three clicks per iteration. Start the bridge
+deliberately, not by drift.
 
-We also have a **Rosetta stone**: the `.spz2bp` blueprint format carries the same
-logical content (islands, buildings, `X/Y/L/R`, config blobs) in JSON we fully
-understand, and `gamedata/basedata-v1138/buildings.json` names every internal variant.
-Align blueprint JSON against savegame binary for the *same* structure and the field
-mapping should fall out.
-
-**2. Then decide: keep going on saves, or build the mod.**
-The save route is proven but cannot observe a *running* simulation and needs a reload
-per iteration. The mod route (`IMapModel.CreateBuilding` / `CreateIsland`,
-`IDebugConsole.ParseAndExecute`, `SimulationSpeedManager`) is live and fast but needs
-John to build/run it and has one unresolved hop — how to reach `IMapModel` at runtime.
-See "THE VISION" below. **Recommendation: finish (1) first.** It is offline, it has no
-unknowns of the "will this even work" kind, and it makes Claude genuinely productive
-in the world today.
-
-**3. Reading machine state** is the last unproven link. `statistics.bin`,
-`maps/main/cargo.bin` and `maps/main/simulation/state.bin` are the candidates, and the
-same empty-vs-populated diff method applies.
-
-## Rules of engagement (agreed 2026-09-05)
-* **Sandbox world only** (`d58e3f84-...`). **Never** the 72.8h save
-  (`5589333c-...`). If `CreateBuilding`/save-writing skips the game's own validation,
-  our validator is the only thing between a generator bug and a corrupted map.
-* **Never modify or delete an existing save file.** Write a NEW `backup-v<N+1>-...`
-  and leave the previous one byte-identical, so undo is deleting one file. That is
-  what was done tonight and it is why the experiment was safe to run.
-* **Re-parse your own output before it goes near the save folder.** Counts in both
-  `islands` and `buildings` chunks, every original island still holding its buildings
-  entry in order, buffer lengths unchanged.
-
-## Still open from earlier, not forgotten
-* **Phase 2a — the `Paint 4 Filter` button swap** is the real MAM objective and is
-  parked, not cancelled. Drive cells `(16,5)/(18,5)/(20,5)/(22,5)` from
-  `colour[band] == r/g/b/null`. If (1) above lands, Claude may be able to place those
-  platforms directly rather than handing John a blueprint.
-* Unanswered: `Painter` (3,041 bldgs) vs `Painter Small` (812) for a merged band.
-* **The wiring sample platform never reached Claude.** v9 grew by 785 bytes but it was
-  all tutorial-state noise and `islands/0.bin` was byte-identical, so nothing was
-  placed in the world at that point. Now that the island format is readable, it can be
-  found in v10/v11 directly — or superseded by the two-save specimen asked for above.
-
----
+## Rules of engagement (unchanged, and they earned their keep today)
+* **Sandbox world only** (`d58e3f84-...`). Never the 72.8h save (`5589333c-...`).
+* **Never modify or delete an existing save.** Write a new `backup-v<N+1>`; undo is
+  deleting one file. (Steam Cloud may restore files you move -- v18 came back.)
+* **Re-parse your own output before it goes near the save folder**, and run the
+  size law (below). A round-trip is NOT enough -- see PLAYBOOK.
 
 # (superseded) PHASE 2 IS UNBLOCKED — BUILD THE BAND-MERGE
 

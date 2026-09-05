@@ -969,6 +969,125 @@ the analyzer's shape/colour outputs are not settled here — VN-13's in-game res
 (forward = shape, left = colour) remains the source of truth. The label EDGE MARGIN is
 likewise not in the export and stays ours.
 
+## Savegame binary: THE WHOLE WORLD (EXTRACTED 2026-09-05, tools/save_world.py)
+
+Read and write, round-trip **byte-identical** on every world tried: the 24-island
+sandbox, the 1,651-island one, and the 17,291-island / 660,476-building 72.8h save.
+
+### Where things actually live
+| entry | holds |
+|---|---|
+| `maps/main/islands/<n>.bin` | the islands **and every building on them** |
+| `maps/main/buildings/<n>.bin` | per-island RUNTIME STATE (cargo in flight) |
+| `strings.bin` | intern table: layout ids, variant ids, shape codes, label text |
+| `maps/main/resource-chunks.bin` | the shape patches |
+| `research.json` | `Shapes.StoredShapes` -- **the Vortex delivery scoreboard** |
+
+The names mislead. `buildings/<n>.bin` is *state*: an island with 315 belts on it
+has a **30-byte** record when nothing is moving, and a `Layout_ShapeMiner` with 160
+buildings likewise. A record longer than 30 bytes means cargo is in flight -- which
+is a free "is this machine alive" signal (`tools/observe.py`).
+
+### The serializer (one rule walks the whole file)
+Byte-packed little-endian with constant 4-byte markers. `savegame.json`'s
+`BinaryDataCheckpoints: true` refers to these; they are **magic words, not
+checksums**, which is the only reason hand-editing works.
+
+    A = 54 0d 72 c4   opens a length-prefixed block:  A u32 N <N bytes> C
+    C = 21 30 a4 84   closes a block
+    E = 7c 6d 49 a4   opens a counted list:           E u32 count <items>
+    I = 9a 02 21 b1   island record tag
+    B = e5 8d a0 35   building record tag
+
+    island   I | i32 X | i32 Y | i16 Z | i16 layoutIdx | i16 0 | u8 R | A-block of:
+                 u8 hasIslandCfg | [A-block cfg] | A-block of: E u32 n | n buildings
+    building B | i16 X | i16 Y | u8 L | u8 R | u16 variantIdx | u16 0 | u8 hasCfg
+                 | [A-block cfg]
+
+**Nothing follows the building list.** A bare island is exactly 52 bytes.
+
+### Two traps that cost a crash between them
+* **Building X/Y are SIGNED int16.** A multi-tile island records only its origin
+  tile, so the 3x3 HUB carries buildings from -20 to 39. Reading them unsigned makes
+  -17 look like 65519.
+* **There is no island-title field.** Emitting one crashes the load with
+  `Checkpoint mismatch, expected 2225352737 but got 3295808852` (0x84A43021 = close,
+  0xC4720D54 = open). Zero of 18,966 islands across all worlds carry anything there.
+
+### The size law -- run this, a round-trip is not enough
+An island record's length follows from its contents, independently of both reader
+and writer. **18,966 of 18,966 real islands obey it.**
+
+    52 + [12 + len(icfg)] + SUM over buildings of ( 15 + [12 + len(cfg)] )
+
+### Buffer capacity
+Every `.bin` entry is zero-padded to `max(256, next power of two >= used)` --
+166/166 entries across three saves. So a written world may **grow**; it just has to
+land on a size the game's own serializer would pick.
+
+### Chunk assignment is NOT spatial
+Chunks are arbitrary buckets (a 24-island world splits 7/6/2/5/3/1 with no
+geographic pattern). Append an island to any chunk, and append its matching state
+record at the same index -- the two files are parallel, in order.
+
+### Config blobs are the SAME BYTES as a blueprint's `C`, with one exception
+Verified cell-for-cell on a platform present in both a blueprint and the world
+(`Overflow`, 315 buildings): 314 matched exactly. The exception is **text**, which a
+savegame interns and a blueprint inlines as `u16 len + UTF-8`:
+
+| building | savegame config |
+|---|---|
+| `LabelDefaultInternalVariant` | `u32 strIdx` |
+| `ConstantSignal` kind `03` | `i32` value -- **channel numbers** (`03 7b 00 00 00` = 123) |
+| `ConstantSignal` kind `05` | null |
+| `ConstantSignal` kind `06` | `01 01` + `u32 strIdx` -- a **shape** |
+| `ConstantSignal` kind `07` | `01` + colour char (`r`/`g`/`b`) |
+| `LogicGateCompare` | `u8` mode |
+| `ControlledSignalReceiver` | `00 00 00 02` |
+
+Island-level config (blueprint field `S`) is verbatim: `Rail_Forward` = `01 00 00 00 00`,
+`Layout_TrainUnloader_Shapes_Flipped` = `00 00 00 00` (its empty shape filter).
+
+Island rotation rotates contents: `(x,y) -> (N-1-y, x)`, `R -> R+1`, N = 20 x tile span.
+
+### `maps/main/resource-chunks.bin` -- the shape patches
+`u32 2`, tag, 8 zero bytes, then an A-block containing `u32 count` patch records:
+
+    u8 1 | i32 X | i32 Y | u16 0 | i32 n | n x i32 shapeStrIdx | n x (i32 dx, i32 dy)
+
+Tiles are `(X+dx, Y+dy)`. The sandbox's 14 patches include `CuCuCuCu` at
+`(1,-1) (1,0) (1,1) (2,0)` and `(-5..-3, -1..0)` -- both touching the Vortex -- and
+`RuRuRuRu`, `RbRuRbRu`, `CrCrCrCu`, `CrCuCuCu`, `RuSuRu--`, `--CuCuCu`, `SuSuCu--`,
+`--RbSuCr`, `--Ru--Su` further out. **Only generated chunks appear**, so an absent
+shape means "not visited yet", not "not on the map".
+
+## How the Vortex accepts shapes (EXTRACTED from the 72.8h factory)
+`Layout_HUB` is **3x3 island tiles centred on its origin**, and its island-local
+cells run -20..39. **The centre tile (local 0..19) is the vortex mouth.**
+
+Delivery is a `BeltPortSender` on that centre tile's own perimeter **pointing
+inward**, with nothing catching on the far side -- the vortex catches. John's
+factory has 144: rows `y=0` R1 and `y=19` R3, columns `x=0` R0 and `x=19` R2, each
+at positions 4..15, on floors 0-2.
+
+The approach lane, per 4-lane edge band, copied cell-for-cell:
+
+    x=37      BeltPortReceiver   R2      edge port of hub tile (0,0), band y 8..11
+    x=36..20  BeltDefaultForward R2      straight run west
+    x=19      BeltPortSender     R2      into the vortex
+
+### Platforms connect edge-to-edge -- no space belt needed
+1,792 adjacent platform pairs in the 72.8h save both carry buildings, with senders
+on one edge facing receivers on the other (e.g. `Foundation_1x4(100,-542)` ->
+`(99,-542)`: 16 senders facing, 12 receivers). Space belts are for spanning
+distance, not for making a connection possible.
+
+## The scoreboard: `research.json -> Shapes.StoredShapes`
+A plain JSON dict of shape code -> count; the Vortex's inventory of everything ever
+delivered. The 72.8h save reads `"CuCuCuCu": 1108`, `"RbRbRbRb:CrCrCrCr": 414745`.
+No decoding required. This is the project's machine-checkable fitness function.
+
+## (superseded, kept for the record) the first island-only decode
 ## Savegame binary: the island and building records (EXTRACTED 2026-09-05)
 
 A `.spz2` is a ZIP of JSON plus fixed-capacity binary buffers (trailing space is zero
