@@ -968,3 +968,54 @@ convention gives **0 collisions**, its inverse 7,784, no rotation 11,945.
 the analyzer's shape/colour outputs are not settled here — VN-13's in-game result
 (forward = shape, left = colour) remains the source of truth. The label EDGE MARGIN is
 likewise not in the export and stays ours.
+
+## Savegame binary: the island and building records (EXTRACTED 2026-09-05)
+
+A `.spz2` is a ZIP of JSON plus fixed-capacity binary buffers (trailing space is zero
+padding). `savegame.json: BinaryDataCheckpoints: true` refers to the repeated constant
+words below — they are serializer **magic markers, not computed checksums**, which is
+what makes hand-editing possible at all.
+
+Recovered by diffing an empty sandbox world (1 island) against a populated one (86),
+with every field cross-checked on both. `tools/save_islands.py` implements it.
+
+### `maps/main/islands/<n>.bin`
+`u32 count`, then `count` records. A record is located by its constant tag.
+
+| off | size | field |
+|---|---|---|
+| 0 | 4 | `0xb121029a` constant tag |
+| 4 | 4 | `int32 X` island-grid coordinate |
+| 8 | 4 | `int32 Y` |
+| 12 | 2 | `int16 Z` |
+| 14 | 2 | `int16` **index into `strings.bin`** -> island layout id |
+| 16 | 2 | zero |
+| 18 | 1 | `uint8` rotation 0..3 |
+| 19 | 33 | constant scaffolding |
+
+**A bare island — one with no buildings on it — is exactly 52 bytes** (77 of the
+reference world's 86). The 36-byte tail is **type-independent**: across every bare
+island type there are only three distinct tails, differing solely in the rotation
+byte. That is why a known-good record can be cloned and retargeted without decoding
+the remainder.
+
+### `maps/main/buildings/<n>.bin`
+`u32 count`, then one record per island, **in island order**, keyed by the same
+header. For an island with no buildings the record is exactly 30 bytes:
+`int32 X, int32 Y, int16 Z, int16 strIdx, int16 zero`, then the constant
+`54 0d 72 c4 04 00 00 00 00 00 00 80 21 30 a4 84`.
+
+### `strings.bin`
+`u32 count`, then `u32 length` + UTF-8 per entry. A plain intern table holding island
+layout ids (`Foundation_1x1`, `SpaceBelt_Forward`, `Layout_HUB`), shape codes
+(`Su--WuCu`) and type names. **References are by index, not by hash** — an early
+attempt to crack `0xb121029a` as a hash of `Layout_HUB` failed against FNV/CRC/xxHash/
+djb2/.NET precisely because it is a constant tag, and the layout id lives two fields
+later as an index.
+
+### Writing safely
+Append **after the first record**, not at the end of the used region: the final
+record's true length may include meaningful trailing zeros. Preserve each entry's
+total length by trimming an equal number of pad bytes, bump the `u32 count` in *both*
+files, and add to `savegame.json: StructureCount`. Reuse a layout id already in
+`strings.bin` and the string table needs no edit at all.
