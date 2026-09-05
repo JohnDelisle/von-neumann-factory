@@ -38,7 +38,22 @@ Saving **~79.7k per unit / ~319k at full belt — 2.35x**.
 
 ---
 
-## AUDIT: `For Claude Working MAM 1 layer no-color FSB` (2026-09-05) — **ONE BUG**
+## AUDIT: `For Claude Working MAM 1 layer no-color FSB` (2026-09-05) — **RESOLVED**
+
+**John fixed both findings the same evening (2026-09-05):** the splitter at `(-9,2)`
+is in, and **both west ranks of Quaded Filters are gone** — he confirmed they were
+redundant, so all 8 platforms at `x = -15` and `x = -16` were removed. The band
+trunks now run from the merge straight into the stacker clusters. Expect **16**
+Quaded Filters, not 24, in the next export; `verify_mam.py` needs no change for that
+(the ratio check already reports "0 beyond the input lanes").
+
+**Not yet re-exported to the repo.** Grab the updated blueprint next session, drop it
+in `blueprints/reference/`, and re-run `python tools/verify_mam.py` — it should come
+out clean on all twelve checks. Then Phase 2a: the `Paint 4 Filter` button swap.
+
+The original audit, kept for the reasoning:
+
+### AUDIT (as filed)
 
 John built the band-merge for real, at full space belt, and asked for a review.
 **1,568 islands, 171,700 buildings.** Everything structural passes except one belt.
