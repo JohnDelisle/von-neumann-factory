@@ -12,76 +12,83 @@ committed + pushed.
 
 ---
 
-# >>> START HERE (2026-09-05, afternoon): CLAUDE IS PLAYING SHAPEZ 2 <<<
+# >>> START HERE (2026-09-05, evening): CLAUDE PLAYS SHAPEZ 2 UNATTENDED <<<
 
-## It works. Claude built a machine in the world and it mined.
+## The loop is closed. No human in it.
 
-No mod, no stamping, no mouse. Claude writes the savegame, John loads it, the
-machine runs. Confirmed in-game 2026-09-05: `VN-15`, a `Layout_ShapeMiner` on the
-circle patch at island (2,0) feeding a `SpaceBelt_Forward` at (1,0) into the
-Vortex's east face, plus 228 buildings of delivery lane on the HUB island.
-
-### The loop, and who does what
 ```
-Claude  tools/build_*.py  -> writes backup-v<N+1> into the sandbox save folder
-John    loads the newest backup, runs it (time.global-setspeed, up to 25x), SAVES
-Claude  tools/observe.py  -> reads the result back out
+python tools/game.py up          # stop the game, start it, open a NAMED savegame
+python tools/bridge.py status    # is the live map reachable, and which world is it
+python tools/bridge.py at 56 16 0
+python tools/bridge.py place TrashDefaultInternalVariant 56 16 0 NoRotate
+python tools/bridge.py speed 10
+python tools/observe.py <save>   # what has been delivered to the Vortex
 ```
-John's only jobs are load, run, save. Keep writing new `backup-v<N>` files into
-`savegames/d58e3f84-.../`; never modify or delete one of his.
 
-## THE IMMEDIATE ASK: run VN-15 and save
+All of it verified on 2026-09-05 against `Claude Plays Shapez2` (8,902 islands):
+placement went 407 -> 408 buildings with the new building read back at its cell.
 
-`research.json -> Shapes.StoredShapes` is the scoreboard and it is plain JSON.
-The objective is `StoredShapes["CuCuCuCu"] >= 1000`. It currently reads `{}`
-because no save has been taken since the machine ran. One run at speed plus one
-save settles whether the machine DELIVERS or merely mines -- those are different
-claims and only mining has been observed.
+**Channel 123 is DONE: `CuCuCuCu` delivered 7,512 to the Vortex** (target was 1000)
+by VN-15, a miner on island (2,0) feeding a space belt into the Vortex's east face.
 
-## The three goals John broadcasts (read from the "HI..." periods)
-| channel | shape | status |
-|---|---|---|
-| 123 | `CuCuCuCu` | machine built; delivery unmeasured |
-| 456 | `WuWuWuWu` | **no windmill patch in any generated chunk** -- needs a source first |
-| 789 | `SuSuSuSu` | no star patch either, but `RuSuRu--` (-28,-28), `SuSuCu--` (19,-25) and `--Ru--Su` (10,-9) carry `Su` quadrants. This is real MAM work: split, filter, rotate, stack. |
+## The two halves, and why both are worth keeping
+| offline (`save_world`, `stamp`, `observe`, `resources`) | live (`ClaudeBridge` + `bridge.py`) |
+|---|---|
+| design, validate, author whole machines, read the scoreboard | place, delete, control speed, read the running sim |
+| byte-exact on 18,966 islands | no reload, no human |
+The offline half is the **verification oracle** for the live half: after writing to
+a running world, read the save back and check nothing was corrupted. Keep it.
 
-## What to do next, in order
-1. **Measure VN-15.** One save. Everything below is guesswork until this lands.
-2. **If it delivers but slowly**, triple it: platform-to-platform adjacency is
-   proven (1,792 adjacent pairs in the 72.8h save, senders facing receivers), so
-   miners can abut the Vortex directly on circle tiles (1,-1) and (1,1) with no
-   space belt. Needs receivers on the hub's other two east faces -- band y 28..31
-   for tile (0,1), y -12..-9 for tile (0,-1) -- then a turn and a run to the
-   centre tile's north (y=19, R3) and south (y=0, R1) sender rows.
-3. **Then channel 789.** `SuSuSuSu` is the first goal that needs the MAM rather
-   than a miner, and `tools/stamp.py` can write the validated FSB MAM blueprint
-   straight into the world. Its filters are hard-wired to channel 123; retuning
-   them to 789 is a one-byte edit per `ConstantSignal` (`03` + int32).
+## What to do next
+1. **Channel 789, `SuSuSuSu`** -- the first goal needing the MAM rather than a miner.
+   Best source `Su--Su--` (2 of 4 quadrants, 2,638 tiles, nearest (-74,137)).
+   `tools/resources.py SAVE SuSuSuSu` ranks the alternatives.
+2. **Channel 456, `WuWuWuWu`** -- a PURE windmill patch exists at (544,200), 1,073
+   tiles, 4/4 quadrants. Far out, so it wants a train rather than a belt.
+3. **`place_blueprint`** is the missing primitive. The blueprint <-> world mapping is
+   already verified cell-for-cell, so a one-entry blueprint is one building and a
+   1,567-entry blueprint is the whole MAM, through one code path.
 
-## The mod bridge: the hop is no longer unknown
-Last night's open question -- "how to reach `IMapModel` at runtime" -- is answered
-(`tools/spz2api -- refs`):
-```
-IGameSessionManagers.EntityPlacementRunner    public property, Shifter hands it to mods
-  -> cast to Game.Interaction.EntityPlacementRunner
-    -> private field IMapModel Map
-      -> CreateBuilding / CreateIsland / DeleteBuilding / FinishBunchEdit
-```
-No method anywhere *returns* an `IMapModel`, which is why it looked unreachable;
-it is only ever passed in or held. The same interface also exposes `HubObserver`
-(live delivered-shape counts), `SimulationSpeed`, `ShapeRegistry` and `Research`
--- place, control and measure on one object.
+## The bridge, in one paragraph
+A ShapezShifter mod (`mod/ClaudeBridge`) polls a file mailbox from inside the game's
+own `Tick`, so nothing touches Unity off-thread. `mod/build.ps1` builds and deploys
+it; the game must be restarted to pick up a new DLL, which `game.py up` does in ~90s.
+Verbs: `ping status inspect members commands console speed pause resume get set call
+find statics resolve saves load quit at place rotations`.
 
-**This is still a separate project from the MAM, and a bigger one.** The save loop
-works today and costs John three clicks per iteration. Start the bridge
-deliberately, not by drift.
+**`get`/`call`/`resolve` are the escape hatch that matters**: every hard-coded verb is
+a guess about what will turn out to matter, and a wrong guess costs a rebuild AND a
+restart. With a general evaluator, new corners of the game are reachable from the
+command line -- and the error messages list the members that DO exist, which is how
+every unknown below got found, one probe at a time.
 
-## Rules of engagement (unchanged, and they earned their keep today)
-* **Sandbox world only** (`d58e3f84-...`). Never the 72.8h save (`5589333c-...`).
-* **Never modify or delete an existing save.** Write a new `backup-v<N+1>`; undo is
-  deleting one file. (Steam Cloud may restore files you move -- v18 came back.)
-* **Re-parse your own output before it goes near the save folder**, and run the
-  size law (below). A round-trip is NOT enough -- see PLAYBOOK.
+## Hard-won, in the running game
+* **`GameHelper.Core` is non-null at the MAIN MENU** -- the menu renders a background
+  world ("Menu Background Supporter") and a live IMapModel is reachable. Anything
+  that writes MUST check which world is loaded. `game.py wait_for_world` checks the
+  NAME, not merely that a map exists.
+* **There is no command-line argument that loads a savegame.** The whole list is
+  `--set-modding-env-vars --ignore-mods --safe-mode --disable-store-sdk
+  --custom-translations --danger-bypass-modded-savegame-checks --ignore-hw-checks
+  --no-dynamic-content`. Loading must happen in-process.
+* **`GameBootstrapper` is a static class**, therefore abstract, therefore invisible to
+  any UnityEngine.Object scan -- and it is the only holder of the `GameOrchestrator`.
+* **Constructing a `SavegameBlobReader` is not enough**; its Blobs/Metadata/StringLUT
+  stay empty and the load dies with a bare NullReferenceException.
+  `SaveFileAccessor.Read` is the factory that opens the archive.
+* **The `IBuildingResolver` is NOT in the DI container** (the initialization container
+  has no children, so session services never appear there). It is
+  `GameOrchestrator.CurrentSubOrchestrator.Mode.Buildings`.
+* **`GridRotation` is a struct with static fields**, not an enum.
+* **`GetBuilding` throws** on a tile owned by no island; `TryGetBuilding` returns bool.
+* Autosave runs every 5 minutes, so a running session keeps producing readable saves.
+
+## Rules of engagement (unchanged)
+* **Sandbox only** (`d58e3f84-...`). Never the 72.8h save (`5589333c-...`).
+* **Never modify or delete an existing save.** Write a new `backup-v<N+1>`.
+* `CreateBuilding` sits under the interactive placement pipeline and does not appear
+  to validate -- our checks are the only ones between a bug and a corrupt map.
+* Re-parse any written save, and run the size law, before it goes near the folder.
 
 # (superseded) PHASE 2 IS UNBLOCKED — BUILD THE BAND-MERGE
 
