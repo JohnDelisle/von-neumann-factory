@@ -11,7 +11,7 @@ Conventions (see docs/conventions.md):
   1x1 platform = 20x20 grid, buildable ~[2,17], floors L0-2.
   Standard bus = 4 cols (X8-11) x 3 floors = 12 lanes, south-in(Y17)/north-out(Y2).
 """
-import base64, os, sys
+import base64, json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from shapez_bp import encode_bp, decode_bp
 
@@ -947,90 +947,81 @@ def vn12_mam_goal_driven():
 # raises rather than being assumed 1x1 -- assuming is exactly how VN-13 shipped broken.
 PLATFORM_MIN, PLATFORM_MAX = 2, 17
 
-FOOTPRINTS = {
-    # 3x3 centred -- from `For Claude Signal Receiver.spz2bp`, where John outlined
-    # the receiver at (9,10) with an L1 belt ring at X7-11/Y8-12. That ring is the
-    # border of a 5x5, i.e. exactly the cells adjacent to a 3x3 core at X8-10/Y9-11,
-    # and his own output wire sits at (9,8) ON the ring. Ports are at origin +-2.
-    "ControlledSignalReceiverInternalVariant": (3, 3, "c"),
-    "ControlledSignalReceiverInternalVariantMirrored": (3, 3, "c"),
-    "ControlledSignalTransmitterInternalVariant": (3, 3, "c"),
-    "ControlledSignalTransmitterInternalVariantMirrored": (3, 3, "c"),
-    "WireGlobalTransmitterReceiverInternalVariant": (3, 3, "c"),
-    # A LABEL IS FIVE CELLS LONG, not 1x1 -- centred on its entry, running along the
-    # axis it faces (R0/R2 horizontal, R1/R3 vertical). MEASURED from John's
-    # purpose-built `For Claude Labels.spz2bp` (2026-09-04), where he boxed labels in
-    # belt. Every box has a 5-cell interior REGARDLESS of text length:
-    #   "Center-ish" (10 chars)             box (17,8)-(23,10)  -> X18-22
-    #   "North side, center-ish" (22 chars) box (17,3)-(23,4)   -> X18-22
-    #   "Upside-down text" R2 (16 chars)    box (25,9)-(31,11)  -> X26-30
-    #   "Text running N-S" R1 (16 chars)    box (4,3)-(6,8)     -> Y3-7
-    # so the footprint is fixed at 5 and does not scale with the text. This also
-    # matches the whole-library census: along the axis, +-1 AND +-2 are occupied 0
-    # times out of 3,089 labels, while the perpendicular neighbours are used freely.
-    # An earlier reading of that census said 3 cells -- one ring too small.
-    "LabelDefaultInternalVariant": (5, 1, "c"),
-}
+# ---------------------------------------------------------------- FOOTPRINTS
+# **DECLARED, NOT INFERRED (2026-09-05).** `debug.export-game-data` in the in-game
+# console writes `basedata-v<n>/` next to the savegames, and `buildings.json` lists
+# every internal variant with its exact `Tiles` -- the cells it occupies, including
+# the Z extent. `gamedata/basedata-v1138/` is a copy, so the build does not depend on
+# the game folder. This REPLACED a hand-maintained (w, h, anchor) table that we had
+# reverse-engineered over several sessions; see docs/PLAYBOOK.md.
+#
+# What the real data corrected:
+#   * the controlled-signal family is **3x3x3 = 27 cells** (Z 0..2), not the 3x3 = 9
+#     we had. Our validator would happily have put something on top of a receiver.
+#   * 13 multi-cell types we already place were modelled as 1x1, among them
+#     `PainterDefaultInternalVariant` (2 cells) -- which Phase 2a is about to use --
+#     `StackerStraightInternalVariant`, every `Lift*`, and the `Pipe*/Wire*Up*`
+#     variants that span Z.
+#   * all three `UNKNOWN_FOOTPRINT` entries became known, so that gate is gone.
+# The one thing the export does NOT carry is wire ports (`BeltInputs`/`BeltOutputs`
+# only), so the analyzer's shape/colour outputs remain settled by VN-13 in-game.
+BASEDATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "gamedata", "basedata-v1138")
 
-# Buildings whose footprint turns with them (w/h swap on R1/R3).
-ROTATION_SWAPS_AXIS = {"LabelDefaultInternalVariant"}
+
+def load_building_tiles(path=None):
+    """{internal_variant_id: [(dx, dy, dz), ...]} straight from the game's own export."""
+    with open(os.path.join(path or BASEDATA_DIR, "buildings.json"), encoding="utf-8") as f:
+        data = json.load(f)
+    return {v["Id"]: [(c["X"], c["Y"], c["Z"]) for c in v["Tiles"]]
+            for b in data for v in b.get("InternalVariants", [])}
+
+
+BUILDING_TILES = load_building_tiles()
+
+# Rotation of a footprint: R counts 90-degree steps and +X is East, +Y is SOUTH, so a
+# visually clockwise step maps (dx, dy) -> (-dy, dx). FITTED, not assumed: scored
+# against every building in the whole library (49 blueprints, 845 islands,
+# 1,028,331 placed cells) -- this convention gives **0 collisions**, its inverse gives
+# 7,784 and no rotation at all gives 11,945.
+def rotate_offset(dx, dy, R):
+    return [(dx, dy), (-dy, dx), (-dx, -dy), (dy, -dx)][R % 4]
+
 
 # ...and a label needs ONE CELL OF MARGIN inside the buildable window: its 5-cell
 # body must lie within [3,16] on a 1x1, never touching the outer ring at 2 or 17.
-# From John's `For Claude Labels.spz2bp`, which demonstrates the extremes on purpose
-# -- every label he named "Corner" / "North side" / "South side" sits exactly one cell
-# in from the edge -- and from the library census: on Foundation_1x1 platforms, label
-# body cells use offsets [3..7, 12..16] and NEVER 2 or 17, while every other building
-# type uses the full 2..17.
+# The 5-cell length is now confirmed by buildings.json (Tiles X-2..2, Y0); the margin
+# is NOT in the export and remains ours, from John's `For Claude Labels.spz2bp` plus
+# the library census (label body cells use offsets [3..7, 12..16] and never 2 or 17,
+# while every other building type uses the full 2..17).
 #
 # The two rules produce DIFFERENT symptoms, which is why this took so long to read:
 #   * a label OVERLAPPING another building  -> the game discards the whole FILE
 #     (never appears in the blueprint folder) -- p6, VN-13 v1, VN-13 v2, r1, s1, s2;
 #   * a label only breaking the MARGIN      -> the file imports fine but FAILS TO
 #     STAMP (red X) -- VN-13t1, whose one bad label at (4,14) spans X2..6.
-# That matches the file-vs-placement distinction already in conventions.md.
 LABEL_EDGE_MARGIN = 1
-
-# The 3x3 body is now strongly evidenced, not inferred from one reference: across
-# **all 45 controlled-signal buildings in John's library**, the eight cells
-# immediately around the entry are EMPTY in every single instance, and the only
-# occupied cells within 2 sit exactly on the ports at +-2.
-#
-# A SECOND rule was proposed here and then REFUTED -- recorded so nobody re-derives
-# it. The census also showed that a port cell (+-2) is only ever occupied by a
-# Wire*/Display*/ConstantSignal* in John's library, never a Virtual* or LogicGate*,
-# so we guessed that a virtual building may not sit on a port cell and that this was
-# what killed VN-13 v1. **VN-13q1 disproves it**: an analyzer placed directly on the
-# receiver's output port cell imports and runs fine (John, 2026-09-04). John simply
-# never happens to do it. Absence from his library is not a game rule -- the same
-# trap PLAYBOOK warns about for footprints.
-
-# Multi-cell buildings whose anchor we have NOT established. Placing one is refused
-# until someone extracts it (PLAYBOOK: ask John for a minimal reference, ideally with
-# the building outlined in belt on the floor above).
-UNKNOWN_FOOTPRINT = {
-    "Display2x2InternalVariant", "Display2x2InternalVariantMirrored",
-    "Display3x3InternalVariant",
-    "VirtualHalvesSwapperDefaultInternalVariant",
-}
 
 
 def footprint_cells(entry):
-    """Every cell a building actually occupies -- not just the origin it records."""
+    """Every cell a building actually occupies -- not just the origin it records.
+
+    Returns (x, y, L) triples; a building that spans levels (a lift, a controlled
+    signal receiver) contributes cells on more than one L.
+    """
     T, x, y, L = entry["T"], entry["X"], entry["Y"], entry.get("L", 0)
-    if T in UNKNOWN_FOOTPRINT:
+    tiles = BUILDING_TILES.get(T)
+    if tiles is None:
         raise AssertionError(
-            f"{T} at ({x},{y},L{L}): multi-cell building with an UNEXTRACTED anchor. "
-            f"Get a minimal reference from John (box-trick: outline it in belt on the "
-            f"floor above) and add it to FOOTPRINTS before placing one.")
-    w, h, anchor = FOOTPRINTS.get(T, (1, 1, "o"))
-    if T in ROTATION_SWAPS_AXIS and entry.get("R", 0) in (1, 3):
-        w, h = h, w
-    if anchor == "c":
-        x0, y0 = x - (w - 1) // 2, y - (h - 1) // 2
-    else:
-        x0, y0 = x, y
-    return [(x0 + dx, y0 + dy, L) for dx in range(w) for dy in range(h)]
+            f"{T} at ({x},{y},L{L}): not in gamedata/basedata-v1138/buildings.json. "
+            f"If the game has been updated, re-run `debug.export-game-data` in the "
+            f"in-game console and refresh gamedata/.")
+    R = entry.get("R", 0)
+    out = []
+    for dx, dy, dz in tiles:
+        rx, ry = rotate_offset(dx, dy, R)
+        out.append((x + rx, y + ry, L + dz))
+    return out
 
 
 def validate_layout(buildings, where="", foundation="Foundation_1x1"):

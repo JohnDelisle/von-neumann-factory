@@ -1,0 +1,4631 @@
+[
+  {
+    "Id": "BeltDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "BeltDefaultForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "BeltDefaultLeftInternalVariant",
+        "MirroredDefinitionId": "BeltDefaultLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "BeltDefaultLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "BeltDefaultLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "BeltFilterDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "BeltFilterDefaultInternalVariant",
+        "MirroredDefinitionId": "BeltFilterDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "BeltFilterDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "BeltFilterDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "BeltPortReceiverVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "BeltPortReceiverInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "BeltPortSenderVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "BeltPortSenderInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "BeltReaderDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "BeltReaderDefaultInternalVariant",
+        "MirroredDefinitionId": "BeltReaderDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "BeltReaderDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "BeltReaderDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "ButtonDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "ButtonDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "ConstantSignalDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "ConstantSignalDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "CrystalGeneratorDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "CrystalGeneratorDefaultInternalVariant",
+        "MirroredDefinitionId": "CrystalGeneratorDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "CrystalGeneratorDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "CrystalGeneratorDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "CutterDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "CutterDefaultInternalVariant",
+        "MirroredDefinitionId": "CutterDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": -1,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "CutterDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "CutterDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 1,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "CutterHalfVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "CutterHalfInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "DisplayDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "DisplayDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "Display2x2Variant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "Display2x2InternalVariant",
+        "MirroredDefinitionId": "Display2x2InternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "Display2x2InternalVariantMirrored",
+        "MirroredDefinitionId": "Display2x2InternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "Display3x3Variant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "Display3x3InternalVariant",
+        "MirroredDefinitionId": "Display3x3InternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -2,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -2,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": -2,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "Display3x3InternalVariantMirrored",
+        "MirroredDefinitionId": "Display3x3InternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 2,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 2,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": 2,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "ExtractorDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "ExtractorDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "FluidPortReceiverVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "FluidPortReceiverInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "FluidPortSenderVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "FluidPortSenderInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "FluidStorageDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "FluidStorageDefaultInternalVariant",
+        "MirroredDefinitionId": "FluidStorageDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "FluidStorageDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "FluidStorageDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "HalvesSwapperDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "HalvesSwapperDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": -1,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": -1,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "LabelDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "LabelDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": -2,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "Lift1LayerVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "BeltDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "Lift1DownBackwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": -1
+            },
+            "Direction_L": 2
+          }
+        ]
+      },
+      {
+        "Id": "Lift1DownForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": -1
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "Lift1DownLeftInternalVariant",
+        "MirroredDefinitionId": "Lift1DownLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": -1
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "Lift1DownLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "Lift1DownLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": -1
+            },
+            "Direction_L": 1
+          }
+        ]
+      },
+      {
+        "Id": "Lift1UpBackwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 1
+            },
+            "Direction_L": 2
+          }
+        ]
+      },
+      {
+        "Id": "Lift1UpForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 1
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "Lift1UpLeftInternalVariant",
+        "MirroredDefinitionId": "Lift1UpLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 1
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "Lift1UpLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "Lift1UpLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 1
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "Lift2LayerVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "BeltDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "Lift2DownBackwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -2
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": -2
+            },
+            "Direction_L": 2
+          }
+        ]
+      },
+      {
+        "Id": "Lift2DownForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -2
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": -2
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "Lift2DownLeftInternalVariant",
+        "MirroredDefinitionId": "Lift2DownLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -2
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": -2
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "Lift2DownLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "Lift2DownLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -2
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": -1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": -2
+            },
+            "Direction_L": 1
+          }
+        ]
+      },
+      {
+        "Id": "Lift2UpBackwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 2
+            },
+            "Direction_L": 2
+          }
+        ]
+      },
+      {
+        "Id": "Lift2UpForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 2
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "Lift2UpLeftInternalVariant",
+        "MirroredDefinitionId": "Lift2UpLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 2
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "Lift2UpLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "Lift2UpLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 2
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "LogicGateAndVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "LogicGateAndInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "LogicGateCompareVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "LogicGateCompareInternalVariant",
+        "MirroredDefinitionId": "LogicGateCompareInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "LogicGateCompareInternalVariantMirrored",
+        "MirroredDefinitionId": "LogicGateCompareInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "LogicGateIfVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "LogicGateIfInternalVariant",
+        "MirroredDefinitionId": "LogicGateIfInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "LogicGateIfInternalVariantMirrored",
+        "MirroredDefinitionId": "LogicGateIfInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "LogicGateNotVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "LogicGateNotInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "LogicGateOrVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "LogicGateOrInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "LogicGateXOrVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "LogicGateXOrInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "Merger2To1Variant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "BeltDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "Merger2To1LInternalVariant",
+        "MirroredDefinitionId": "Merger2To1LInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "Merger2To1LInternalVariantMirrored",
+        "MirroredDefinitionId": "Merger2To1LInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "Merger3To1Variant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "BeltDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "Merger3To1InternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "MergerTShapeVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "BeltDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "MergerTShapeInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "MixerDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "MixerDefaultInternalVariant",
+        "MirroredDefinitionId": "MixerDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "MixerDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "MixerDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 2,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "PainterDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "PainterDefaultInternalVariant",
+        "MirroredDefinitionId": "PainterDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      },
+      {
+        "Id": "PainterDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "PainterDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "PinPusherDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "PinPusherDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "Pipe1LayerVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "PipeDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "PipeUpBackwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeUpForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeUpLeftInternalVariant",
+        "MirroredDefinitionId": "PipeUpLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeUpLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "PipeUpLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "Pipe2LayerVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "PipeDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "Pipe2UpBackwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "Pipe2UpForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "Pipe2UpLeftInternalVariant",
+        "MirroredDefinitionId": "Pipe2UpLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "Pipe2UpLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "Pipe2UpLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "PipeDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "PipeForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeLeftInternalVariant",
+        "MirroredDefinitionId": "PipeLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "PipeLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeLift",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeLiftInverter",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeUp",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeJunctionInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeCrossInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "PipeGateDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "PipeGateDefaultInternalVariant",
+        "MirroredDefinitionId": "PipeGateDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "PipeGateDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "PipeGateDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "PumpDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "PumpDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "RotatorHalfVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "RotatorHalfInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "RotatorOneQuadCCWVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "RotatorOneQuadCCWInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "RotatorOneQuadVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "RotatorOneQuadInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "SandboxFluidProducerDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "SandboxFluidProducerDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "SandboxItemProducerDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "SandboxItemProducerDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "Splitter1To2Variant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "BeltDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "Splitter1To2LInternalVariant",
+        "MirroredDefinitionId": "Splitter1To2LInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "Splitter1To2LInternalVariantMirrored",
+        "MirroredDefinitionId": "Splitter1To2LInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "Splitter1To3Variant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "BeltDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "Splitter1To3InternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "SplitterTShapeVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": "BeltDefaultVariant",
+    "InternalVariants": [
+      {
+        "Id": "SplitterTShapeInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "StackerDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "StackerDefaultInternalVariant",
+        "MirroredDefinitionId": "StackerDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 1
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "StackerDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "StackerDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 1
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "StackerStraightVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "StackerStraightInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 1
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "TrashDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": false,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "TrashDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          }
+        ],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualAnalyzerDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualAnalyzerDefaultInternalVariant",
+        "MirroredDefinitionId": "VirtualAnalyzerDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "VirtualAnalyzerDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "VirtualAnalyzerDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualHalfCutterDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualHalfCutterDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualPainterDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualPainterDefaultInternalVariant",
+        "MirroredDefinitionId": "VirtualPainterDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "VirtualPainterDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "VirtualPainterDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualPinPusherDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualPinPusherDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualRotatorDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualRotatorDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualRotatorCCWVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualRotatorCCWInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualStackerDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualStackerDefaultInternalVariant",
+        "MirroredDefinitionId": "VirtualStackerDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "VirtualStackerDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "VirtualStackerDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualUnstackerDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualUnstackerDefaultInternalVariant",
+        "MirroredDefinitionId": "VirtualUnstackerDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "VirtualUnstackerDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "VirtualUnstackerDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualCrystalGeneratorDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualCrystalGeneratorDefaultInternalVariant",
+        "MirroredDefinitionId": "VirtualCrystalGeneratorDefaultInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "VirtualCrystalGeneratorDefaultInternalVariantMirrored",
+        "MirroredDefinitionId": "VirtualCrystalGeneratorDefaultInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "VirtualHalvesSwapperDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "VirtualHalvesSwapperDefaultInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "WireBridgeVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "WireDefaultBridgeInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "WireDefaultVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "WireDefaultForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefaultLeftInternalVariant",
+        "MirroredDefinitionId": "WireDefaultLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefaultLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "WireDefaultLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefaultJunctionInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefaultCrossInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefault1UpBackwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefault1UpForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefault1UpLeftInternalVariant",
+        "MirroredDefinitionId": "WireDefault1UpLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefault1UpLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "WireDefault1UpLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefault2UpBackwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefault2UpForwardInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefault2UpLeftInternalVariant",
+        "MirroredDefinitionId": "WireDefault2UpLeftInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "WireDefault2UpLeftInternalVariantMirrored",
+        "MirroredDefinitionId": "WireDefault2UpLeftInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "WireGlobalTransmitterReceiverVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "WireGlobalTransmitterReceiverInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "ControlledSignalTransmitterVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "ControlledSignalTransmitterInternalVariant",
+        "MirroredDefinitionId": "ControlledSignalTransmitterInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "ControlledSignalTransmitterInternalVariantMirrored",
+        "MirroredDefinitionId": "ControlledSignalTransmitterInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "WireTransmitterReceiverVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "WireTransmitterReceiverInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "WireTransmitterSenderVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "WireTransmitterSenderInternalVariant",
+        "MirroredDefinitionId": null,
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  },
+  {
+    "Id": "SplitterOverflowVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "SplitterOverflowLInternalVariant",
+        "MirroredDefinitionId": "SplitterOverflowLInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 3
+          }
+        ]
+      },
+      {
+        "Id": "SplitterOverflowLInternalVariantMirrored",
+        "MirroredDefinitionId": "SplitterOverflowLInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          }
+        ],
+        "BeltInputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 2
+          }
+        ],
+        "BeltOutputs": [
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 0
+          },
+          {
+            "Position_L": {
+              "X": 0,
+              "Y": 0,
+              "Z": 0
+            },
+            "Direction_L": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "ControlledSignalReceiverVariant",
+    "Removable": true,
+    "Selectable": true,
+    "PlayerBuildable": true,
+    "AutoConnectBelts": true,
+    "PipetteOverrideVariantId": null,
+    "InternalVariants": [
+      {
+        "Id": "ControlledSignalReceiverInternalVariant",
+        "MirroredDefinitionId": "ControlledSignalReceiverInternalVariantMirrored",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      },
+      {
+        "Id": "ControlledSignalReceiverInternalVariantMirrored",
+        "MirroredDefinitionId": "ControlledSignalReceiverInternalVariant",
+        "Tiles": [
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 0
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 1
+          },
+          {
+            "X": 0,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 0,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": -1,
+            "Z": 2
+          },
+          {
+            "X": 0,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": -1,
+            "Y": 1,
+            "Z": 2
+          },
+          {
+            "X": 1,
+            "Y": 1,
+            "Z": 2
+          }
+        ],
+        "BeltInputs": [],
+        "BeltOutputs": []
+      }
+    ]
+  }
+]

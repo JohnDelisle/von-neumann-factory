@@ -919,3 +919,52 @@ ShapezShifter's `Flow` namespace is entirely building/island authoring
 (`BuildingBuilder`, `IIdentifiableConnectable...BuildingBuilder`, localization,
 toolbars). Nothing there is aimed at inspection or automation, so a validator mod sits
 on `Hijack` / `SharpDetours`, off the documented path.
+
+## `debug.export-game-data` — the game hands you its own definitions
+
+Typing `debug.export-game-data` in the in-game console writes `basedata-v<n>/` beside
+the savegames. `gamedata/basedata-v1138/` is a copy so the build does not depend on the
+game folder. Re-run it and refresh that directory after a game update.
+
+```
+buildings.json     67 buildings / 131 internal variants
+identifiers.json   BuildingVariantIds 67 · BuildingInternalVariantIds 131 ·
+                   IslandLayoutIds 163 · WikiEntryIds · ImageIds · VideoIds · IconIds
+scenarios/         7 scenarios      json-schemas/  3 schemas (ScenarioSchema is 59 KB)
+difficulty-presets/  scenario-parameter-presets/    version
+```
+
+Each internal variant carries exactly five fields:
+`Id`, `MirroredDefinitionId`, **`Tiles`**, **`BeltInputs`**, **`BeltOutputs`** —
+where a port is `{Position_L, Direction_L}`, `Position_L` being the port's own local
+cell and `Direction_L` the face it exits through (the receiver is the ADJACENT cell in
+that direction). Direction is `0=E, 1=S, 2=W, 3=N`, confirming our fitted convention.
+
+### What it confirmed
+* **Label = 5 tiles**, `X-2..2, Y0`. Exactly the rule that cost six round trips.
+* **Lift hand-off**: `Lift1UpForward` in `(0,0,0)d2`, out `(0,0,1)d0` — Z+1 and one
+  cell ahead. `Lift<n>` gives `Z±n`. Our `verify_mam.py` model was right.
+* `0=E,1=S,2=W,3=N`, and `Left`/`Mirrored` on a belt = left/right turn.
+
+### What it CORRECTED
+* **The controlled-signal family is 3x3x3 = 27 cells, spanning Z 0..2** — not the 3x3
+  we had inferred from John's belt outline. That outline showed the ground floor only.
+  Our validator would have allowed a building on top of a receiver.
+* **13 multi-cell types we already place were modelled as 1x1**, including
+  `PainterDefaultInternalVariant` (2 cells, `Y0..1`) — the one Phase 2a needs —
+  `StackerStraightInternalVariant`, `CutterDefault*`, `FluidStorageDefault*`, every
+  `Lift*`, and the `Pipe*Up*` / `Wire*Up*` variants that span Z.
+* All three `UNKNOWN_FOOTPRINT` entries became known: `Display2x2` (origin, +X/-Y),
+  `Display3x3` (origin, +X/-Y, NOT centred), `VirtualHalvesSwapper` (2 cells, `Y-1..0`).
+
+### Footprint rotation (FITTED 2026-09-05)
+`Tiles` are unrotated local offsets. `R` counts 90-degree steps with +X East and +Y
+**South**, so a visually clockwise step is `(dx, dy) -> (-dy, dx)`. Scored over the
+whole library — 49 blueprints, 845 islands, **1,028,331 placed cells**: this
+convention gives **0 collisions**, its inverse 7,784, no rotation 11,945.
+
+### What the export does NOT carry
+**Wire ports.** `BeltInputs`/`BeltOutputs` are empty for every `Virtual*` building, so
+the analyzer's shape/colour outputs are not settled here — VN-13's in-game result
+(forward = shape, left = colour) remains the source of truth. The label EDGE MARGIN is
+likewise not in the export and stays ours.
