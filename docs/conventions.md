@@ -752,3 +752,54 @@ hop then START a trunk (8,y) Lift1UpForward R2
 ```
 The `Right` variant is how a hopped stream starts a trunk without a separate turn —
 a lift may turn but may not merge, so there is no unit that could do both.
+
+## Island footprints: a foundation records only its ORIGIN tile (EXTRACTED 2026-09-05)
+
+The same trap as multi-cell buildings, one level up. A `Foundation_2x4` covers eight
+island-grid cells and stores exactly one — so two foundations can overlap in the file
+with nothing to show for it, and the platform simply refuses to stamp in-game.
+
+Recovered from the islands' **own building coordinates**, not from the names: a
+platform tile is **20 units of building space**, so `floor(building X / 20)` gives the
+tile. Measured across both MAMs (1,707 islands); every span came out an exact multiple.
+
+| island | R | tile span (dx, dy from origin) |
+|---|---|---|
+| `Foundation_1x1` | 1, 3 | `(0,0)` |
+| `Foundation_1x4` | 1 | `dx 0`, `dy -1..2` |
+| `Foundation_2x2` | 3 | `dx 0..1`, `dy -1..0` |
+| `Foundation_2x2_Flipped` | 1 | `dx 0..1`, `dy 0..1` |
+| `Foundation_2x4` | 3 | `dx 0..1`, `dy -2..1` |
+| `Foundation_2x4_Flipped` | 1 | `dx 0..1`, `dy -1..2` |
+
+**The anchor is not the corner and is not consistent between variants** — `2x2` R3
+grows north, `2x2_Flipped` R1 grows south. Never assume; look it up, or re-derive it
+from the building coordinates the way the table above was derived.
+`tools/verify_mam.py` (`ISLAND_FOOTPRINT`, `island_cells`) now checks for overlaps.
+
+Only the rotations actually used are listed. `Layout_Train*` islands carry **no
+buildings at all** in a blueprint, so their footprint cannot be recovered this way.
+
+## Space-belt direction model (FITTED 2026-09-05, `Working Full Belt ... MAM`)
+
+Fitted, not assumed: 32 candidate conventions were scored against every belt-to-belt
+edge in the working machine, and one wins outright — then explains **100%** of the
+network once island footprints are taken into account (0 dead ends over 1,022 edges).
+
+* `R` indexes **E, S, W, N clockwise** (`R0`=E, `R1`=S, `R2`=W, `R3`=N).
+* `Forward` and every merger: `R` is the **output** direction.
+* `LeftTurn` / `RightTurn`: `R` is the **INCOMING heading**, and the exit is `R-1` /
+  `R+1`. So `LeftTurn R3` = "running north, turn left" = **exits west**.
+* `RightFwdSplitter R`: outputs both `R` and `R+1`.
+
+**Merger names are mirrored relative to travel.** A `LeftFwdMerger` takes its side
+feed from the cell on its **right as the shapes travel** — i.e. the left side as you
+face the belt head-on. Confirmed on 40 of the machine's 42 mergers.
+
+| unit | accepts input from (relative to its `R`) |
+|---|---|
+| `Forward`, both turns, `RightFwdSplitter` | behind only |
+| `LeftFwdMerger` | behind + the cell at `R+1` |
+| `RightFwdMerger` | behind + the cell at `R+3` |
+| `TripleMerger` | behind + both sides |
+| `YMerger` | both sides only — **not** from behind |

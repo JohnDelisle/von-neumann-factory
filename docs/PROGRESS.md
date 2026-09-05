@@ -38,6 +38,87 @@ Saving **~79.7k per unit / ~319k at full belt — 2.35x**.
 
 ---
 
+## AUDIT: `For Claude Working Full Belt Single Layer MAM no-paint` (2026-09-05)
+
+John asked for a review of the working full-belt machine. **1,373 islands, 289,828
+buildings. It is clean** — every structural check passes, including the two new ones
+in `tools/verify_mam.py` (island-footprint overlaps, space-belt dead ends).
+
+### What was checked, and what it proves
+| check | result |
+|---|---|
+| island footprints overlap | **0** clashes over 1,373 islands |
+| space belts that dead-end | **0** over 1,022 edges (the only 16 belts with no belt feeder are the ones fed by train unloaders) |
+| the four units are copies | units B/C/D are **exact translations** of A, `+32` in Y, cell for cell |
+| the four lanes are copies | identical except their feed/exit belt runs, which necessarily differ in length |
+| filters | 16/16 identical to the goal-driven reference, all on channel 123, all with the same `null` compare constant |
+| scaling | 289,828 = **4 x 72,332 + 500**. Exactly four copies of the validated unit, plus one shared trash block |
+
+That last row is the important one: **a unit is a cell-for-cell copy of the validated
+1/4-belt MAM.** It is not running faster; there are simply four of it. So nothing
+inside a unit is carrying more throughput than what was already tested, and the whole
+per-lane module chain (`Quad Splitter` -> `Demuxer` -> Overflow -> `Quaded Filter` ->
+lane cluster) is unchanged and unstressed.
+
+### Where the product goes: **into the trash, by design**
+```
+unit A --(-17,-56)--> southbound trunk --+                     units A+B = 1/2 belt
+unit B --(-17,-24)--> ................. -+--> YMerger (-17,-10) --> W --> 4x Trash
+unit D --(-17, 40)--> northbound trunk --+                     units C+D = 1/2 belt
+unit C --(-17,  8)--> ..................-+
+```
+Each Trash platform carries **12 `BeltReader`s** — this west end is a throughput
+meter, not an output. Two consequences:
+
+1. **There is no product take-off.** Stamping this into the factory means replacing
+   the whole `X = -23..-17` strip. That is the test rig, not the machine.
+2. **The collector is exactly one space belt wide, with zero headroom.** 4 units x
+   1/4 belt = 1 belt, and the meter reads a full belt — which is also a *good* test,
+   because a dead unit would show up immediately as 3/4. But nothing can be added to
+   the output rate without widening `X = -17`.
+
+The trash block itself was **not** scaled (identical 500 buildings in both machines):
+4 platforms x 12 lanes = 48 lanes of disposal behind a 12-lane belt. Harmless, but
+it is 4x more platform than the meter needs.
+
+### The one thing worth reconsidering: **16 train stations**
+The 1/4-belt unit is fed by **one** station platform with **four unloaders stacked on
+it** (Y `-2..1`, station at `2`) and a belt fan out to the four lanes. The full-belt
+machine instead gives every lane **its own 5-tile platform** — 16 stations, 48
+spacers, and one unloader each, placed at exactly the row its lane needs.
+
+Since a unit is a cell-for-cell copy of the unit that one station demonstrably fed,
+**4 stations (one per unit, four unloaders each) would deliver the same shapes at the
+same rate** — 4 trains and 4 schedules instead of 16. The counter-argument is real
+though: one dock serves one train at a time, so four stations means 4x the docking
+frequency at each, and the dead time between trains is not free. **John's call** —
+but if the 16 stations were for placement convenience rather than for docking
+throughput, 12 of them are spare.
+
+### Two things the blueprint does NOT carry (post-stamp checklist)
+* **The goal.** 16 `ControlledSignalReceiver`s on channel **123**, and **zero
+  transmitters** — the goal must be broadcast from outside the blueprint.
+* **The train schedules.** Every unloader's shape filter is empty (`S` = four zero
+  bytes). **Within each unit the four lanes must be fed four DISTINCT base shapes.**
+  Two lanes on the same shape would both pass the same quadrant position, and the 5th
+  cluster would get an overlap — a second layer — instead of a disjoint merge.
+
+### Coordinate translation: small MAM -> full-belt machine
+Every coordinate in the band-merge build sheet below is in
+`For Claude Single layer MAM, no-paint`. To apply it to the full-belt machine, add:
+
+| unit | lane rows (filter) | offset from the small MAM |
+|---|---|---|
+| A | -57, -51, -45, -39 | **(+5, -48)** |
+| B | -25, -19, -13,  -7 | **(+5, -16)** |
+| C |   7,  13,  19,  25 | **(+5, +16)** |
+| D |  39,  45,  51,  57 | **(+5, +48)** |
+
+Spot check: small `FILTER` at `X=10` -> `X=15`; small lane `r=-9` -> `-57` in unit A.
+The X shift is `+5` for all four; only Y differs, `32` apart.
+
+---
+
 ## JOHN'S JOB: the band-merge, step by step (2026-09-04)
 
 All coordinates are **island/platform coordinates** in

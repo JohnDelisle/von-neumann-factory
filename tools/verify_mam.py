@@ -45,6 +45,100 @@ def int_signals(island):
     return out
 
 
+# ------------------------------------------------- island footprints & space belts
+# EXTRACTED 2026-09-05, not guessed. A multi-tile foundation records only its ORIGIN
+# tile in the island list, exactly like a multi-cell BUILDING records only its origin
+# cell (conventions.md). The footprint below was recovered from each island's own
+# building coordinates: a platform tile is 20 units of building space, so
+# `floor(min/max building X or Y / 20)` gives the tile span the island really covers.
+# Measured over both MAMs (1,707 islands); every span came out an exact multiple.
+ISLAND_FOOTPRINT = {
+    ("Foundation_1x1", 1): [(0, 0)],
+    ("Foundation_1x1", 3): [(0, 0)],
+    ("Foundation_1x4", 1): [(0, dy) for dy in range(-1, 3)],
+    ("Foundation_2x2", 3): [(dx, dy) for dx in (0, 1) for dy in (-1, 0)],
+    ("Foundation_2x2_Flipped", 1): [(dx, dy) for dx in (0, 1) for dy in (0, 1)],
+    ("Foundation_2x4", 3): [(dx, dy) for dx in (0, 1) for dy in range(-2, 2)],
+    ("Foundation_2x4_Flipped", 1): [(dx, dy) for dx in (0, 1) for dy in range(-1, 3)],
+}
+
+# Space-belt direction model, fitted to the working full-belt MAM (867 of 1,022 edges
+# under the best of 32 candidate conventions, and 100% once island footprints are
+# taken into account). R indexes E,S,W,N clockwise; for a TURN, R is the INCOMING
+# heading, so `LeftTurn R3` is "running north, turn left" = exits west.
+#
+# The merger names are MIRRORED relative to travel: a `LeftFwdMerger` takes its side
+# feed from the cell on its RIGHT as the shapes travel (i.e. the left side as you
+# face the belt head-on). Verified on 40 of 42 mergers in the machine; the other two
+# take a straight-through feed as well.
+BELT_VEC = {0: (1, 0), 1: (0, 1), 2: (-1, 0), 3: (0, -1)}
+BELT_IN = {"Forward": [2], "LeftTurn": [2], "RightTurn": [2], "RightFwdSplitter": [2],
+           "LeftFwdMerger": [2, 1], "RightFwdMerger": [2, 3],
+           "TripleMerger": [1, 2, 3], "YMerger": [1, 3]}
+
+
+def belt_outs(t, R):
+    if t == "LeftTurn":
+        return [(R - 1) % 4]
+    if t == "RightTurn":
+        return [(R + 1) % 4]
+    if t == "RightFwdSplitter":
+        return [R, (R + 1) % 4]
+    return [R]
+
+
+def island_cells(i):
+    """Every island-grid cell an island occupies -- not just the origin it records."""
+    T, R = i["T"], i.get("R", 0)
+    X, Y, Z = i.get("X", 0), i.get("Y", 0), i.get("Z", 0)
+    return [(X + dx, Y + dy, Z) for dx, dy in ISLAND_FOOTPRINT.get((T, R), [(0, 0)])]
+
+
+def check_islands_and_belts(isls, check):
+    """Two structural checks that the game does NOT warn about.
+
+    1. No two islands may claim the same island-grid cell. A 2x4 foundation covers
+       eight cells and only records one, so an overlap is invisible in the file and
+       shows up in-game as a platform that refuses to stamp.
+    2. Every space belt must deliver into something that accepts from that side.
+       A belt whose output faces an empty cell, or faces a neighbour that has no
+       input port there, silently dead-ends -- the machine looks built and one
+       stream just never arrives.
+    """
+    occupied, overlaps = {}, []
+    for i in isls:
+        for c in island_cells(i):
+            if c in occupied:
+                overlaps.append(f"{i['T']} at ({i.get('X')},{i.get('Y')}) overlaps "
+                                f"{occupied[c]} at cell {c}")
+            occupied[c] = i["T"]
+    check(not overlaps, f"island footprints do not overlap ({len(overlaps)} clashes)")
+    for o in overlaps[:5]:
+        print(f"           {o}")
+
+    belts = {(i.get("X", 0), i.get("Y", 0), i.get("Z", 0)):
+             (i["T"][len("SpaceBelt_"):], i.get("R", 0))
+             for i in isls if i["T"].startswith("SpaceBelt_")}
+    if not belts:
+        return
+    dangling = []
+    for (x, y, z), (t, R) in belts.items():
+        for o in belt_outs(t, R):
+            dx, dy = BELT_VEC[o]
+            n = (x + dx, y + dy, z)
+            if n in belts:
+                nt, nR = belts[n]
+                if ((o + 2) % 4 - nR) % 4 not in BELT_IN.get(nt, [2]):
+                    dangling.append(f"{t} R{R} at ({x},{y},Z{z}) feeds {nt} R{nR} "
+                                    f"at {n}, which has no input port on that side")
+            elif n not in occupied:
+                dangling.append(f"{t} R{R} at ({x},{y},Z{z}) outputs into empty space "
+                                f"at {n}")
+    check(not dangling, f"space belts all deliver somewhere ({len(dangling)} dead ends)")
+    for dd in dangling[:5]:
+        print(f"           {dd}")
+
+
 def verify(path):
     name = os.path.basename(path)
     ver, d = decode_bp(path)
@@ -114,6 +208,8 @@ def verify(path):
             if c is not None and (not isinstance(c, dict) or "$type" not in c):
                 bad.append((i.get("X"), i.get("Y"), e.get("T")))
     check(not bad, f"building configs well-formed (missing $type: {len(bad)})")
+
+    check_islands_and_belts(isls, check)
 
     return fails
 
