@@ -1050,16 +1050,36 @@ Island-level config (blueprint field `S`) is verbatim: `Rail_Forward` = `01 00 0
 
 Island rotation rotates contents: `(x,y) -> (N-1-y, x)`, `R -> R+1`, N = 20 x tile span.
 
-### `maps/main/resource-chunks.bin` -- the shape patches
-`u32 2`, tag, 8 zero bytes, then an A-block containing `u32 count` patch records:
+### `maps/main/resource-chunks.bin` -- the shape patches (see tools/resources.py)
 
-    u8 1 | i32 X | i32 Y | u16 0 | i32 n | n x i32 shapeStrIdx | n x (i32 dx, i32 dy)
+    u32 nChunks
+    per chunk:  CH(4) | i32 chunkX | i32 chunkY | A-block of:
+                    SH(4) | u32 nPatches | shape patches
+                    FL(4) | u32 nPatches | fluid patches
+                C(4)
+    shape patch  u8 1 | i32 X | i32 Y | u16 0 | i32 n
+                 | n x i32 shapeStrIdx | n x (i32 dx, i32 dy)
+    fluid patch  u8 1 | i32 X | i32 Y | u16 0 | u8 1 | u8 colour | i32 n
+                 | n x (i32 dx, i32 dy)
+    CH = ee 74 46 a6   SH = da 7c f2 09   FL = 51 3a 47 16
 
-Tiles are `(X+dx, Y+dy)`. The sandbox's 14 patches include `CuCuCuCu` at
-`(1,-1) (1,0) (1,1) (2,0)` and `(-5..-3, -1..0)` -- both touching the Vortex -- and
-`RuRuRuRu`, `RbRuRbRu`, `CrCrCrCu`, `CrCuCuCu`, `RuSuRu--`, `--CuCuCu`, `SuSuCu--`,
-`--RbSuCr`, `--Ru--Su` further out. **Only generated chunks appear**, so an absent
-shape means "not visited yet", not "not on the map".
+Tiles are `(X+dx, Y+dy)`. The shape array is **per tile** -- one patch may mix
+shapes -- while a fluid patch carries one colour for the whole patch.
+
+**The leading u32 is the number of CHUNKS, not a version.** Reading only the first
+chunk makes a map look nearly empty; it is what made Claude tell John a goal shape
+had "no source anywhere" when the truth was "that region has never been generated".
+
+**A chunk is 64x64 island tiles and exists only once the game has generated it** --
+in practice once something has been built there. The same sandbox held 8 chunks
+while the MAM sprawled to x=-100, and 2 after being cleared back to spawn; two shape
+types vanished with the chunks that held them. So an absent shape means "not
+generated yet", NEVER "not on this map". **To reveal a region, build in it.**
+
+A uniform target needs only ONE quadrant of the right kind -- the MAM splits a shape
+into quadrants, keeps what it wants, rotates them into the four positions and stacks
+-- so the figure of merit for a source patch is how many of its four quadrants are
+usable. `tools/resources.py SAVE SHAPE` ranks them.
 
 ## How the Vortex accepts shapes (EXTRACTED from the 72.8h factory)
 `Layout_HUB` is **3x3 island tiles centred on its origin**, and its island-local
