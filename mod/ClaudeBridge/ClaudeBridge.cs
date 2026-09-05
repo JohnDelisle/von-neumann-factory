@@ -1,83 +1,184 @@
-// ClaudeBridge -- Stage 0: prove the hook, write nothing.
+// ClaudeBridge -- stage 1: a mailbox, so the agent drives the game itself.
 //
-// The whole point of this stage is to answer one question in the running game:
-// can a mod reach the live IMapModel?  Everything else -- placement, a JSON
-// endpoint, an MCP wrapper -- is downstream of that, and none of it is worth
-// writing until it is answered on John's machine rather than in the metadata.
+// Stage 0 registered console commands, which meant a human had to type them and
+// read the answer off the screen: the game logs console INPUT to Player.log but not
+// its output.  That is the whole reason for this stage.  Requests are files, replies
+// are files, and nobody has to be sitting at the keyboard.
 //
-// The chain, found with `tools/spz2api -- refs` against the installed assemblies:
+//     <persistent>/claude-bridge/in/<id>.txt     written by the agent: one command
+//     <persistent>/claude-bridge/out/<id>.txt    written here: the reply
+//     <persistent>/claude-bridge/log.txt         every request, with timing
 //
-//     ShapezShifter.Kit.GameHelper.Core          static property -> IGameSessionManagers
-//       .EntityPlacementRunner                   public property -> IEntityPlacementRunner
-//         private field "Map"                                    -> IMapModel
+// THREADING.  There is no network thread and no file watcher thread: the poll
+// happens inside Tick, which the game calls on its own thread, so every game object
+// is touched from the only place it is safe to touch one.  A background thread
+// calling into Unity is the classic way to make this crash, and the cost of not
+// doing it is one directory listing every quarter second.
 //
-// NO method in any game assembly RETURNS an IMapModel; it is only ever passed in
-// or held.  That is why it looked unreachable.  EntityPlacementRunner holds one.
+// The reach into the live world, found with `tools/spz2api -- refs` (no method in
+// any assembly RETURNS an IMapModel, which is why it looked unreachable):
 //
-// The field read is deliberately done by reflection rather than by casting to the
-// concrete Game.Interaction.EntityPlacementRunner: it keeps this assembly's hard
-// references down to three, and -- more importantly -- a game patch that renames
-// the field then produces a clear diagnostic from `claudebridge.status` instead of
-// a TypeLoadException at mod load.  A private field is the one genuinely fragile
-// thing in this design, so it should fail loudly and in one identifiable place.
+//     ShapezShifter.Kit.GameHelper.Core     static -> IGameSessionManagers
+//       .EntityPlacementRunner              public -> IEntityPlacementRunner
+//         private field "Map"                      -> IMapModel
+//
+// Reflection rather than a cast to Game.Interaction.EntityPlacementRunner, so a
+// renamed field yields a readable diagnostic from `status` -- including the fields
+// that ARE present -- instead of a TypeLoadException at mod load.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Game.Core.Modding;
 using ShapezShifter.Flow;
+using ShapezShifter.Hijack;
 using ShapezShifter.Kit;
 
 namespace ClaudeBridge
 {
     public sealed class ClaudeBridgeMod : IMod
     {
+        internal const string Version = "0.2.0";
+
         private ModConsoleCommandsCreator.ModConsoleRewirer _console;
+        private Mailbox _mailbox;
+        private RewirerHandle _tickHandle;
 
         public ClaudeBridgeMod()
         {
-            // Shifter prefixes every command with the lowercased assembly name, so
-            // these land as `claudebridge.status` and `claudebridge.inspect`.
-            _console = ModConsoleCommandsCreator.AddModCommands(this);
-            _console.AddCommand(c => c.Register("status", ctx => Say(ctx, Status()), false));
-            _console.AddCommand(c => c.Register("inspect", ctx => Say(ctx, Inspect()), false));
+            // Nothing in here may throw. If the constructor of a mod fails the mod does
+            // not load at all, and with John away from the keyboard that would cost the
+            // whole session -- so every step degrades to a log line instead.
+            try
+            {
+                _mailbox = new Mailbox(BridgeRoot());
+                _mailbox.Note("ClaudeBridge " + Version + " loaded");
+            }
+            catch (Exception e) { Console.WriteLine("ClaudeBridge: mailbox failed: " + e); return; }
+
+            try { _tickHandle = GameRewirers.AddRewirer<ITickRewirer>(_mailbox); }
+            catch (Exception e) { _mailbox.Note("FATAL: could not register tick rewirer: " + e); }
+
+            try
+            {
+                _console = ModConsoleCommandsCreator.AddModCommands(this);
+                _console.AddCommand(c => c.Register("status", _ => _mailbox.Note(Api.Status()), false));
+                _console.AddCommand(c => c.Register("where", _ => _mailbox.Note("mailbox: " + _mailbox.Root), false));
+            }
+            catch (Exception e) { _mailbox.Note("console commands unavailable: " + e.Message); }
         }
 
-        public void Dispose() => _console?.Dispose();
-
-        // ------------------------------------------------------------------ output
-        // CommandContext's shape is not pinned down yet, so route every reply through
-        // one place: whatever the console hands us, we find something callable that
-        // takes a string. When Stage 1 replaces this with a real transport it is the
-        // only method that has to change.
-        private static void Say(object ctx, string text)
+        public void Dispose()
         {
-            if (ctx == null) { Console.WriteLine(text); return; }
-            var t = ctx.GetType();
-            var m = t.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                     .FirstOrDefault(x => (x.Name == "Print" || x.Name == "Log" || x.Name == "Output"
-                                           || x.Name == "WriteLine" || x.Name == "Reply")
-                                          && x.GetParameters().Length == 1
-                                          && x.GetParameters()[0].ParameterType == typeof(string));
-            if (m != null) { m.Invoke(ctx, new object[] { text }); return; }
-            var p = t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                     .FirstOrDefault(x => typeof(Action<string>).IsAssignableFrom(x.PropertyType));
-            if (p != null) { ((Action<string>)p.GetValue(ctx))(text); return; }
-            Console.WriteLine(text);
+            try { GameRewirers.RemoveRewirer(_tickHandle); } catch { }
+            _console?.Dispose();
         }
 
-        // ------------------------------------------------------------- the one hop
-        /// <summary>The live map, or null with `why` explaining exactly which step failed.</summary>
-        private static object GetMap(out string why)
+        /// <summary>`<persistent>/claude-bridge`, derived from where this DLL sits
+        /// (`<persistent>/mods/ClaudeBridge/`) rather than from an environment
+        /// variable the game process may not have inherited.</summary>
+        private static string BridgeRoot()
+        {
+            try
+            {
+                var dll = Assembly.GetExecutingAssembly().Location;
+                if (!string.IsNullOrEmpty(dll))
+                {
+                    var persistent = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(dll)));
+                    if (!string.IsNullOrEmpty(persistent))
+                        return Path.Combine(persistent, "claude-bridge");
+                }
+            }
+            catch { }
+            var env = Environment.GetEnvironmentVariable("SPZ2_PERSISTENT");
+            return Path.Combine(string.IsNullOrEmpty(env) ? "." : env, "claude-bridge");
+        }
+    }
+
+    // ---------------------------------------------------------------- the mailbox
+    internal sealed class Mailbox : ITickRewirer
+    {
+        internal readonly string Root;
+        private readonly string _in, _out, _log;
+        private float _accum;
+
+        internal Mailbox(string root)
+        {
+            Root = root;
+            _in = Path.Combine(root, "in");
+            _out = Path.Combine(root, "out");
+            _log = Path.Combine(root, "log.txt");
+            Directory.CreateDirectory(_in);
+            Directory.CreateDirectory(_out);
+        }
+
+        internal void Note(string text)
+        {
+            try { File.AppendAllText(_log, DateTime.Now.ToString("HH:mm:ss") + "  " + text + "\n"); }
+            catch { }
+        }
+
+        public bool Equals(IRewirer other) => ReferenceEquals(this, other);
+
+        public void Tick(float deltaTime)
+        {
+            // Poll ~4x/second. Everything below runs on the game thread by construction.
+            _accum += deltaTime;
+            if (_accum < 0.25f) return;
+            _accum = 0f;
+            string[] files;
+            try { files = Directory.GetFiles(_in, "*.txt"); } catch { return; }
+            if (files.Length == 0) return;
+            Array.Sort(files);
+            foreach (var f in files)
+            {
+                var id = Path.GetFileNameWithoutExtension(f);
+                string body, reply;
+                try { body = File.ReadAllText(f).Trim(); }
+                catch { continue; }                       // still being written; next tick
+                var started = DateTime.Now;
+                try { reply = Api.Dispatch(body); }
+                catch (Exception e) { reply = "ERROR " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace; }
+                try
+                {
+                    File.WriteAllText(Path.Combine(_out, id + ".txt"), reply);
+                    File.Delete(f);
+                }
+                catch (Exception e) { Note("could not answer " + id + ": " + e.Message); }
+                Note(id + "  " + body.Replace("\n", " ") + "   -> " + reply.Length + " bytes in "
+                     + (DateTime.Now - started).TotalMilliseconds.ToString("F0", CultureInfo.InvariantCulture) + "ms");
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------ the verbs
+    internal static class Api
+    {
+        internal static string Dispatch(string request)
+        {
+            var parts = request.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            var verb = parts.Length > 0 ? parts[0].ToLowerInvariant() : "";
+            switch (verb)
+            {
+                case "ping": return "pong " + ClaudeBridgeMod.Version;
+                case "status": return Status();
+                case "inspect": return Inspect();
+                case "members": return Members(parts.Length > 1 ? parts[1] : null);
+                default: return "ERROR unknown verb '" + verb + "'. known: ping status inspect members";
+            }
+        }
+
+        /// <summary>The live map, or null with `why` naming exactly which step failed.</summary>
+        internal static object GetMap(out string why)
         {
             why = null;
             var core = GameHelper.Core;
             if (core == null) { why = "GameHelper.Core is null -- no session loaded"; return null; }
-
             var runner = core.EntityPlacementRunner;
             if (runner == null) { why = "IGameSessionManagers.EntityPlacementRunner is null"; return null; }
-
             var rt = runner.GetType();
             var f = rt.GetField("Map", BindingFlags.NonPublic | BindingFlags.Instance)
                  ?? rt.GetField("Map", BindingFlags.Public | BindingFlags.Instance);
@@ -85,7 +186,7 @@ namespace ClaudeBridge
             {
                 var fields = string.Join(", ", rt.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
                                                  .Select(x => x.FieldType.Name + " " + x.Name));
-                why = "no field 'Map' on " + rt.FullName + " -- the game changed. fields: " + fields;
+                why = "no field 'Map' on " + rt.FullName + " -- the game changed. fields present: " + fields;
                 return null;
             }
             var map = f.GetValue(runner);
@@ -93,53 +194,75 @@ namespace ClaudeBridge
             return map;
         }
 
-        // -------------------------------------------------------------- commands
-        private static string Status()
+        internal static string Status()
         {
-            var lines = new List<string> { "ClaudeBridge 0.1.0 (stage 0, read-only)" };
+            var lines = new List<string> { "ClaudeBridge " + ClaudeBridgeMod.Version };
             try
             {
                 var core = GameHelper.Core;
-                lines.Add("  session managers : " + (core == null ? "NULL (load a save first)" : "ok"));
+                lines.Add("session managers : " + (core == null ? "NULL (load a save first)" : "ok"));
                 if (core != null)
                 {
-                    lines.Add("  placement runner : " + Describe(core.EntityPlacementRunner));
-                    lines.Add("  simulation speed : " + Describe(core.SimulationSpeed));
-                    lines.Add("  hub observer     : " + Describe(core.HubObserver));
-                    lines.Add("  shape registry   : " + Describe(core.ShapeRegistry));
+                    lines.Add("placement runner : " + Describe(core.EntityPlacementRunner));
+                    lines.Add("simulation speed : " + Describe(core.SimulationSpeed));
+                    lines.Add("hub observer     : " + Describe(core.HubObserver));
+                    lines.Add("shape registry   : " + Describe(core.ShapeRegistry));
+                    lines.Add("research         : " + Describe(core.Research));
                 }
                 var map = GetMap(out var why);
-                lines.Add(map != null
-                    ? "  LIVE MAP         : REACHED -- " + map.GetType().FullName
-                    : "  LIVE MAP         : unreachable -- " + why);
+                lines.Add(map != null ? "LIVE MAP         : REACHED " + map.GetType().FullName
+                                      : "LIVE MAP         : UNREACHABLE " + why);
             }
-            catch (Exception e)
-            {
-                lines.Add("  EXCEPTION " + e.GetType().Name + ": " + e.Message);
-            }
+            catch (Exception e) { lines.Add("EXCEPTION " + e.GetType().Name + ": " + e.Message); }
             return string.Join("\n", lines);
         }
 
-        private static string Describe(object o) => o == null ? "null" : o.GetType().Name;
+        private static string Describe(object o) => o == null ? "null" : o.GetType().FullName;
 
-        /// <summary>What the map object actually offers, so Stage 1 can be written against
-        /// the real signatures instead of against a guess.</summary>
-        private static string Inspect()
+        /// <summary>What the live map really offers, so the next stage is written
+        /// against actual signatures instead of a guess.</summary>
+        internal static string Inspect()
         {
             var map = GetMap(out var why);
             if (map == null) return "no live map: " + why;
-            var t = map.GetType();
-            var lines = new List<string> { "live map: " + t.FullName };
-            foreach (var i in t.GetInterfaces().OrderBy(x => x.FullName))
-                lines.Add("  : " + i.FullName);
+            return Dump(map.GetType(), m => m.Name.StartsWith("Create") || m.Name.StartsWith("Delete")
+                                         || m.Name.StartsWith("Finish") || m.Name.StartsWith("TryGet")
+                                         || m.Name.StartsWith("Get"));
+        }
+
+        internal static string Members(string typeName)
+        {
+            if (string.IsNullOrEmpty(typeName)) return "ERROR: members <substring of a type name>";
+            var hits = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => { try { return a.GetTypes(); } catch { return new Type[0]; } })
+                .Where(t => t.FullName != null &&
+                            t.FullName.IndexOf(typeName, StringComparison.OrdinalIgnoreCase) >= 0)
+                .Take(12).ToList();
+            if (hits.Count == 0) return "no type matching '" + typeName + "'";
+            return string.Join("\n\n", hits.Select(t => Dump(t, _ => true)));
+        }
+
+        private static string Dump(Type t, Func<MethodInfo, bool> keep)
+        {
+            var lines = new List<string> { "=== " + t.FullName + "  [" + t.Assembly.GetName().Name + "]" };
+            foreach (var i in t.GetInterfaces().OrderBy(x => x.FullName)) lines.Add("  : " + i.FullName);
+            foreach (var p in t.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name))
+                lines.Add("  prop " + Sig(p.PropertyType) + " " + p.Name);
             foreach (var m in t.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                               .Where(m => m.Name.StartsWith("Create") || m.Name.StartsWith("Delete")
-                                        || m.Name.StartsWith("Finish") || m.Name.StartsWith("TryGet"))
-                               .OrderBy(m => m.Name))
-                lines.Add("  " + m.ReturnType.Name + " " + m.Name + "("
-                          + string.Join(", ", m.GetParameters().Select(p => p.ParameterType.Name + " " + p.Name))
+                               .Where(m => !m.IsSpecialName && keep(m)).OrderBy(m => m.Name))
+                lines.Add("  " + Sig(m.ReturnType) + " " + m.Name + "("
+                          + string.Join(", ", m.GetParameters().Select(p =>
+                                (p.ParameterType.IsByRef ? "ref " : "") + Sig(p.ParameterType) + " " + p.Name))
                           + ")");
             return string.Join("\n", lines);
+        }
+
+        private static string Sig(Type t)
+        {
+            if (t.IsByRef) t = t.GetElementType();
+            return t.IsGenericType
+                ? t.Name.Split('`')[0] + "<" + string.Join(",", t.GetGenericArguments().Select(Sig)) + ">"
+                : t.Name;
         }
     }
 }
