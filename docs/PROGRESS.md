@@ -38,22 +38,54 @@ Saving **~79.7k per unit / ~319k at full belt — 2.35x**.
 
 ---
 
-## AUDIT: `For Claude Working MAM 1 layer no-color FSB` (2026-09-05) — **RESOLVED**
+# PHASE 2 FRONT END IS BUILT AND VALIDATED — `For Claude Working MAM 1 layer no-color FSB`
 
-**John fixed both findings the same evening (2026-09-05):** the splitter at `(-9,2)`
-is in, and **both west ranks of Quaded Filters are gone** — he confirmed they were
-redundant, so all 8 platforms at `x = -15` and `x = -16` were removed. The band
-trunks now run from the merge straight into the stacker clusters. Expect **16**
-Quaded Filters, not 24, in the next export; `verify_mam.py` needs no change for that
-(the ratio check already reports "0 beyond the input lanes").
+**Closed out 2026-09-05.** John built the band-merge at full space belt, Claude
+reviewed it, John fixed both findings, re-exported, and the re-export is **clean on
+all twelve structural checks**. The blueprint is in `blueprints/reference/`.
 
-**Not yet re-exported to the repo.** Grab the updated blueprint next session, drop it
-in `blueprints/reference/`, and re-run `python tools/verify_mam.py` — it should come
-out clean on all twelve checks. Then Phase 2a: the `Paint 4 Filter` button swap.
+**1,567 islands, 163,044 buildings = 40,761 per 1/4-belt unit** — better than the
+42,396 the band-merge decision was costed at, because both redundant filter ranks
+came out too.
 
-The original audit, kept for the reasoning:
+| | Phase 1 per-lane | band-merge FSB |
+|---|---|---|
+| buildings / unit | 72,832 | **40,761** |
+| stacker clusters / unit | 5 | **1** |
+| painters / unit (Phase 2) | 16 | **4** |
 
-### AUDIT (as filed)
+### What was found and fixed
+1. **`(-9,2,Z0)` was a `SpaceBelt_Forward` where it had to be a
+   `SpaceBelt_LeftFwdSplitter R2`.** Band B had one trunk splitter where every other
+   band has two; its inner distribution column was built, correctly wired all the way
+   to clusters 3 and 4, and fed by nothing. Those two clusters never received band B.
+2. **Both west ranks of Quaded Filters were redundant** (8 platforms at `x = -15` and
+   `x = -16`). Stage 1 on the east already gates every quadrant against the goal and
+   the merge cannot introduce material the goal did not ask for. John removed both;
+   the band trunks now run from the merge straight into the stacker clusters.
+   He also trimmed a stray rail spur (the 17th train station and its turn pair).
+
+### The close-out evidence (re-export, 2026-09-05)
+* all twelve `verify_mam.py` checks pass: 0 island overlaps, 0 belt dead ends,
+  **0 orphan chains**, 0 blocked Z-change units, 16/16 filters identical on channel
+  123, 8/8 Fancy A+B lane-fixed, 1 cluster per 4-lane unit = band-merge.
+* **flow trace, the check that actually proves the rework:** all 16 cluster
+  deliveries now carry **16 sources each**, each a single clean band offset, and the
+  four offsets `-1/0/+1/+2` land in row order on every cluster. Band identity is
+  preserved from the 16 east filters through the merge to all four stacker clusters.
+* the distribution fan is regular on all four bands again: two adjacent
+  `LeftFwdSplitter R2` per trunk plus one splitter down each inner column.
+  (New origin; the fixed cell is `(-10,1)` in the re-export.)
+
+**NEXT: Phase 2a — the `Paint 4 Filter` button swap.** Drive cells `(16,5)`, `(18,5)`,
+`(20,5)`, `(22,5)` from `colour[band] == r/g/b/null`, then insert
+`Paint 4 Filter` -> `Painter` on each of the four trunks' straight runs. The colour
+brain is already validated in-game (VN-13). Open question still unanswered:
+`Painter` (3,041 bldgs, 192 painters) vs `Painter Small` (812, 48) for a merged band.
+
+---
+
+## AUDIT: the review as filed (2026-09-05), kept for the reasoning
 
 John built the band-merge for real, at full space belt, and asked for a review.
 **1,568 islands, 171,700 buildings.** Everything structural passes except one belt.
