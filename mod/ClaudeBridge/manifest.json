@@ -1,0 +1,22 @@
+{
+  "Name": "ClaudeBridge",
+  "Version": "0.1.0",
+  "Title": "Claude Bridge",
+  "Description": "Read-only bridge that lets an external agent inspect the running world. Stage 0: console commands only, no writes.",
+  "Author": "John Delisle + Claude",
+  "SavedModVersionCompabilityRangeWithSelf": "*",
+  "GameVersionSupportRange": "*",
+  "AffectsSaveGames": false,
+  "Conflicts": [],
+  "IconPath": "",
+  "Assemblies": [
+    "ClaudeBridge.dll"
+  ],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542611357",
+      "ModTitle": "Shapez Shifter",
+      "Version": "^1.2.0"
+    }
+  ]
+}

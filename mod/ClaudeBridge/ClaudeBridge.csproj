@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    ClaudeBridge, stage 0. Read-only.
+
+    Builds straight into the game's local mod folder, which is where Shapez 2 loads
+    unpacked mods from: $(SPZ2_PERSISTENT)\mods\[folder name]. The three SPZ2_
+    variables are set by running `shapez 2.exe .set-modding-env-vars` once; they are
+    already set on this machine.
+
+    netstandard2.1 is what the game's own mod samples target. Unity's Mono runtime
+    will not load a net8/net10 assembly.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>ClaudeBridge</AssemblyName>
+    <RootNamespace>ClaudeBridge</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>$(SPZ2_PERSISTENT)\mods\ClaudeBridge\</OutputPath>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <!-- the game supplies every one of these at runtime; do not copy them -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="SPZGameAssembly">
+      <HintPath>$(SPZ2_PATH)\SPZGameAssembly.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Game.Core.Modding">
+      <HintPath>$(SPZ2_PATH)\Game.Core.Modding.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Game.Core.Map.Model">
+      <HintPath>$(SPZ2_PATH)\Game.Core.Map.Model.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Game.Content.Features">
+      <HintPath>$(SPZ2_PATH)\Game.Content.Features.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ShapezShifter">
+      <HintPath>$(SPZ2_SHIFTER)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="manifest.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
