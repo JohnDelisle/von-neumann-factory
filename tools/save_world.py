@@ -13,8 +13,8 @@ A `.spz2` is a ZIP.  The world lives in four kinds of entry:
                                  no matter how many buildings stand on it.
     savegame.json                StructureCount
 
-Every buffer is fixed-capacity with zero padding; a rewrite must preserve each
-entry's total length.
+Every buffer is zero-padded to max(256, next power of two >= used), so a rewrite
+that grows the world just re-pads to the next size the game would have picked.
 
 ## The serializer's shape (this is the whole trick)
 
@@ -40,10 +40,12 @@ A bare island is 52 bytes.
 
 ### building record
 
-    B(4) | u16 X | u16 Y | u8 L | u8 R | u16 variantStrIdx | u16 0 | u8 hasConfig
+    B(4) | i16 X | i16 Y | u8 L | u8 R | u16 variantStrIdx | u16 0 | u8 hasConfig
         | [A-block config]
 
-15 bytes without a config.  X/Y are platform-local tiles (buildable window 2..17),
+15 bytes without a config.  X/Y are platform-local cells and are SIGNED -- a
+multi-tile island records its origin tile, so the HUB (3x3, centred) holds
+buildings from -20 to 39.  On a 1x1 the buildable window is 2..17.
 L is the floor, R the rotation 0..3.
 
 ### known config blobs
@@ -117,7 +119,7 @@ def parse_island_chunk(buf, S):
         ents = []
         for i in range(cnt):
             assert inner[q:q + 4] == BTAG, "island %d building %d @%d" % (k, i, q)
-            bx, by = struct.unpack_from("<HH", inner, q + 4)
+            bx, by = struct.unpack_from("<hh", inner, q + 4)
             bl, br = inner[q + 8], inner[q + 9]
             d = struct.unpack_from("<H", inner, q + 10)[0]
             extra = struct.unpack_from("<H", inner, q + 12)[0]
@@ -174,7 +176,7 @@ def _mkblock(content):
 
 
 def build_building(b, sidx):
-    r = BTAG + struct.pack("<HHBBHH", b["X"], b["Y"], b["L"], b["R"],
+    r = BTAG + struct.pack("<hhBBHH", b["X"], b["Y"], b["L"], b["R"],
                            sidx(b["T"]), b.get("extra", 0))
     cfg = b.get("cfg")
     return r + (b"\x01" + _mkblock(cfg) if cfg is not None else b"\x00")
@@ -205,10 +207,16 @@ def build_state(rec, sidx):
 
 
 def _fit(buf, cap, what):
-    if len(buf) > cap:
-        raise AssertionError("%s: %d bytes exceeds the save's %d-byte buffer"
-                             % (what, len(buf), cap))
-    return buf + b"\x00" * (cap - len(buf))
+    """Zero-pad to the capacity the GAME itself would have chosen.
+
+    Every .bin entry in every save examined -- 166 of 166, across a 24-island
+    sandbox, a 1,651-island one and the 17,291-island factory -- is padded to
+    max(256, next power of two >= used).  So a buffer may grow past the size it
+    arrived at; it just has to land on a size the game's own serializer would pick.
+    `cap` is the size it arrived at, kept for the message when something is wrong."""
+    want = max(256, 1 << max(8, (len(buf) - 1).bit_length()))
+    assert want >= len(buf), "%s: %d bytes" % (what, len(buf))
+    return buf + b"\x00" * (want - len(buf))
 
 
 def write_world(w, dst):
