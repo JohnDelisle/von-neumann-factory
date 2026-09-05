@@ -41,7 +41,7 @@ namespace ClaudeBridge
 {
     public sealed class ClaudeBridgeMod : IMod
     {
-        internal const string Version = "0.6.0";
+        internal const string Version = "0.10.0";
 
         private ModConsoleCommandsCreator.ModConsoleRewirer _console;
         private Mailbox _mailbox;
@@ -170,7 +170,7 @@ namespace ClaudeBridge
 
         private const string Verbs =
             "ping status inspect members | commands console <cmd> | speed <x> pause resume | "
-          + "get <path> set <path> <v> call <path.Method> [args] find <type> statics <type> | saves load <uid> quit";
+          + "get <path> set <path> <v> call <path.Method> [args] find <type> statics <type> | saves load <uid> quit | at <x> <y> <z> place <variant> <x> <y> <z> <rot> rotations";
 
         internal static string Dispatch(string request)
         {
@@ -201,12 +201,19 @@ namespace ClaudeBridge
                 case "call": return rest.Length < 1 ? "ERROR call <path.Method> [args]"
                                                     : Reflect.Call(rest[0], rest.Skip(1).ToArray());
                 case "find": return Reflect.Find(rest.FirstOrDefault());
+                case "resolve": return Reflect.ResolveReport(rest.FirstOrDefault() ?? "");
                 case "statics": return Reflect.Statics(rest.FirstOrDefault() ?? "");
 
                 // ---- session control: the last thing in the loop that needed a person
                 case "saves": return Sessions.List();
                 case "load": return Sessions.Load(rest.FirstOrDefault());
                 case "quit": return Sessions.Quit();
+
+                // ---- writing to the live world
+                case "at": return rest.Length < 3 ? "ERROR at <gx> <gy> <gz>"
+                              : Placement.At(int.Parse(rest[0]), int.Parse(rest[1]), int.Parse(rest[2]));
+                case "place": return Placement.Place(rest);
+                case "rotations": return Placement.Rotations();
                 case "type": return Members(rest.FirstOrDefault());
 
                 default: return "ERROR unknown verb '" + verb + "'. known: " + Verbs;

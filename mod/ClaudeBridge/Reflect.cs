@@ -269,6 +269,51 @@ namespace ClaudeBridge
             return Convert.ChangeType(s, t, CultureInfo.InvariantCulture);
         }
 
+        /// <summary>Ask the game's own DI container for a service.
+        ///
+        /// This is the right way to reach almost everything, and it took a while to
+        /// notice.  `find` only sees UnityEngine.Objects; a sweep of static fields only
+        /// sees singletons someone chose to make static.  But the game builds its
+        /// services into Core.Dependency.DependencyContainer, reachable at
+        /// GameBootstrapper.GameOrchestrator.InitializationDependencyContainer, whose
+        /// BoundInstancesByResolveType maps type -> instance.  Containers nest, so this
+        /// walks Children too -- the session's services live in a child of the
+        /// initialization container, not in it.</summary>
+        internal static object ResolveService(string typeName, out string err)
+        {
+            err = null;
+            var root = Resolve("Game.Orchestration.GameBootstrapper.GameOrchestrator."
+                             + "InitializationDependencyContainer", out err);
+            if (root == null) { err = "no DependencyContainer: " + err; return null; }
+
+            var wanted = FindType(typeName);
+            if (wanted == null) { err = "no type '" + typeName + "'"; return null; }
+
+            var seen = new HashSet<object>();
+            var queue = new Queue<object>();
+            queue.Enqueue(root);
+            while (queue.Count > 0)
+            {
+                var c = queue.Dequeue();
+                if (c == null || !seen.Add(c)) continue;
+                var bound = Member(c, "BoundInstancesByResolveType", out _) as IDictionary;
+                if (bound != null)
+                    foreach (DictionaryEntry e in bound)
+                        if (e.Value != null && wanted.IsInstanceOfType(e.Value))
+                            return e.Value;
+                if (Member(c, "Children", out _) is IEnumerable kids)
+                    foreach (var k in kids) queue.Enqueue(k);
+            }
+            err = "nothing bound to " + wanted.FullName + " in the container tree";
+            return null;
+        }
+
+        internal static string ResolveReport(string typeName)
+        {
+            var v = ResolveService(typeName, out var err);
+            return v == null ? "ERROR " + err : Show(v);
+        }
+
         /// <summary>Locate live instances of a type and bind them to $0, $1, ...</summary>
         internal static string Find(string typeName)
         {
