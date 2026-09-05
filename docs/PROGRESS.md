@@ -117,6 +117,59 @@ Other levers seen in the assemblies: `debug.statistics`, `debug.performance-char
 Note the string scan mixes command ids with localization keys — trust
 `GetAutoCompletions` over that list once the bridge exists.
 
+### CORRECTION (same night): placement is NOT the hard part
+
+The paragraph below was wrong and is kept only so the mistake is legible.
+`BlueprintPlacer<,,,,,,,,,>` is the **HUD/interaction pipeline** — the thing that
+follows your mouse and previews a stamp. Underneath it is a plain creation API:
+
+```csharp
+// Game.Core.Map.Model.IMapModel   (MapModel implements it)
+BuildingModel CreateBuilding(IBuildingDefinition, ref GlobalTileTransform, IBuildingConfiguration);
+IslandModel   CreateIsland  (IIslandDefinition,  GlobalChunkTransform,     IIslandConfiguration);
+void DeleteBuilding(ref BuildingId);
+void DeleteIsland(ref IslandId);
+// : IBunchEditor  ->  FinishBunchEdit(BunchEditScope)   // batch 1,567 islands in one edit
+// prop ISimulator Simulator
+```
+
+and the id -> definition step is one call each:
+
+```csharp
+// Game.Core.Logic.IBuildingResolver / IIslandResolver
+//   (via Game.Core.Content.Buildings.IGameBuildingsRegistry / ...Islands.IGameIslandsRegistry)
+bool TryGetDefinition(BuildingDefinitionId id, out IBuildingDefinition definition);
+bool TryGetDefinition(IslandDefinitionId  id, out IIslandDefinition  definition);
+```
+
+**Our blueprint JSON maps onto those parameters one-for-one**: `T` -> DefinitionId ->
+resolver -> definition; `X,Y,Z,R` -> transform; `C` -> configuration; `B.Entries` ->
+nested `CreateBuilding` calls. That is exactly what a stamp does, minus the mouse.
+
+### The entry point into a live session
+`ShapezShifter.Kit.GameHelper.Core` -> `IGameSessionManagers`, which exposes
+`Savegame`, **`SimulationSpeed` (`SimulationSpeedManager` — speed control from code, no
+console needed)**, `ShapeRegistry`, `EntityPlacementRunner`, `Research`, `LocalPlayer`,
+`Mode`, `Viewport`, `InteractionMode`, `DataSerializers`.
+
+### What is still unknown (be honest about this)
+* **How to reach `IMapModel` at runtime.** It is not on `Savegame` (metadata only) nor
+  on `GameMode` (config only). One more hop, not yet found.
+* Whether `CreateBuilding` skips affordability/placement validation. Probably — which
+  suits us, but it means **our** validator is the only thing standing between a
+  generator bug and a corrupted map.
+* Main-thread / bunch-edit-scope constraints, and whether the simulator picks up new
+  entities without an explicit notification.
+* **None of this has been executed.** It is a read of the API surface. A signature
+  existing is not the same as it working when called.
+
+### Prior art: there is none
+Searched the Workshop, mod.io and GitHub. Known Shapez 2 mods are content and QoL
+(Blueprint Search, Time Control, Better Trash); nothing places entities
+programmatically. So there is no worked example to copy — and no evidence it is
+blocked either. We would be first.
+
+### Old (WRONG) assessment, kept deliberately
 ### Placement is the hard part — the opposite of the naive guess
 There is **no console command that places a blueprint**, and the code path is
 `Game.Interaction.EntitiesPlacement.BlueprintPlacement.BlueprintPlacer<,,,,,,,,,>` — a
