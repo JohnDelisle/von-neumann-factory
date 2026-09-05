@@ -12,83 +12,157 @@ committed + pushed.
 
 ---
 
-# >>> START HERE (2026-09-05, evening): CLAUDE PLAYS SHAPEZ 2 UNATTENDED <<<
+# >>> START HERE (2026-09-05, night): ONE TEST STANDS BETWEEN US AND CHANNEL 789 <<<
 
-## The loop is closed. No human in it.
+## Resume in four commands
 
 ```
-python tools/game.py up          # stop the game, start it, open a NAMED savegame
-python tools/bridge.py status    # is the live map reachable, and which world is it
-python tools/bridge.py at 56 16 0
-python tools/bridge.py place TrashDefaultInternalVariant 56 16 0 NoRotate
-python tools/bridge.py speed 10
-python tools/observe.py <save>   # what has been delivered to the Vortex
+python tools/game.py up            # stop game, start it, load the NAMED sandbox
+python tools/bridge.py status      # live map reachable? which world?
+python tools/observe.py <newest save>   # the Vortex scoreboard = our fitness function
+python tools/bridge.py speed 25    # run the sim hot
 ```
 
-All of it verified on 2026-09-05 against `Claude Plays Shapez2` (8,902 islands):
-placement went 407 -> 408 buildings with the new building read back at its cell.
+`tools/game.py` knows the sandbox uid (`d58e3f84-...`) and waits on the world NAME,
+because the main menu renders a live background world and will happily hand you an
+`IMapModel` for the wrong map.
 
-**Channel 123 is DONE: `CuCuCuCu` delivered 7,512 to the Vortex** (target was 1000)
-by VN-15, a miner on island (2,0) feeding a space belt into the Vortex's east face.
+## The scoreboard, as of backup-v98
 
-## The two halves, and why both are worth keeping
+| channel | goal | delivered | state |
+|---|---|---|---|
+| 123 | `CuCuCuCu` | **460,464** | DONE (target was 1,000). VN-15, a miner on island (2,0) into the Vortex east face. |
+| 789 | `SuSuSuSu` | 0 | VN-16 stalls at stage C. **This is the active task.** |
+| 456 | `WuWuWuWu` | 0 | Untouched. Nearest `Wu----Ru` at island (96,0), 97 tiles; a pure 4/4 patch at (544,200), 1,073 tiles (wants a train). |
+
+VN-16 already delivers **107,724 `--SuSu--`** — mining and cutting work at volume.
+Only the recombination is broken.
+
+## THE ACTIVE TASK: VN-16 stage C
+
+Shape algebra (measured, not predicted):
+
+```
+SuSuCu--   cut, keep delivered half  ->  --SuSu--      (WORKS, 107k delivered)
+--SuSu--   rotate 180                ->  Su----Su      disjoint
+stack the two                        ->  SuSuSuSu
+```
+
+Stage C is written in `tools/build_star_machine.py` and **deliberately disabled** —
+`cutter_platform()` returns the working stage B. When enabled, every building places
+correctly (verified cell-by-cell in the live game; the lift and the stacker both span
+floors 0 and 1 as they should) and **all output stops**: the stacker waits on a second
+input that never arrives.
+
+**Prime suspect:** which side `Splitter1To2L`'s second output actually emits on. It
+declares outputs on sides 0 and 3. If side 3 resolves to -Y rather than the +Y I
+assumed, branch B is fed straight into the trash that catches the cutter's discarded
+half — which would look exactly like this.
+
+**Run it BATCHED.** Do not test one variant per build. Put `Splitter1To2LInternalVariant`
+on one lane and `Splitter1To2LInternalVariantMirrored` (outs side 0 and side 1) on a
+parallel lane in the SAME save, each feeding its own stacker, and let one restart
+discriminate. Four sequential single-hypothesis cycles is what burned the last budget.
+
+## New since the last handoff
+
+* **Unlimited savegames are ON and autosave is OFF** (John changed both). Verified
+  empirically: the folder went 26 -> 27 saves, and it had been pinned at exactly 25
+  with the oldest pruned on every write. **That `Keep25` rotation is what silently
+  destroyed v2-v14 earlier, including the v13 miner donor** — survivors live in
+  `savegames-archive/` and `MINER_DONOR` points there. The hazard is now gone, so save
+  freely and drop the reuse-one-filename workaround.
+* **`settings.json` on disk is STALE while the game runs.** It still reads
+  `autosave-interval = Minutes5` and `savegame-backup-count = Keep25` even though both
+  were changed; the game buffers settings and flushes on exit. Trust observed behaviour
+  over that file.
+* **Saving on demand works**, no human needed:
+  `python tools/bridge.py call Game.Orchestration.GameBootstrapper.GameOrchestrator.CurrentSubOrchestrator.TrySaveCurrentSync`
+* **`token-saver` skill installed** at `~/.claude/skills/token-saver/` (personal scope,
+  so it applies to every project). Its examples were patched `python3` -> `python`,
+  which does not exist on Windows. It registers as a slash command on the next Claude
+  Code start. Rules that bite hardest here: prefer local deterministic code over model
+  calls, select passages out of this 57KB file rather than loading it whole, and batch
+  in-game experiments.
+
+## The rule that cost four builds — do not relearn it
+
+**A platform edge port is a 12-LANE GROUP:** band cells 8, 9, 10, 11 on EACH of floors
+0, 1 and 2 — all twelve, or the port never connects. Every space-belt-fed platform in
+John's 72.8h factory places all twelve; not one places a subset. A partial group fails
+SILENTLY: the feeding space belt fills up (1,524 bytes of cargo state against an empty
+474) and the platform behind it stays empty, with no error anywhere.
+
+**Diagnostic signal:** cargo state on the OUTGOING space belt is meaningful. A
+platform's own runtime-state record is NOT — VN-15's miner reads 30 bytes (the empty
+form) while delivering 28,000 shapes. I misread that for several cycles.
+
+## The two halves, and why both stay
+
 | offline (`save_world`, `stamp`, `observe`, `resources`) | live (`ClaudeBridge` + `bridge.py`) |
 |---|---|
-| design, validate, author whole machines, read the scoreboard | place, delete, control speed, read the running sim |
-| byte-exact on 18,966 islands | no reload, no human |
-The offline half is the **verification oracle** for the live half: after writing to
-a running world, read the save back and check nothing was corrupted. Keep it.
+| design, validate, author whole machines, read the scoreboard | place, delete, control speed, save, read the running sim |
+| byte-exact round trip on 18,966 islands | no reload, no human |
 
-## What to do next
-1. **Channel 789, `SuSuSuSu`** -- the first goal needing the MAM rather than a miner.
-   Best source `Su--Su--` (2 of 4 quadrants, 2,638 tiles, nearest (-74,137)).
-   `tools/resources.py SAVE SuSuSuSu` ranks the alternatives.
-2. **Channel 456, `WuWuWuWu`** -- a PURE windmill patch exists at (544,200), 1,073
-   tiles, 4/4 quadrants. Far out, so it wants a train rather than a belt.
-3. **`place_blueprint`** is the missing primitive. The blueprint <-> world mapping is
-   already verified cell-for-cell, so a one-entry blueprint is one building and a
-   1,567-entry blueprint is the whole MAM, through one code path.
+The offline half is the **verification oracle** for the live half: after writing to a
+running world, save and re-parse it, and run the size law.
 
 ## The bridge, in one paragraph
-A ShapezShifter mod (`mod/ClaudeBridge`) polls a file mailbox from inside the game's
-own `Tick`, so nothing touches Unity off-thread. `mod/build.ps1` builds and deploys
-it; the game must be restarted to pick up a new DLL, which `game.py up` does in ~90s.
-Verbs: `ping status inspect members commands console speed pause resume get set call
-find statics resolve saves load quit at place rotations`.
 
-**`get`/`call`/`resolve` are the escape hatch that matters**: every hard-coded verb is
+A ShapezShifter mod (`mod/ClaudeBridge`) polls a file mailbox from inside the game's
+own `Tick`, so Unity objects are only touched on the game thread. `mod/build.ps1`
+builds and deploys it (it re-reads `SPZ2_*` from the USER environment every time —
+they are not inherited by a fresh shell, and MSBuild then reports missing *namespaces*
+rather than missing references). A new DLL needs a game restart, which `game.py up`
+does in ~90s. Verbs: `ping status inspect members commands console speed pause resume
+get set call find statics resolve saves load quit at place rotations resource`.
+
+**`get`/`call`/`resolve` are the escape hatch that matters.** Every hard-coded verb is
 a guess about what will turn out to matter, and a wrong guess costs a rebuild AND a
 restart. With a general evaluator, new corners of the game are reachable from the
-command line -- and the error messages list the members that DO exist, which is how
-every unknown below got found, one probe at a time.
+command line — and the error messages list the members that DO exist, which is how
+essentially every unknown below was found, one probe at a time.
 
 ## Hard-won, in the running game
-* **`GameHelper.Core` is non-null at the MAIN MENU** -- the menu renders a background
-  world ("Menu Background Supporter") and a live IMapModel is reachable. Anything
-  that writes MUST check which world is loaded. `game.py wait_for_world` checks the
-  NAME, not merely that a map exists.
-* **There is no command-line argument that loads a savegame.** The whole list is
+
+* **`GameHelper.Core` is non-null at the MAIN MENU** — the menu renders a background
+  world ("Menu Background Supporter") and hands out a live `IMapModel`. Anything that
+  writes MUST check which world is loaded.
+* **No command-line argument loads a savegame.** The complete list is
   `--set-modding-env-vars --ignore-mods --safe-mode --disable-store-sdk
   --custom-translations --danger-bypass-modded-savegame-checks --ignore-hw-checks
   --no-dynamic-content`. Loading must happen in-process.
 * **`GameBootstrapper` is a static class**, therefore abstract, therefore invisible to
-  any UnityEngine.Object scan -- and it is the only holder of the `GameOrchestrator`.
-* **Constructing a `SavegameBlobReader` is not enough**; its Blobs/Metadata/StringLUT
-  stay empty and the load dies with a bare NullReferenceException.
-  `SaveFileAccessor.Read` is the factory that opens the archive.
+  any UnityEngine.Object scan — and it is the only holder of the `GameOrchestrator`.
+* **Constructing a `SavegameBlobReader` is not enough** — Blobs/Metadata/StringLUT stay
+  empty and the load dies with a bare NullReferenceException. `SaveFileAccessor.Read`
+  is the factory that opens the archive.
 * **The `IBuildingResolver` is NOT in the DI container** (the initialization container
   has no children, so session services never appear there). It is
   `GameOrchestrator.CurrentSubOrchestrator.Mode.Buildings`.
-* **`GridRotation` is a struct with static fields**, not an enum.
-* **`GetBuilding` throws** on a tile owned by no island; `TryGetBuilding` returns bool.
-* Autosave runs every 5 minutes, so a running session keeps producing readable saves.
+* **`GridRotation` is a struct with static readonly fields**, not an enum.
+* **`GetBuilding` throws** on a tile owned by no island — a different answer from "this
+  cell is free". Use `TryGetBuilding`.
+* **`global tile = island * 20 + local cell`**, and savegame `R` 0..3 indexes
+  `NoRotate / RotateCW / Rotate180 / RotateCCW` in that same order.
+
+## Still missing
+
+**`place_blueprint`** is the primitive that would change the economics. The blueprint
+to world mapping is already verified cell-for-cell (314/315), so a one-entry blueprint
+is one building and a 1,567-entry blueprint is a whole MAM, through one code path. An
+MCP server was agreed as a LATER thin wrapper over the same local JSON API, for
+shipping to other players — explicitly not built into the mod.
 
 ## Rules of engagement (unchanged)
-* **Sandbox only** (`d58e3f84-...`). Never the 72.8h save (`5589333c-...`).
-* **Never modify or delete an existing save.** Write a new `backup-v<N+1>`.
-* `CreateBuilding` sits under the interactive placement pipeline and does not appear
-  to validate -- our checks are the only ones between a bug and a corrupt map.
-* Re-parse any written save, and run the size law, before it goes near the folder.
+
+* **Sandbox only** (`d58e3f84-...`). **Never** the 72.8h save (`5589333c-...`) — read-only.
+* **Never modify or delete an existing save.** Write a new one; undo is deleting a file.
+* `CreateBuilding` sits under the interactive placement pipeline and does not appear to
+  validate — our checks are the only thing between a generator bug and a corrupt map.
+* **Re-parse your own output and run the size law before it goes near the save folder.**
+  A round trip proves only that the writer agrees with the reader; both were wrong in
+  the same place once and it crashed John's game.
 
 # (superseded) PHASE 2 IS UNBLOCKED — BUILD THE BAND-MERGE
 

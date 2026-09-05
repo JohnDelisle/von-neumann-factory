@@ -21,25 +21,28 @@ Read these first, in order:
   (device_bash, folder mounts, fine-grained PAT, git-on-device).
 
 ## Active objective
-**An ARCHITECTURE session, not a build session.** The reassembly test is done and
-validated in-game (`VN-07`: `Quad Splitter` -> `Demuxer` -> lane-fixed
-`Stacker supporting empty quadrants`), as is the Fancy A+B lane fix (`VN-08`/`VN-09`).
-Everything built so far is a **fixed recipe** — nothing chooses anything yet.
+**A BUILD session, and Claude drives the game directly.** Since 2026-09-05 there is a
+live bridge: a ShapezShifter mod (`mod/ClaudeBridge`) plus `tools/bridge.py` and
+`tools/game.py` let Claude stop/start Shapez 2, load a named savegame, read and write
+the running map, control sim speed, and trigger a save — with no human in the loop.
+The offline savegame tools (`tools/save_world.py` et al.) remain the verification
+oracle for anything the live half writes.
 
-**PHASE 1 IS DONE — a working single-layer MAM, validated in-game (2026-09-04).**
-John built it: 4 lanes, each fed a distinct uniform uncoloured base shape by rail ->
-`Quad Splitter` -> `Demuxer` -> goal-driven `Quaded Filter` -> per-lane stacker
-cluster -> a 5th cluster merging the four disjoint partial shapes into one layer.
-`For Claude Single layer MAM, no-paint` (~1/4 belt) and
-`For Claude Working Full Belt Single Layer MAM no-paint` (full belt, 4x the unit).
+John broadcasts shape goals on in-game signal channels; Claude builds machines that
+deliver them to the Vortex, and `research.json -> Shapes.StoredShapes` is the score.
 
-**FIRST THING NEXT SESSION — read PROGRESS.md ">>> START HERE".** One decision blocks
-Phase 2 (paint): **refactor to the band-merge (4 painters/unit, ~54k) or keep the
-current architecture (16 painters/unit, ~121k)?** It is John's call. Either way
-Claude's next job is re-laying the analyzer fan to expose the four colour outputs.
+- **Channel 123 `CuCuCuCu` — DONE**, 460,464 delivered against a target of 1,000.
+- **Channel 789 `SuSuSuSu` — ACTIVE.** Mining and cutting work (107,724 `--SuSu--`
+  delivered); recombination stalls. One batched test is queued and specified.
+- **Channel 456 `WuWuWuWu`** — untouched.
+
+**FIRST THING NEXT SESSION — read PROGRESS.md ">>> START HERE".** It names the exact
+next experiment, the 12-lane port rule that cost four builds, and the rules of
+engagement (sandbox save only; never touch the 72.8h save).
 
 Phases: 0 supply / **1 single-layer DONE** / 2 paint / 3 multi-layer / 4 pins /
-**5 scale-4x DONE**.
+**5 scale-4x DONE**. Phase 2's open decision (band-merge at 4 painters/unit, ~54k, vs
+the current 16 painters/unit, ~121k) is still John's call and still unmade.
 
 **Division of labour (agreed):** John builds physical layouts in-game — stamping
 known platforms and wiring them is minutes for him and is Claude's slowest, most
@@ -50,7 +53,7 @@ and codifies. See PLAYBOOK "Division of labour".
 Edit `tools/build_modules.py` -> regenerate -> copy the `.spz2bp` into the in-game
 "The Von Neumann Factory" folder -> `git add/commit/push`. John forces an in-game
 blueprint-folder refresh to see new files. Give John a test recipe + ask for a screenshot.
-Commit trailer: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
+Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`.
 
 ## Working with John
 Author blueprints from code (never hand-edit .spz2bp). **Extract geometry from his
