@@ -211,3 +211,27 @@ Three habits that made it findable:
 And the anti-habit: **fix your model before you accuse the build.** The first run
 reported 120 dead ends. All 120 were the tool treating a lift as a flat belt. If that
 had been passed on as a finding it would have buried the one real line.
+
+## Read the game's assemblies before theorising about the game
+
+`tools/spz2api` loads the Shapez 2 and ShapezShifter assemblies with
+`MetadataLoadContext` — reflection only, nothing executes, no Unity, game not running.
+
+```
+dotnet run --project tools/spz2api -- asms                       # every assembly + type count
+dotnet run --project tools/spz2api -- types   <pattern> [asm]    # matching type names
+dotnet run --project tools/spz2api -- members <pattern>          # full signatures
+```
+
+`<pattern>` is a case-insensitive substring, or `/regex/`. **In Git Bash, export
+`MSYS_NO_PATHCONV=1` before using the `/regex/` form** or MSYS rewrites it into a
+Windows path and you silently get zero matches.
+
+Ten minutes with this replaced a model we had built over several sessions and six
+round trips: we believed a malformed blueprint made the game discard the whole file,
+and the truth is `BlueprintSanitizer` quietly strips the offending entries and imports
+the rest. Every "silent failure" symptom in conventions.md is that one behaviour.
+
+The lesson generalises past this project: when a closed system keeps surprising you,
+check whether its own source of truth is *readable* before you spend more round trips
+inferring it from the outside.

@@ -854,3 +854,68 @@ Both trunk splitters are `SpaceBelt_LeftFwdSplitter R2` — running west, peel o
 So each band needs **exactly two splitters on its trunk plus one more down the inner
 column** = four destinations. A band with only one trunk splitter silently starves
 clusters 3 and 4.
+
+## The game's own blueprint importer (EXTRACTED 2026-09-05 via `tools/spz2api`)
+
+With Shapez Shifter installed and `--set-modding-env-vars` run, the game's assemblies
+are readable with `MetadataLoadContext` — no Unity, nothing executed. `tools/spz2api`
+does this. What it found rewrites our model of why blueprints fail.
+
+### The validator is ONE method
+
+```csharp
+// Game.Core.Blueprint.Importer.BlueprintImporter : IBlueprintImporter
+bool TryImport(string serializedBlueprint,
+               out IAnnotatedBlueprint blueprint,
+               out int version,
+               out BlueprintException exception);
+```
+
+String in, typed failure out. Its pipeline is exposed as properties: `Deserializer`,
+`Migrator`, `Sanitizer`, `Disassembler`, `Writer`.
+
+### **The game does not reject a bad blueprint. It SILENTLY STRIPS the bad parts.**
+
+```csharp
+// Game.Blueprints.BlueprintSanitizer : IBlueprintSanitizer
+bool TrySanitize(BlueprintCandidate, out BlueprintException);
+bool TryRemoveUnknownEntries(BlueprintCandidate, out BlueprintException);
+void RemoveOverlappingEntries(BlueprintCandidate, out BlueprintException);
+```
+
+This is the mechanism behind every silent failure we have paid round trips for. A
+blueprint with one bad entry is not discarded — the sanitizer **removes that entry and
+imports the rest**. So the symptoms we catalogued (file never appears; stamps but a
+platform is blank; stamps wrong) are all the same event at different severities, and
+"the whole file was discarded" was the wrong model: strip enough entries and you hit
+`BlueprintEmptyException`, which is what *looks* like a discarded file.
+
+`RemoveOverlappingEntries` uses a `ScopedHashSet<GlobalChunkCoordinate> occupiedChunks`
+with separate `BuildingEntryOverlaps` / `IslandEntryOverlaps` predicates — confirming
+that building-cell overlap and island-tile overlap are checked independently, exactly
+as `validate_layout()` and `check_islands_and_belts()` model them.
+
+### Every rejection reason is a named exception
+
+`BlueprintSerializationUnknownTypeException` (our bad type ids) ·
+`BlueprintOverlappingTilesException` (our footprint clashes) · `BlueprintEmptyException` ·
+`BlueprintSerializationJsonException` / `SyntaxException` / `ParsingException` /
+`ConvertBase64Exception` / `ZipException` · `BlueprintSerializationBlueprintVersionException` /
+`BlacklistedSavegameVersionException` / `OutOfBoundsSavegameVersionException` ·
+`AggregateBlueprintException` · `UnexpectedBlueprintException` ·
+`BlueprintDefinitionsNotAvailableForMode`.
+
+So the information we spent six round trips guessing at on VN-13 **exists, typed, at
+the moment of failure** — it is just never surfaced to the player.
+
+### Mod entry point
+
+`Game.Core.Modding.IMod` is `: System.IDisposable` with **no declared members**. A mod
+DLL must contain exactly one `IMod` implementation (the loader logs "could not find a
+single IMod implementation" otherwise) and does its work in the constructor —
+ShapezShifter logs "Initialized" immediately on load.
+
+ShapezShifter's `Flow` namespace is entirely building/island authoring
+(`BuildingBuilder`, `IIdentifiableConnectable...BuildingBuilder`, localization,
+toolbars). Nothing there is aimed at inspection or automation, so a validator mod sits
+on `Hijack` / `SharpDetours`, off the documented path.
