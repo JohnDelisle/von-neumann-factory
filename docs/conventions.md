@@ -1102,6 +1102,49 @@ on one edge facing receivers on the other (e.g. `Foundation_1x4(100,-542)` ->
 `(99,-542)`: 16 senders facing, 12 receivers). Space belts are for spanning
 distance, not for making a connection possible.
 
+## A platform edge port is a 12-LANE GROUP, not a set of cells
+
+Band cells 8..11 on EACH of floors 0, 1, 2 -- all twelve -- or the port does not
+connect at all.  Every one of the thousands of space-belt-fed platforms in the 72.8h
+factory places all twelve receivers; not one places a subset.
+
+Symptom of getting it wrong: the feeding space belt fills to a jammed cargo state
+(1524 bytes against an empty 474) while the platform behind it stays empty, and
+nothing anywhere reports an error.  This cost four failed builds, including one
+diagnosed at length as "a miner that produces nothing" -- it had a single sender
+instead of a group and was almost certainly extracting the whole time.
+
+Corollary for diagnosis: **cargo state on the outgoing space belt is the signal that
+means something.** A platform's own runtime-state record is not -- VN-15's miner
+reads 30 bytes, the empty form, while delivering 28,000 shapes.
+
+Proven hand-off links, all observed carrying shapes:
+* platform sender group -> adjacent space belt
+* space belt -> platform receiver group (this is how the Vortex is fed)
+
+Platform-to-platform directly is used heavily in John's factory (1,792 adjacent
+pairs) but a miner abutting a foundation did NOT carry, so whatever makes that work
+is not yet understood.  A space belt between two platforms costs one island.
+
+## Quadrant order: measure it, do not read it off a label
+
+A `Cutter` fed `SuSuCu--` delivers `--SuSu--`, not the `SuSu----` that reading the
+code as NE-SE-SW-NW predicts.  The Vortex is the instrument that settles this:
+deliver a shape and read `StoredShapes`, which names exactly what a machine makes.
+
+Useful either way for a uniform target, since the kept pair is opposite-adjacent:
+`--SuSu--` rotated 180 is `Su----Su`, disjoint from it, and stacking the two gives
+`SuSuSuSu`.
+
+## Savegame backups rotate -- archive anything that matters
+
+`settings.json: savegame-backup-count` is `Keep25`, and the game prunes the oldest
+snapshot of a world whenever it writes a new one.  A session that writes many saves
+quietly eats its own history: the v13 sandbox holding the 1,651-island MAM was
+evicted mid-session and took the miner donor with it.  Copy anything that must
+survive to `savegames-archive/`, outside the rotation, and reuse ONE filename for
+iterative builds instead of a new one per attempt.
+
 ## The scoreboard: `research.json -> Shapes.StoredShapes`
 A plain JSON dict of shape code -> count; the Vortex's inventory of everything ever
 delivered. The 72.8h save reads `"CuCuCuCu": 1108`, `"RbRbRbRb:CrCrCrCr": 414745`.

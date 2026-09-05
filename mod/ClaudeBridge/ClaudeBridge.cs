@@ -41,7 +41,7 @@ namespace ClaudeBridge
 {
     public sealed class ClaudeBridgeMod : IMod
     {
-        internal const string Version = "0.10.0";
+        internal const string Version = "0.11.0";
 
         private ModConsoleCommandsCreator.ModConsoleRewirer _console;
         private Mailbox _mailbox;
@@ -214,6 +214,9 @@ namespace ClaudeBridge
                               : Placement.At(int.Parse(rest[0]), int.Parse(rest[1]), int.Parse(rest[2]));
                 case "place": return Placement.Place(rest);
                 case "rotations": return Placement.Rotations();
+                case "resource": return rest.Length < 2 ? "ERROR resource <islandX> <islandY> [z]"
+                              : Placement.Resource(int.Parse(rest[0]), int.Parse(rest[1]),
+                                                   rest.Length > 2 ? int.Parse(rest[2]) : 0);
                 case "type": return Members(rest.FirstOrDefault());
 
                 default: return "ERROR unknown verb '" + verb + "'. known: " + Verbs;

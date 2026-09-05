@@ -47,9 +47,14 @@ import os, struct, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import save_world as sw
 
-MINER_DONOR = (r"C:/Users/jdeli/AppData/LocalLow/tobspr Games/shapez 2/savegames/"
-               r"d58e3f84-b198-411f-9f46-78fcbfe7dae4/"
-               r"backup-v13-2026-9-05--02-25-08--6806500.spz2")
+# The donor lives in savegames-archive, OUTSIDE the game's backup rotation.
+# It has to: the game keeps only `savegame-backup-count` (Keep25) snapshots per
+# world and prunes the oldest, so a session that writes a lot of saves quietly
+# eats its own history.  The original donor (v13, the 1,651-island MAM sandbox)
+# was evicted exactly that way mid-session.  Anything that must survive gets
+# copied out of savegames/ first.
+MINER_DONOR = (r"C:/Users/jdeli/AppData/LocalLow/tobspr Games/shapez 2/"
+               r"savegames-archive/backup-v21-2026-9-05--13-26-15--5020507.spz2")
 
 HUB_XY = (-1, 0)
 BAND = (8, 9, 10, 11)          # the 4-lane edge port band

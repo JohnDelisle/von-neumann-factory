@@ -76,6 +76,8 @@ namespace ClaudeBridge
             o.GetType().GetMethods(Any).Any(m => m.Name == "TryGetDefinition"
                                               && m.GetParameters().Length == 2);
 
+        private static readonly string NL = ((char)10).ToString();
+
         private static object Coord(int x, int y, int z)
         {
             var t = Reflect.FindType("Game.Core.Coordinates.GlobalTileCoordinate");
@@ -144,6 +146,40 @@ namespace ClaudeBridge
                     inner = inner.InnerException;
                 return "NOTILE (" + inner.GetType().Name + ": " + inner.Message + ")";
             }
+        }
+
+        /// <summary>What resource, if any, the game thinks is under an ISLAND tile.
+        /// GetResourceAt_GC takes a GlobalChunkCoordinate -- "chunk" here means one
+        /// island tile, the same unit resource-chunks.bin uses.</summary>
+        internal static string Resource(int ix, int iy, int iz)
+        {
+            var map = Api.GetMap(out var err);
+            if (map == null) return "ERROR " + err;
+            var acc = Reflect.Resolve("map.ResourcesAccessor", out err);
+            if (acc == null) return "ERROR ResourcesAccessor: " + err;
+            var gcT = Reflect.FindType("Game.Core.Coordinates.GlobalChunkCoordinate");
+            if (gcT == null) return "ERROR GlobalChunkCoordinate not found";
+            var ctor = gcT.GetConstructors(Any).FirstOrDefault(c => c.GetParameters().Length == 3);
+            if (ctor == null) return "ERROR no 3-arg GlobalChunkCoordinate ctor: "
+                + string.Join(" | ", gcT.GetConstructors(Any).Select(c => c.GetParameters().Length
+                    + ": " + string.Join(",", c.GetParameters().Select(p => p.ParameterType.Name))));
+            var ps = ctor.GetParameters();
+            object Conv(int v, Type t) => t == typeof(short) ? (object)(short)v : v;
+            var gc = ctor.Invoke(new[] { Conv(ix, ps[0].ParameterType),
+                                         Conv(iy, ps[1].ParameterType),
+                                         Conv(iz, ps[2].ParameterType) });
+            var m = acc.GetType().GetMethods(Any).FirstOrDefault(x => x.Name == "GetResourceAt_GC");
+            if (m == null) return "ERROR no GetResourceAt_GC on " + acc.GetType().FullName;
+            var args = new[] { gc };
+            var r = m.Invoke(acc, args);
+            if (r == null) return "no resource at island (" + ix + "," + iy + ")";
+            var sb = new System.Text.StringBuilder(r.GetType().FullName + NL);
+            foreach (var p in r.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                object v; try { v = p.GetValue(r); } catch (Exception e) { v = "<" + e.GetType().Name + ">"; }
+                sb.Append("  ").Append(p.Name).Append(" = ").Append(v).Append(NL);
+            }
+            return sb.ToString().TrimEnd();
         }
 
         /// <summary>place &lt;variantId&gt; &lt;gx&gt; &lt;gy&gt; &lt;gz&gt; &lt;rotation&gt;</summary>
