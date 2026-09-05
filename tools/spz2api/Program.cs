@@ -8,6 +8,7 @@
 //   dotnet run -- types   <pattern>   [asm-substring]   list matching type names
 //   dotnet run -- members <full.Type.Name>              full signatures of one type
 //   dotnet run -- asms                                  list every assembly we can see
+//   dotnet run -- refs    <pattern>   [asm-substring]   who EXPOSES that type
 //
 // <pattern> is a case-insensitive substring, or /regex/.
 using System.Reflection;
@@ -72,6 +73,56 @@ else if (cmd == "types")
         Type[] ts; try { ts = a.GetTypes(); } catch { continue; }
         foreach (var t in ts.Where(t => t.FullName is not null && match(t.FullName)).OrderBy(t => t.FullName))
             Console.WriteLine($"{(t.IsInterface ? "interface" : t.IsEnum ? "enum" : t.IsAbstract && t.IsSealed ? "static  " : "class   ")}  {t.FullName}   [{name}]");
+    }
+}
+else if (cmd == "refs")
+{
+    // WHO EXPOSES THIS TYPE?  `types` and `members` both need you to already know
+    // the name of the thing that holds what you want.  The hard question is the
+    // reverse one -- "I have a session, how do I reach an IMapModel from it" --
+    // so this scans every member of every type for a signature mentioning the
+    // pattern, and reports the holder.  Properties and parameterless getters first:
+    // those are the reachable ones.
+    var match = Matcher(args[1]);
+    var asmFilter = args.Length > 2 ? args[2] : null;
+    const BindingFlags F = BindingFlags.Public | BindingFlags.NonPublic
+                         | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+    foreach (var a in Load().OrderBy(a => a.GetName().Name))
+    {
+        var an = a.GetName().Name!;
+        if (asmFilter is not null && !an.Contains(asmFilter, StringComparison.OrdinalIgnoreCase)) continue;
+        Type[] ts; try { ts = a.GetTypes(); } catch { continue; }
+        foreach (var t in ts)
+        {
+            if (t.FullName is null) continue;
+            var hits = new List<string>();
+            try
+            {
+                foreach (var pr in t.GetProperties(F))
+                    if (match(pr.PropertyType.FullName ?? pr.PropertyType.Name))
+                        hits.Add($"    prop   {Sig(pr.PropertyType)} {pr.Name}");
+                foreach (var fl in t.GetFields(F))
+                    if (match(fl.FieldType.FullName ?? fl.FieldType.Name))
+                        hits.Add($"    field  {(fl.IsPublic ? "" : "(private) ")}{Sig(fl.FieldType)} {fl.Name}");
+                foreach (var m in t.GetMethods(F).Where(m => !m.IsSpecialName))
+                {
+                    var r = match(m.ReturnType.FullName ?? m.ReturnType.Name);
+                    var ps = m.GetParameters();
+                    var pin = ps.Any(x => match(x.ParameterType.FullName ?? x.ParameterType.Name));
+                    if (r || pin)
+                        hits.Add($"    {(r ? "RETURNS" : "takes  ")} {(m.IsStatic ? "static " : "")}{Sig(m.ReturnType)} {m.Name}("
+                            + string.Join(", ", ps.Select(x => $"{Sig(x.ParameterType)} {x.Name}")) + ")");
+                }
+                foreach (var c in t.GetConstructors(F))
+                    if (c.GetParameters().Any(x => match(x.ParameterType.FullName ?? x.ParameterType.Name)))
+                        hits.Add($"    ctor   ({string.Join(", ", c.GetParameters().Select(x => $"{Sig(x.ParameterType)} {x.Name}"))})");
+            }
+            catch { continue; }
+            if (hits.Count == 0) continue;
+            Console.WriteLine();
+            Console.WriteLine($"=== {t.FullName}  [{an}]");
+            foreach (var h in hits.OrderBy(h => h)) Console.WriteLine(h);
+        }
     }
 }
 else if (cmd == "members")
