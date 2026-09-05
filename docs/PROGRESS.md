@@ -83,6 +83,52 @@ Honest limits, so nobody plans around a fantasy:
 
 Stage 1 is worth doing even if 2 and 3 never happen. Start there.
 
+## 2026-09-05 update: the console is the unlock, and the speed question is ANSWERED
+
+**`IDebugConsole.ParseAndExecute(string command, Action<string> output)`** — arbitrary
+console command in, text output back. And ShapezShifter exposes registration through
+its *friendly* layer:
+
+```csharp
+// ShapezShifter.Flow.ModConsoleCommandsCreator
+static ModConsoleRewirer AddModCommands(IMod mod);   // -> AddCommand / RegisterCommands
+// IDebugConsole
+void Register(String id, Action<CommandContext> handler, Boolean isCheat);   // + 2 overloads
+List<String> GetAutoCompletions(String start);       // enumerate the REAL command list
+```
+
+So the stage-1 bridge is now small and well-defined: an `IMod` that calls
+`AddModCommands(this)`, keeps the `IDebugConsole`, and watches a folder — each command
+file goes to `ParseAndExecute`, its output comes back as a result file. That hands
+Claude **every console command the game has**, plus a place to register custom ones.
+`GetAutoCompletions("")` means the command surface can be discovered at runtime instead
+of guessed.
+
+### Speed: answered, and it changes the stage-3 economics
+John found **`time.global-setspeed`, tested to 25x**. Also present:
+`time.setspeed`, `debug.ultra-speed` / `fast-speed` / `normal-speed` / `slow-speed`, and
+**`debug.step-speed`** — stepped advance, i.e. *deterministic* experiments rather than
+wall-clock racing. A settle that takes 10 minutes becomes ~24 seconds at 25x.
+
+The "is stage 3 worth building" unknown is resolved in favour of yes.
+
+Other levers seen in the assemblies: `debug.statistics`, `debug.performance-chart`,
+`debug.export-game-data`, `research.unlock-all` / `set-points` (sandbox setup).
+Note the string scan mixes command ids with localization keys — trust
+`GetAutoCompletions` over that list once the bridge exists.
+
+### Placement is the hard part — the opposite of the naive guess
+There is **no console command that places a blueprint**, and the code path is
+`Game.Interaction.EntitiesPlacement.BlueprintPlacement.BlueprintPlacer<,,,,,,,,,>` — a
+**ten**-type-parameter generic built out of `BuildInputModules` / `BuildProcessorModules`,
+i.e. an interactive placement pipeline, not a `Place(blueprint, at)` function. Drivable
+from a mod, probably; cheap, no.
+
+**So the cost curve is inverted from the obvious assumption:** stage 1 (console bridge,
+read-only + validation) is now *small*, and stage 2 (autonomous building) is the
+expensive one. Plan accordingly — do stage 1, get the whole console, and only then
+decide whether stage 2 is worth the placement work.
+
 ## The caution
 This is plausibly a **bigger project than the remaining MAM work**. Stage 1 is clearly
 worth it and is well-scoped. Stages 2-3 are a separate project that happens to serve
