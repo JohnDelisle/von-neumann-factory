@@ -11,7 +11,7 @@ and the one that did not was the label -- the only field where the two formats
 genuinely differ.
 
     blueprint island   {X, Y, Z, R, T, S, C, B.Entries}
-    savegame island    X, Y, Z, R, layout, icfg(=S), name, buildings
+    savegame island    X, Y, Z, R, layout, icfg(=S), buildings
 
     blueprint building {X, Y, L, R, T, C}
     savegame building  X, Y, L, R, T, cfg(=C)          <- config bytes VERBATIM
@@ -155,7 +155,7 @@ def blueprint_islands(path, dX=0, dY=0, dZ=0, rot=0, intern=None):
         for _ in range(rot % 4):
             x, y = -y, x
         out.append(dict(X=x + dX, Y=y + dY, Z=e["Z"] + dZ, layout=T, R=(R + rot) % 4,
-                        icfg=b64(e.get("S")), buildings=bl, name=None, name_s=None))
+                        icfg=b64(e.get("S")), buildings=bl))
     return out
 
 

@@ -34,7 +34,7 @@ which is why hand-editing works at all.
         u8 hasIslandConfig | [A-block islandConfig]
         A-block:
             E | u32 nBuildings | nBuildings x building record
-            [A-block: u32 islandNameStrIdx]         <- the platform's title
+                                                    <- and nothing after it
 
 A bare island is 52 bytes.
 
@@ -128,14 +128,15 @@ def parse_island_chunk(buf, S):
             if has:
                 cfg, q = _block(inner, q)
             ents.append(dict(X=bx, Y=by, L=bl, R=br, T=S[d], extra=extra, cfg=cfg))
-        name = None
-        if q < len(inner):
-            nb, q = _block(inner, q)
-            name = u32(nb, 0)
+        # NOTHING follows the building list.  An earlier fixed-stride read of this
+        # region mistook a label's own config for a trailing island-title block and
+        # the writer duly emitted one -- which the game rejected with
+        # "Checkpoint mismatch, expected 0x84A43021 but got 0xC4720D54".  Zero of
+        # the 18,942 islands across both worlds carry anything here, so the branch
+        # was never exercised by a round-trip.  It is an assertion now, not a field.
         assert q == len(inner), "island %d: %d trailing inner bytes" % (k, len(inner) - q)
         out.append(dict(X=X, Y=Y, Z=Z, layout=S[idx], R=R, icfg=icfg,
-                        buildings=ents, name=name,
-                        name_s=S[name] if name is not None else None))
+                        buildings=ents))
         o = end
     return out, o
 
@@ -183,11 +184,10 @@ def build_building(b, sidx):
 
 
 def build_island(isl, sidx):
+    assert "name" not in isl, "islands have no title field -- see parse_island_chunk"
     inner = E + struct.pack("<I", len(isl["buildings"]))
     for b in isl["buildings"]:
         inner += build_building(b, sidx)
-    if isl.get("name") is not None:
-        inner += _mkblock(struct.pack("<I", isl["name"]))
     body = (b"\x01" + _mkblock(isl["icfg"])) if isl.get("icfg") is not None else b"\x00"
     body += _mkblock(inner)
     return (ITAG + struct.pack("<iihhh", isl["X"], isl["Y"], isl["Z"],

@@ -100,7 +100,7 @@ def build(src, dst):
         for dx in range(-(span[0] // 2), span[0] // 2 + 1):
             for dy in range(-(span[1] // 2), span[1] // 2 + 1):
                 occupied.add((i["X"] + dx, i["Y"] + dy, i["Z"]))
-    for cell in ((1, 0, 0), (2, 0, 0)):
+    for cell in ((1, 0, 0), (2, 0, 0), (44, 8, 0)):
         assert cell not in occupied, "%s is not free" % (cell,)
 
     # ---- 1. the Vortex feed, added to the existing HUB island
@@ -108,28 +108,63 @@ def build(src, dst):
     assert (hub["X"], hub["Y"]) == HUB_XY, "hub moved: %s" % ((hub["X"], hub["Y"]),)
     assert not hub["buildings"], "the hub already carries %d buildings" % len(hub["buildings"])
     hub["buildings"] = hub_delivery_lanes()
-    hub["name"] = intern("Vortex feed - Claude")
 
-    # ---- 2. the miner, verbatim, plus a label so the write is visible at a glance
-    mb = miner_buildings()
-    text = "CLAUDE BUILT THIS".encode("utf-8")
-    mb.append(dict(X=14, Y=16, L=0, R=2, T="LabelDefaultInternalVariant", extra=0,
-                   cfg=struct.pack("<I", intern(text.decode("utf-8")))))
+    # ---- 2. the miner: 160 buildings, verbatim, and NOTHING added to them.
+    # Attempt 1 also put a label on this platform at (14,16); that cell is proven on
+    # a Foundation_1x1 but the donor miner never builds past y=14, so the canary
+    # moved to its own foundation below rather than assume the two share a buildable
+    # window.
     miner = dict(X=2, Y=0, Z=0, layout="Layout_ShapeMiner", R=2, icfg=None,
-                 buildings=mb, name=intern("CuCuCuCu miner - Claude"), name_s=None)
+                 buildings=miner_buildings())
 
     # ---- 3. one space belt from the miner into the Vortex's east face
     belt = dict(X=1, Y=0, Z=0, layout="SpaceBelt_Forward", R=2, icfg=None,
-                buildings=[], name=None, name_s=None)
+                buildings=[])
+
+    # ---- 4. a canary: one label on a bare foundation, at the exact (island R,
+    # cell, building R) triple John's own `Overflow` platform uses.  A fourth dot
+    # after "HI...", so a successful write is visible without hunting for it.
+    canary = dict(X=44, Y=8, Z=0, layout="Foundation_1x1", R=2, icfg=None,
+                  buildings=[dict(X=14, Y=16, L=0, R=2, extra=0,
+                                  T="LabelDefaultInternalVariant",
+                                  cfg=struct.pack("<I", intern("CLAUDE BUILT THIS")))])
 
     target = max(w["world"], key=lambda c: len(w["world"][c]["islands"]))
-    for isl in (miner, belt):
+    for isl in (miner, belt, canary):
         w["world"][target]["islands"].append(isl)
         w["world"][target]["state"].append(dict(X=isl["X"], Y=isl["Y"], Z=isl["Z"],
                                                 layout=isl["layout"], raw=None))
 
     n = sw.write_world(w, dst)
-    return n, len(hub["buildings"]), len(mb), target
+    return n, len(hub["buildings"]), len(miner["buildings"]), target
+
+
+def predicted_size(isl):
+    """An island record's length follows exactly from its contents:
+
+        19 header + 4 A + 4 len + [1 + (icfg ? 8+len : 0)] + 4 A + 4 len
+           + 4 E + 4 count + per building + 4 C + 4 C
+
+    which collapses to 52 for a bare island and 52 + 15n when no building carries a
+    config.  Attempt 1 emitted a 12-byte trailing block that no real island has, and
+    a round-trip could not see it because a round-trip only proves the writer agrees
+    with the reader.  This law is independent of both."""
+    n = 52 + (12 + len(isl["icfg"]) if isl.get("icfg") is not None else 0)
+    for b in isl["buildings"]:
+        n += 15 + (12 + len(b["cfg"]) if b.get("cfg") is not None else 0)
+    return n
+
+
+def check_sizes(w):
+    """Every island in the world -- ours and the game's -- must obey the size law."""
+    bad = []
+    for c, ch in sorted(w["world"].items()):
+        for isl in ch["islands"]:
+            got = len(sw.build_island(isl, lambda t: 0))
+            want = predicted_size(isl)
+            if got != want:
+                bad.append((c, isl["X"], isl["Y"], isl["layout"], got, want))
+    return bad
 
 
 def verify(dst, src):
@@ -145,6 +180,8 @@ def verify(dst, src):
         for x, y in zip(a["world"][c]["islands"], b["world"][c]["islands"]):
             assert (x["X"], x["Y"], x["Z"], x["layout"]) == (y["X"], y["Y"], y["Z"], y["layout"]), \
                 "an original island moved in chunk %d" % c
+    bad = check_sizes(b)
+    assert not bad, "island records violate the size law: %s" % bad[:5]
     return na, nb, ba, bb
 
 
@@ -157,3 +194,4 @@ if __name__ == "__main__":
     print("  islands   %d -> %d   (+miner, +space belt, appended to chunk %d)" % (na, nb, target))
     print("  buildings %d -> %d   (hub feed %d, miner %d)" % (ba, bb, nhub, nminer))
     print("  every original island still present, in order, with its state record")
+    print("  every island record obeys the size law (52 + 15n + configs)")
