@@ -12,7 +12,77 @@ committed + pushed.
 
 ---
 
-# >>> START HERE (2026-09-05, night): ONE TEST STANDS BETWEEN US AND CHANNEL 789 <<<
+# >>> START HERE (2026-09-05, evening): THE THROUGHPUT LAW, AND `RuRuRuRu` <<<
+
+## The law that VN-17 got wrong and VN-18 gets right
+**A `Layout_ShapeMiner` is not a space belt.** John's rule, confirmed against his
+72.8h factory (144 miners, 432 `Layout_ShapeMinerExtension` -- *exactly 3 each* --
+feeding 144 hub lanes):
+
+> **1 miner + 3 boosters = ONE lane. TWELVE boosted miners = 12 lanes = one
+> saturated space belt.** A full belt therefore costs **48 ore tiles**.
+> Boosters chain node-to-node, each pointing at the next node towards the miner;
+> up to 3 per miner. The same holds for fluid miners.
+
+Corollaries, both learned the hard way this session:
+* Contiguous `Layout_ShapeMiner` islands written with the wrong rotation are
+  **silently rewritten by the game into `Layout_ShapeMinerExtension`** on load. Our
+  first four "miners" beside the Vortex became one 4-tile unit. Check the layout
+  back out of the save after every load.
+* The six free ore tiles beside the Vortex can never exceed ~1.5 lanes. Anything
+  that wants throughput has to move to a patch.
+
+## VN-18 -- `RuRuRuRu` at full space belt (built, loaded, running)
+`tools/build_rect_full_belt.py`. 118 islands, **all 118 accepted by the game
+unchanged**. 70 pure `RuRuRuRu` tiles at x 18..27, y -12..-3 (previously unbuilt)
+carry 12 boosted miners = 48 ore tiles, plus 22 tiles of belt run:
+
+| block | miners | boosters | collector |
+|---|---|---|---|
+| S | (22..26, -3) R1 | rows -4/-5/-6, R1 | A |
+| N | (19..23, -12) R3 | rows -11/-10/-9, R3 | B |
+| M | (20,-7) (21,-7) R1 | L-chains along row -8 | A, via belt columns x=20,21 |
+
+* **Collector A** (7 lanes): `RightTurn R1` cap at (26,-2), `LeftFwdMerger R2` under
+  each feeder, west along y=-2, down x=3, west along y=-1 -> hub tile (0,-1) **EAST**.
+* **Collector B** (5 lanes): `LeftTurn R3` cap at (23,-13), `RightFwdMerger R2` over
+  each miner, west along y=-13, down x=0 -> hub tile (0,-1) **NORTH**.
+
+Two collectors because no single straight row on a ragged patch touches 12 miners;
+7 + 5 lanes is the same 12 lanes of shapes, landing on two edges the hub already wires.
+
+### Space belt port rules -- measured off John's factory, none guessed
+    Forward R                     travels on heading R  (0=+X E, 1=+Y S, 2=-X W, 3=-Y N)
+    RightTurn R / LeftTurn R      enters on heading R, leaves on R+1 / R-1
+    LeftFwdMerger R               main flow R, SIDE INPUT from the neighbour at R+1
+    RightFwdMerger R              main flow R, SIDE INPUT from the neighbour at R-1
+    Layout_ShapeMiner R           the platform's 12 output lanes leave on edge R
+    Layout_ShapeMinerExtension R  points at the next node in the chain to the miner
+
+### The Vortex, and why VN-17 was still worth it
+The 3x3 `Layout_HUB` has 12 outward tile edges x 12 lanes = **144 lanes**, but only
+the CENTRE tile's own perimeter feeds the mouth (senders at local x or y in 4..15),
+so the eight off-axis edges must jog inwards. Rather than author that, VN-17 copied
+**John's 4,272-building, 144-lane hub feed verbatim** out of the 72.8h save. Every
+edge is now live, so any future machine just has to reach an edge port.
+
+### Measured (backup-v104 -> v105, 353 s of playtime at 25x)
+| shape | delivered | rate |
+|---|---|---|
+| `RuRuRuRu` | 1,104 -> **185,664** | **433.8 / s** |
+| `CuCuCuCu` (VN-15, one unboosted miner) | +38,448 | 108.9 / s |
+| `--SuSu--` (VN-16) | +8,484 | 24.0 / s |
+
+**Open question, not yet answered:** Ru is 3.98x the single unboosted Cu miner --
+suspiciously *exactly* 4x. Whether 12 boosted miners genuinely saturate the belt, or
+something downstream caps us at 4 miner-equivalents, is unproven. Next session:
+compare a per-collector count (feed A and B to different edges of *different* hub
+tiles and read the two edges separately), or read a collector belt's cargo state to
+see whether it is backed up.
+
+---
+
+# (superseded) >>> START HERE (2026-09-05, night): ONE TEST STANDS BETWEEN US AND CHANNEL 789 <<<
 
 ## Resume in four commands
 
@@ -32,7 +102,7 @@ because the main menu renders a live background world and will happily hand you 
 | channel | goal | delivered | state |
 |---|---|---|---|
 | 123 | `CuCuCuCu` | **460,464** | DONE (target was 1,000). VN-15, a miner on island (2,0) into the Vortex east face. |
-| 789 | `SuSuSuSu` | 0 | VN-16 stalls at stage C. **This is the active task.** |
+| 789 | `SuSuSuSu` | 0 | VN-16 stalls at stage C. Still open. |
 | 456 | `WuWuWuWu` | 0 | Untouched. Nearest `Wu----Ru` at island (96,0), 97 tiles; a pure 4/4 patch at (544,200), 1,073 tiles (wants a train). |
 
 VN-16 already delivers **107,724 `--SuSu--`** — mining and cutting work at volume.
