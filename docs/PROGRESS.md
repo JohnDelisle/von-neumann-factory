@@ -38,6 +38,59 @@ Saving **~79.7k per unit / ~319k at full belt — 2.35x**.
 
 ---
 
+# THE VISION (John, 2026-09-05): a closed build/measure/iterate loop, no human in it
+
+> "I want a chat interface to have you build things in-game, from scratch, and work to
+> optimize your own work by directly interfacing with the game, with as little of me as
+> possible."
+
+Recorded here so it survives session boundaries. **This is a direction, not the active
+objective** — the active objective is still Phase 2a.
+
+## Why this is more achievable than it sounds
+The loop is design -> generate -> validate -> place -> simulate -> measure -> iterate.
+Claude already does steps 1-2. `tools/spz2api` proved steps 3-6 are reachable: the
+game's assemblies are readable, `BlueprintImporter.TryImport` is a one-call validator,
+and `Game.Core.Map.Simulation` / `statistics.bin` are where measurement lives.
+
+**The thing that makes it actually work is that this project has a fitness function.**
+`tools/verify_mam.py` already decides mechanically whether a machine is correct, and a
+MAM either hits its output rate or it does not. Autonomous iteration needs a
+machine-checkable success criterion, and most creative work has none. This one does.
+
+## The floor on "as little of me as possible"
+Honest limits, so nobody plans around a fantasy:
+* **The game must be running with a save loaded, on John's PC.** A mod lives inside the
+  process; Claude cannot launch past the menus. The floor is "John starts it and leaves
+  it running" — per *session*, not per experiment. That is the whole win.
+* **Claude cannot see.** No rendering feedback, ever. Everything must arrive as
+  structured state, so the mod's readout surface bounds what can be evaluated. This
+  project happens to be about *structural* correctness, which is exactly the part that
+  is machine-readable — a lucky fit, not a general one.
+* **Simulation speed is iteration speed.** If evaluating one candidate costs 5 minutes
+  of wall clock, a 100-candidate search costs 8 hours. Whether the sim can be ticked
+  headlessly / fast-forwarded is the single biggest unknown, and it is worth answering
+  EARLY because it decides whether stage 3 is worth building at all.
+* **Never point this at the 72.8h save.** Autonomous place/delete belongs in a
+  dedicated sandbox savegame.
+
+## Staged path — each stage is useful on its own
+| stage | what it is | risk | pays for itself? |
+|---|---|---|---|
+| **1. Read-only oracle** | mod watches a folder, answers "is this blueprint valid, and if not, which `BlueprintException`" + state queries. No writes to the world. | low | **yes, alone** — kills the round trips that cost us six on VN-13 |
+| **2. Sandboxed writes** | placement + deletion in a dedicated sandbox save (`Game.Interaction.EntitiesPlacement`) | medium | Claude builds without John |
+| **3. Closed loop** | sim control + metrics readout; propose, build, measure, iterate | high | the actual vision |
+
+Stage 1 is worth doing even if 2 and 3 never happen. Start there.
+
+## The caution
+This is plausibly a **bigger project than the remaining MAM work**. Stage 1 is clearly
+worth it and is well-scoped. Stages 2-3 are a separate project that happens to serve
+this one. Decide to start them deliberately — do not drift into them because stage 1
+went well.
+
+---
+
 # PHASE 2 FRONT END IS BUILT AND VALIDATED — `For Claude Working MAM 1 layer no-color FSB`
 
 **Closed out 2026-09-05.** John built the band-merge at full space belt, Claude
