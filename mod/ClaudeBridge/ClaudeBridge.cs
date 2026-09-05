@@ -41,7 +41,7 @@ namespace ClaudeBridge
 {
     public sealed class ClaudeBridgeMod : IMod
     {
-        internal const string Version = "0.2.0";
+        internal const string Version = "0.6.0";
 
         private ModConsoleCommandsCreator.ModConsoleRewirer _console;
         private Mailbox _mailbox;
@@ -65,8 +65,15 @@ namespace ClaudeBridge
             try
             {
                 _console = ModConsoleCommandsCreator.AddModCommands(this);
-                _console.AddCommand(c => c.Register("status", _ => _mailbox.Note(Api.Status()), false));
-                _console.AddCommand(c => c.Register("where", _ => _mailbox.Note("mailbox: " + _mailbox.Root), false));
+                // AddCommand hands us the live IDebugConsole. Keeping it is what turns
+                // the bridge into a front end for EVERY command the game already has,
+                // instead of only the handful compiled in here.
+                _console.AddCommand(c =>
+                {
+                    Api.Console = c;
+                    c.Register("status", _ => _mailbox.Note(Api.Status()), false);
+                    c.Register("where", _ => _mailbox.Note("mailbox: " + _mailbox.Root), false);
+                });
             }
             catch (Exception e) { _mailbox.Note("console commands unavailable: " + e.Message); }
         }
@@ -157,18 +164,77 @@ namespace ClaudeBridge
     // ------------------------------------------------------------------ the verbs
     internal static class Api
     {
+        /// <summary>The game's own debug console, captured when Shifter registers our
+        /// commands. With it the bridge fronts every command the game already has.</summary>
+        internal static object Console;
+
+        private const string Verbs =
+            "ping status inspect members | commands console <cmd> | speed <x> pause resume | "
+          + "get <path> set <path> <v> call <path.Method> [args] find <type> statics <type> | saves load <uid> quit";
+
         internal static string Dispatch(string request)
         {
             var parts = request.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             var verb = parts.Length > 0 ? parts[0].ToLowerInvariant() : "";
+            var rest = parts.Skip(1).ToArray();
             switch (verb)
             {
                 case "ping": return "pong " + ClaudeBridgeMod.Version;
                 case "status": return Status();
                 case "inspect": return Inspect();
-                case "members": return Members(parts.Length > 1 ? parts[1] : null);
-                default: return "ERROR unknown verb '" + verb + "'. known: ping status inspect members";
+                case "members": return Members(rest.FirstOrDefault());
+                case "help": return Verbs;
+
+                // ---- the game's own console, which is ~100 commands we did not write
+                case "commands": return Commands(rest.FirstOrDefault() ?? "");
+                case "console": return RunConsole(string.Join(" ", rest));
+
+                // ---- simulation control: iteration speed is iteration cost
+                case "speed": return Reflect.Set("core.SimulationSpeed.Speed", rest.FirstOrDefault() ?? "1");
+                case "pause": return Reflect.Set("core.SimulationSpeed.IsPaused", "true");
+                case "resume": return Reflect.Set("core.SimulationSpeed.IsPaused", "false");
+
+                // ---- the general escape hatch (see Reflect.cs)
+                case "get": return Reflect.Get(rest.FirstOrDefault() ?? "");
+                case "set": return rest.Length < 2 ? "ERROR set <path> <value>"
+                                                   : Reflect.Set(rest[0], string.Join(" ", rest.Skip(1)));
+                case "call": return rest.Length < 1 ? "ERROR call <path.Method> [args]"
+                                                    : Reflect.Call(rest[0], rest.Skip(1).ToArray());
+                case "find": return Reflect.Find(rest.FirstOrDefault());
+                case "statics": return Reflect.Statics(rest.FirstOrDefault() ?? "");
+
+                // ---- session control: the last thing in the loop that needed a person
+                case "saves": return Sessions.List();
+                case "load": return Sessions.Load(rest.FirstOrDefault());
+                case "quit": return Sessions.Quit();
+                case "type": return Members(rest.FirstOrDefault());
+
+                default: return "ERROR unknown verb '" + verb + "'. known: " + Verbs;
             }
+        }
+
+        private static string Commands(string prefix)
+        {
+            if (Console == null) return "ERROR the debug console was never handed to us";
+            var m = Console.GetType().GetMethod("GetAutoCompletions", new[] { typeof(string) });
+            if (m == null) return "ERROR no GetAutoCompletions on " + Console.GetType().FullName;
+            var list = m.Invoke(Console, new object[] { prefix }) as System.Collections.IEnumerable;
+            if (list == null) return "(none)";
+            var all = list.Cast<object>().Select(x => x?.ToString()).Where(x => x != null).OrderBy(x => x).ToList();
+            return all.Count + " commands\n  " + string.Join("\n  ", all);
+        }
+
+        private static string RunConsole(string command)
+        {
+            if (string.IsNullOrEmpty(command)) return "ERROR console <command>";
+            if (Console == null) return "ERROR the debug console was never handed to us";
+            var m = Console.GetType().GetMethod("ParseAndExecute",
+                        new[] { typeof(string), typeof(Action<string>) });
+            if (m == null) return "ERROR no ParseAndExecute on " + Console.GetType().FullName;
+            var sb = new List<string>();
+            Action<string> sink = s => sb.Add(s);
+            m.Invoke(Console, new object[] { command, sink });
+            return sb.Count == 0 ? "(no output)" : string.Join("\n", sb);
         }
 
         /// <summary>The live map, or null with `why` naming exactly which step failed.</summary>

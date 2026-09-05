@@ -135,6 +135,8 @@ else if (cmd == "members")
         {
             Console.WriteLine($"\n=== {t.FullName}  [{a.GetName().Name}]");
             foreach (var i in t.GetInterfaces()) Console.WriteLine($"    : {i.FullName}");
+            foreach (var c in t.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                Console.WriteLine($"    ctor {(c.IsPublic ? "" : "(private) ")}({string.Join(", ", c.GetParameters().Select(p => $"{Sig(p.ParameterType)} {p.Name}"))})");
             const BindingFlags F = BindingFlags.Public | BindingFlags.NonPublic
                                  | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
             foreach (var m in t.GetMethods(F).Where(m => !m.IsSpecialName).OrderBy(m => m.Name))

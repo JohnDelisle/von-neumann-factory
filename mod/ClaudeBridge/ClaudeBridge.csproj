@@ -39,6 +39,10 @@
       <HintPath>$(SPZ2_PATH)\Game.Core.Map.Model.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Game.Core">
+      <HintPath>$(SPZ2_PATH)\Game.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Game.Content.Features">
       <HintPath>$(SPZ2_PATH)\Game.Content.Features.dll</HintPath>
       <Private>false</Private>
