@@ -185,3 +185,29 @@ invisible cells of multi-cell buildings**, label margins, and any multi-cell bui
 whose anchor has never been extracted. It is regression-tested against every layout
 that actually failed in-game. **When a rule is learned, land it as a check the same
 session, with the failing layouts as test cases** — otherwise it will be re-learned.
+
+## Reviewing a machine John built: check the arrows, not the buildings
+
+The FSB MAM review (2026-09-05) found its one bug in a `SpaceBelt_Forward` that
+should have been a `SpaceBelt_LeftFwdSplitter`. Nothing about the file looked wrong:
+the platforms were all uniform, no islands overlapped, no belt dead-ended, every lift
+had its clearance. The branch it should have fed was **fully built and correctly
+wired all the way to its destination** — it just had no source.
+
+Three habits that made it findable:
+
+1. **Trace the graph, don't read the map.** Propagate a label from every belt with no
+   upstream forward through the network, then look at what arrives at each platform
+   input. Fourteen of sixteen deliveries listed "16 filters"; two listed "one stray
+   belt". That is a one-line diagnosis from a 1,568-island file.
+2. **A dead end and an orphan are different bugs, and only one of them was checked.**
+   Everything the tool looked for was "does this go somewhere". Nothing asked "does
+   anything arrive here". Add the mirror of every check you write.
+3. **Exploit the machine's own regularity.** Four bands doing the same job four
+   different-looking ways is not a bug; four bands where three share a splitter
+   pattern and one does not is. Tabulate the repeated structure and read down the
+   column — the odd one out names itself.
+
+And the anti-habit: **fix your model before you accuse the build.** The first run
+reported 120 dead ends. All 120 were the tool treating a lift as a flat belt. If that
+had been passed on as a finding it would have buried the one real line.

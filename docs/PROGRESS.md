@@ -38,6 +38,63 @@ Saving **~79.7k per unit / ~319k at full belt — 2.35x**.
 
 ---
 
+## AUDIT: `For Claude Working MAM 1 layer no-color FSB` (2026-09-05) — **ONE BUG**
+
+John built the band-merge for real, at full space belt, and asked for a review.
+**1,568 islands, 171,700 buildings.** Everything structural passes except one belt.
+
+### THE BUG: a splitter that got placed as a plain belt
+
+**`(-9, 2, Z0)` is `SpaceBelt_Forward R2`. It must be `SpaceBelt_LeftFwdSplitter R2`.**
+
+That is the whole fix — one belt, same rotation, same cell.
+
+**What it costs today:** band B (trunk row 2) has only *one* trunk splitter where
+every other band has two. Its inner distribution column (x = -9) is fully built and
+correctly wired all the way down to cluster 3 at row 14 and on to cluster 4 at row
+20 — and **nothing feeds it**. Clusters 3 and 4 never receive band B at all, so half
+the machine can only ever emit shapes missing that quadrant. The three other bands
+are perfect, which is why it does not look broken from the map.
+
+The regular pattern, confirmed on bands A/C/D (see conventions.md "band-merge
+distribution fan"): two `LeftFwdSplitter R2` on the trunk at `x = tx` and `x = tx+1`,
+inner column first as you travel west, then one more splitter down the inner column.
+Band B has `(-10,2)` and is missing `(-9,2)`.
+
+### Everything else is clean
+| check | result |
+|---|---|
+| island footprints overlap | **0** over 1,568 islands |
+| space belts that dead-end | **0** over 1,293 belts |
+| Z-change units with something above/below | **0** of 120 lifts |
+| the 64 filter band outputs reach the right trunk | **yes** — each of the four trunks collects exactly its own 16 rows, band offsets `-1/0/+1/+2` preserved end to end |
+| band -> west filter row identity | preserved: east offset `k` lands on west filter row `k`, so quadrant identity survives the merge |
+| platform contents | 24/24 Quaded Filters identical, all channel 123; 8/8 Fancy A+B lane-fixed; every 2x2 / 2x4 / 1x1 module uniform |
+| the four cluster cores | cell-for-cell identical across rows 2/8/14/20 |
+| the four product columns | -29/-30/-31/-32, merged at -34, split at -35 into the four `Trash` read platforms (48 belt readers = the throughput rig) |
+
+### Two observations, not bugs
+* **The second rank of Quaded Filters at `x = -16` looks redundant.** Stage 1 (east,
+  `x = 25`) already gates each lane's quadrant against the goal, and the band-merge
+  cannot introduce material the goal did not ask for — so the `x = -16` rank should
+  never reject anything. 8 platforms; harmless, but if it *is* load-bearing I have
+  missed something and would like to know what.
+* The 21 `LeftFwdMerger` / 21 `RightFwdMerger` with an unused side input are just
+  belts with a spare port. Fine, and handy if paint later needs a tap-in point.
+
+### Tooling: `tools/verify_mam.py` now catches this class of bug
+* **lifts are modelled** — `Lift<n>Up/Down Forward/Left/Right` hand off at `Z±n` one
+  cell ahead (or 90 degrees off). Without this the tool cried 120 phantom dead ends.
+* **new check: orphan chains.** Every space belt must be fed by a belt or by the
+  platform behind it. This is what isolates `(-9,2)` — it prints exactly one line.
+* **new check: Z-change clearance** (nothing above or below a lift).
+* `Layout_TrainUnloader_Shapes_Flipped` R1 footprint pinned to 2 tiles by elimination.
+* the component-ratio check no longer assumes `filters == lanes` (the band-merge adds
+  a second rank), and units are now counted from Quad Splitters.
+* Both Phase 1 MAMs still pass all twelve checks — no regressions.
+
+---
+
 ## AUDIT: `For Claude Working Full Belt Single Layer MAM no-paint` (2026-09-05)
 
 John asked for a review of the working full-belt machine. **1,373 islands, 289,828

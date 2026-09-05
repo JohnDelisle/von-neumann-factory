@@ -21,7 +21,7 @@ just produces subtly wrong shapes:
 
 Exit code 0 = all good, 1 = at least one FAIL.
 """
-import base64, collections, os, sys
+import base64, collections, os, re, sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from shapez_bp import decode_bp
@@ -60,31 +60,60 @@ ISLAND_FOOTPRINT = {
     ("Foundation_2x2_Flipped", 1): [(dx, dy) for dx in (0, 1) for dy in (0, 1)],
     ("Foundation_2x4", 3): [(dx, dy) for dx in (0, 1) for dy in range(-2, 2)],
     ("Foundation_2x4_Flipped", 1): [(dx, dy) for dx in (0, 1) for dy in range(-1, 3)],
+    # Prefab layouts carry no buildings of their own, so the span trick above cannot
+    # measure them. This one is pinned by ELIMINATION instead: each lane's first space
+    # belt sits at (33,y) and is fed from the east, cell (34,y) holds no island of its
+    # own, and islands may not overlap -- so the unloader at (35,y) must cover (34,y)
+    # and cannot reach (33,y). Two tiles wide, one tall.
+    ("Layout_TrainUnloader_Shapes_Flipped", 1): [(0, 0), (-1, 0)],
 }
 
-# Space-belt direction model, fitted to the working full-belt MAM (867 of 1,022 edges
-# under the best of 32 candidate conventions, and 100% once island footprints are
-# taken into account). R indexes E,S,W,N clockwise; for a TURN, R is the INCOMING
-# heading, so `LeftTurn R3` is "running north, turn left" = exits west.
+# Space-belt direction model. R indexes E,S,W,N clockwise; for a TURN, R is the
+# INCOMING heading, so `LeftTurn R3` is "running north, turn left" = exits west.
 #
 # The merger names are MIRRORED relative to travel: a `LeftFwdMerger` takes its side
 # feed from the cell on its RIGHT as the shapes travel (i.e. the left side as you
-# face the belt head-on). Verified on 40 of 42 mergers in the machine; the other two
-# take a straight-through feed as well.
+# face the belt head-on).
+#
+# LIFTS ARE THE PART THIS MODEL USED TO GET WRONG. A `Lift1UpForward` at Z hands off
+# at Z+1 in the cell AHEAD of it; a `Lift1DownForward` at Z hands off at Z-1 one cell
+# ahead; the `Left`/`Right` variants turn 90 degrees on the way -- John's rule is that
+# a Z-change unit "may rotate the entry or exit towards a different cardinal
+# direction, but that's it", and it may never merge. Treating a lift as a flat
+# `Forward` made this tool report 120 phantom dead ends on a machine that has none.
+# With the Z hop modelled, `For Claude Working MAM 1 layer no-color FSB` comes out at
+# 0 dead ends over 1,293 space belts.
 BELT_VEC = {0: (1, 0), 1: (0, 1), 2: (-1, 0), 3: (0, -1)}
-BELT_IN = {"Forward": [2], "LeftTurn": [2], "RightTurn": [2], "RightFwdSplitter": [2],
+BELT_IN = {"Forward": [2], "LeftTurn": [2], "RightTurn": [2],
+           "LeftFwdSplitter": [2], "RightFwdSplitter": [2],
            "LeftFwdMerger": [2, 1], "RightFwdMerger": [2, 3],
            "TripleMerger": [1, 2, 3], "YMerger": [1, 3]}
+LIFT_RE = re.compile(r"Lift(\d)(Up|Down)(Forward|Left|Right)$")
 
 
 def belt_outs(t, R):
+    """Where a space belt hands off, as a list of (direction, dz)."""
     if t == "LeftTurn":
-        return [(R - 1) % 4]
+        return [((R - 1) % 4, 0)]
     if t == "RightTurn":
-        return [(R + 1) % 4]
+        return [((R + 1) % 4, 0)]
+    if t == "LeftFwdSplitter":
+        return [(R, 0), ((R - 1) % 4, 0)]
     if t == "RightFwdSplitter":
-        return [R, (R + 1) % 4]
-    return [R]
+        return [(R, 0), ((R + 1) % 4, 0)]
+    m = LIFT_RE.match(t)
+    if m:
+        levels, updown, turn = int(m.group(1)), m.group(2), m.group(3)
+        dz = levels if updown == "Up" else -levels
+        return [({"Forward": R, "Left": (R - 1) % 4, "Right": (R + 1) % 4}[turn], dz)]
+    return [(R, 0)]
+
+
+def belt_ins(t):
+    """Which sides a space belt will accept from, relative to its own R."""
+    if LIFT_RE.match(t):
+        return [2]                      # a lift takes its feed from behind, only
+    return BELT_IN.get(t, [2])
 
 
 def island_cells(i):
@@ -95,15 +124,21 @@ def island_cells(i):
 
 
 def check_islands_and_belts(isls, check):
-    """Two structural checks that the game does NOT warn about.
+    """Four structural checks that the game does NOT warn about.
 
     1. No two islands may claim the same island-grid cell. A 2x4 foundation covers
        eight cells and only records one, so an overlap is invisible in the file and
        shows up in-game as a platform that refuses to stamp.
     2. Every space belt must deliver into something that accepts from that side.
        A belt whose output faces an empty cell, or faces a neighbour that has no
-       input port there, silently dead-ends -- the machine looks built and one
-       stream just never arrives.
+       input port there, silently dead-ends.
+    3. Every space belt must be FED by something -- a belt upstream, or the platform
+       it leaves. An ORPHAN chain is the signature of a splitter that got placed as a
+       plain `Forward`: the branch it was meant to feed is built, connected all the
+       way to its destination, and completely dead. Found exactly that in the FSB MAM
+       at (-9,2) on 2026-09-05 -- two of the sixteen band deliveries were starved and
+       nothing else in the file looked wrong.
+    4. Nothing may sit directly above or below a Z-change unit (John's rule).
     """
     occupied, overlaps = {}, []
     for i in isls:
@@ -121,22 +156,61 @@ def check_islands_and_belts(isls, check):
              for i in isls if i["T"].startswith("SpaceBelt_")}
     if not belts:
         return
-    dangling = []
+    # platform cells: everything that is not itself a space belt. A belt may hand off
+    # into one (that is how a module is fed) but only at ground level.
+    platforms = {(x, y) for (x, y, z), T in occupied.items()
+                 if not T.startswith("SpaceBelt_")}
+
+    dangling, fed = [], collections.defaultdict(list)
     for (x, y, z), (t, R) in belts.items():
-        for o in belt_outs(t, R):
+        for o, dz in belt_outs(t, R):
             dx, dy = BELT_VEC[o]
-            n = (x + dx, y + dy, z)
+            n = (x + dx, y + dy, z + dz)
             if n in belts:
                 nt, nR = belts[n]
-                if ((o + 2) % 4 - nR) % 4 not in BELT_IN.get(nt, [2]):
+                if ((o + 2) % 4 - nR) % 4 in belt_ins(nt):
+                    fed[n].append((x, y, z))
+                else:
                     dangling.append(f"{t} R{R} at ({x},{y},Z{z}) feeds {nt} R{nR} "
                                     f"at {n}, which has no input port on that side")
-            elif n not in occupied:
+            elif not (n[2] == 0 and (n[0], n[1]) in platforms):
                 dangling.append(f"{t} R{R} at ({x},{y},Z{z}) outputs into empty space "
                                 f"at {n}")
     check(not dangling, f"space belts all deliver somewhere ({len(dangling)} dead ends)")
     for dd in dangling[:5]:
         print(f"           {dd}")
+
+    orphans = []
+    for (x, y, z), (t, R) in belts.items():
+        if fed[(x, y, z)]:
+            continue
+        by_platform = False
+        for rel in belt_ins(t):
+            dx, dy = BELT_VEC[(rel + R) % 4]
+            if z == 0 and (x + dx, y + dy) in platforms:
+                by_platform = True
+        if by_platform:
+            continue
+        dx, dy = BELT_VEC[(R + 2) % 4]
+        b = (x + dx, y + dy, z)
+        why = (f"{belts[b][0]} R{belts[b][1]} at {b} does not output here"
+               if b in belts else f"{b} is empty")
+        orphans.append(f"{t} R{R} at ({x},{y},Z{z}) is fed by nothing -- {why}")
+    check(not orphans, f"space belt chains all have a source ({len(orphans)} orphans)")
+    for o in orphans[:5]:
+        print(f"           {o}")
+
+    stacked = []
+    for (x, y, z), (t, R) in belts.items():
+        if not LIFT_RE.match(t):
+            continue
+        for oz in (z - 1, z + 1):
+            if (x, y, oz) in belts:
+                stacked.append(f"{t} at ({x},{y},Z{z}) has {belts[(x, y, oz)][0]} "
+                               f"directly {'below' if oz < z else 'above'} it")
+    check(not stacked, f"Z-change units have clear space ({len(stacked)} blocked)")
+    for st in stacked[:5]:
+        print(f"           {st}")
 
 
 def verify(path):
@@ -178,8 +252,13 @@ def verify(path):
 
     demux = sum(1 for i in isls if "Demuxer" in bm.label_texts(i))
     qsplit = sum(1 for i in isls if "Quad Splitter" in bm.label_texts(i))
-    check(demux == len(filt) and qsplit == len(filt),
-          f"component ratio: {qsplit} Quad Splitters / {demux} Demuxers / {len(filt)} filters")
+    # One Quad Splitter and one Demuxer per INPUT lane. The filter count is not tied
+    # to the lane count any more: the band-merge puts a second rank of Quaded Filters
+    # on the merged trunks, so `filters > lanes` is expected there and is printed
+    # rather than failed.
+    check(demux == qsplit,
+          f"component ratio: {qsplit} Quad Splitters / {demux} Demuxers "
+          f"/ {len(filt)} Quaded Filters ({len(filt) - qsplit} beyond the input lanes)")
 
     # a stacker cluster = 2x Foundation_2x2 + 1x Foundation_2x2_Flipped + 2x Fancy A+B
     n22 = sum(1 for i in isls if i["T"] == "Foundation_2x2")
@@ -187,9 +266,9 @@ def verify(path):
     clusters = n22f
     check(n22 == 2 * clusters and len(fancy) == 2 * clusters,
           f"stacker clusters: {clusters} (from {n22} 2x2, {n22f} 2x2_Flipped, {len(fancy)} Fancy A+B)")
-    if clusters and len(filt):
-        units = len(filt) // 4
-        per_unit = clusters / (len(filt) / 4)
+    if clusters and qsplit:
+        units = qsplit // 4
+        per_unit = clusters / (qsplit / 4)
         # 5/unit = the Phase 1 per-lane architecture (4 lane clusters + 1 merge);
         # 1/unit = the band-merge (bands merged per position, then ONE cluster).
         arch = {5.0: "Phase 1 per-lane", 1.0: "band-merge"}.get(

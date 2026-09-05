@@ -803,3 +803,54 @@ face the belt head-on. Confirmed on 40 of the machine's 42 mergers.
 | `RightFwdMerger` | behind + the cell at `R+3` |
 | `TripleMerger` | behind + both sides |
 | `YMerger` | both sides only — **not** from behind |
+
+### Lifts: the Z hand-off (EXTRACTED 2026-09-05, FSB MAM)
+
+The model above was fitted before any Z-change unit was in play, and it treated a
+lift as a flat `Forward`. That is wrong, and it made `verify_mam.py` report **120
+phantom dead ends** on a machine that has none.
+
+* `Lift<n>UpForward R` at `Z` hands off at **`Z+n`, one cell ahead** (direction `R`).
+* `Lift<n>DownForward R` at `Z` hands off at **`Z-n`, one cell ahead**.
+* The `Left` / `Right` variants do the same but exit at `R-1` / `R+1` — John's rule:
+  a Z-change unit "may rotate the entry or exit towards a different cardinal
+  direction, but that's it", and it may **never merge**.
+* A lift accepts input from **behind only**.
+* Nothing may sit directly above or below a lift. (Confirmed again on the FSB MAM:
+  0 of its 120 lifts has anything in the cell above or below.)
+
+With the hop modelled, `For Claude Working MAM 1 layer no-color FSB` comes out at
+**0 dead ends over 1,293 space belts**.
+
+### `Layout_TrainUnloader_Shapes_Flipped` R1 is 2 tiles wide (x-1..x, 1 tall)
+
+Prefab layouts carry no buildings, so the span trick cannot measure them. This one is
+pinned by **elimination**: each lane's first space belt sits at `(33,y)` and is fed
+from the east, `(34,y)` holds no island of its own, and islands may not overlap — so
+the unloader recorded at `(35,y)` must cover `(34,y)` and cannot reach `(33,y)`.
+
+## The band-merge distribution fan (FSB MAM, 2026-09-05)
+
+How one merged band trunk reaches four stacker clusters. Per band `k` (0..3), with
+the trunk running **west** along row `1+k` and the clusters anchored at rows 2/8/14/20:
+
+| band | trunk row | trunk splitters | inner column | outer column |
+|---|---|---|---|---|
+| A | 1 | `(-12,1)`, `(-13,1)` | -12 | -13 |
+| B | 2 | `(-9,2)`, `(-10,2)` | -9 | -10 |
+| C | 3 | `(-6,3)`, `(-7,3)` | -6 | -7 |
+| D | 4 | `(-3,4)`, `(-4,4)` | -3 | -4 |
+
+Both trunk splitters are `SpaceBelt_LeftFwdSplitter R2` — running west, peel off
+**south**. Travelling west you meet the **inner** column's splitter first. Then:
+
+* **main line** continues west, lifts to Z1 to cross the rows below it, and drops
+  into cluster 1's filter at `(-15, 1+k)`;
+* **outer column** runs south and turns west into cluster 2;
+* **inner column** runs south to cluster 3's row, turns west, and hits one more
+  splitter that feeds cluster 3 and continues south as the outer column's lower
+  segment to cluster 4.
+
+So each band needs **exactly two splitters on its trunk plus one more down the inner
+column** = four destinations. A band with only one trunk splitter silently starves
+clusters 3 and 4.
