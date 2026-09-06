@@ -77,11 +77,18 @@
    "source": "john",
    "date": "2026-09-06",
    "note": "'Bent Stackers, 4 per belt' -- same blueprint: 1->4 fan of StackerDefault (output to the SIDE, local dir 3). This is the wiki's researched Stacker (Bent) (ratio 4)."
+  },
+  {
+   "prefix": "PainterDefault",
+   "lane_fraction": 0.25,
+   "source": "john",
+   "date": "2026-09-06",
+   "items_per_second": 0.75,
+   "fluid_l_per_min": 450,
+   "note": "John: 4 painters max out one belt; each delivers 45 shapes/min (0.75/s) and consumes 450 L/min of paint. Wiki level-5 row; sandbox is therefore at max upgrade level."
   }
  ],
- "questions": [
-  "Painter / Crystal Generator: wiki ratios (4 and 6 per lane) are stated for upgrade levels 3-5 only. Is the sandbox at max upgrade level, i.e. is the ratio column what we design to? (Only matters when Phase 2 paint is laid out.)"
- ],
+ "questions": [],
  "facts": {
   "full_space_belt": {
    "belt_lanes": 48,
@@ -96,6 +103,22 @@
    "source": "john",
    "date": "2026-09-06",
    "note": "Sandbox allows crystals, but the MAM target is basic shapes + painting first; crystals (Crystal Generator, 6/lane) come after."
+  },
+  "upgrade_level": {
+   "source": "john",
+   "date": "2026-09-06",
+   "level": 5,
+   "belt_items_per_second": 3.0,
+   "belt_items_per_minute": 180,
+   "note": "Painter at 45/min = wiki level-5 column (belt 180/min). Design to the wiki's top-level row / the 'ratio' column for every machine."
+  },
+  "paint_supply": {
+   "source": "john",
+   "date": "2026-09-06",
+   "l_per_min_per_painter": 450,
+   "painters_per_belt": 4,
+   "l_per_min_per_belt": 1800,
+   "note": "One full belt of painting needs 4 x 450 = 1800 L/min, i.e. exactly one Fluid Launcher/Catcher at level 5 (wiki: 1800 L/min) per painted belt."
   }
  }
 }

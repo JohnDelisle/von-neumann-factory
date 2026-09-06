@@ -36,7 +36,7 @@ building facts, keyed by internal-variant id (tiles, footprint, in/out faces fro
 `buildings.json`; `lane_fraction` + `per_lane` from `gamedata/rates_measured.json`
 (John / measured) else from the wiki mirror via `gamedata/wiki_rates_draft.json`).
 
-    python tools/rates.py          # PASS 131 variants (53 move items): 3 measured, 31 from John, 21 from wiki, 0 open, 1 question for John
+    python tools/rates.py          # PASS 131 variants (53 move items): 3 measured, 31 from John, 21 from wiki, 0 open, 0 questions for John
     python tools/rates.py --full   # every row + the batched question list
 
 **The wiki agrees with every measured rate**: Half Destroyer 1/3 lane (3/lane),
@@ -53,8 +53,9 @@ Ratios are level-invariant (Glossary: whole numbers at equal upgrade level).
 2. Lifts = belt family (1 lane); `For Claude Lifts.spz2bp` is the geometry reference
    for Lift1/Lift2 Up/Down/Left variants (spiral up to floor 3 and down again).
 3. Scope: **basic shapes + painting MAM first; crystals later** (sandbox allows them).
-   One question left, only relevant at Phase 2: are the wiki's level-3..5 Painter
-   ratios (4/lane) what the sandbox runs at?
+   Painter (John): **4 per belt, 45 shapes/min each, 450 L/min paint each** -> the
+   sandbox is at max upgrade level (belt 180/min); design to the wiki ratio column.
+   One painted belt needs 1800 L/min = one level-5 fluid launcher/catcher.
 4. **FSB = 48 belts: 4 ports per platform x 12 belts (3 floors x 4). Confirmed.**
    Now `facts.full_space_belt` in `rates_measured.json`.
 

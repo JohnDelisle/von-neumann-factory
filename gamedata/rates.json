@@ -2830,7 +2830,7 @@
    0.75
   ],
   "lane_fraction": 0.25,
-  "note": "Painter: throughput=30 \u2022 37.5 \u2022 45; fluidinput=300 \u2022 375 \u2022 450; ratio=4; fluidratio=4. Shop: Painter 30/37.5/45.",
+  "note": "John: 4 painters max out one belt; each delivers 45 shapes/min (0.75/s) and consumes 450 L/min of paint. Wiki level-5 row; sandbox is therefore at max upgrade level.",
   "outputs": [
    [
     0,
@@ -2840,7 +2840,7 @@
    ]
   ],
   "per_lane": 4,
-  "source": "wiki",
+  "source": "john",
   "tiles": [
    [
     0,
@@ -2872,7 +2872,7 @@
    0.75
   ],
   "lane_fraction": 0.25,
-  "note": "Painter: throughput=30 \u2022 37.5 \u2022 45; fluidinput=300 \u2022 375 \u2022 450; ratio=4; fluidratio=4. Shop: Painter 30/37.5/45.",
+  "note": "John: 4 painters max out one belt; each delivers 45 shapes/min (0.75/s) and consumes 450 L/min of paint. Wiki level-5 row; sandbox is therefore at max upgrade level.",
   "outputs": [
    [
     0,
@@ -2882,7 +2882,7 @@
    ]
   ],
   "per_lane": 4,
-  "source": "wiki",
+  "source": "john",
   "tiles": [
    [
     0,
