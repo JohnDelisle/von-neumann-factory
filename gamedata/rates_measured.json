@@ -55,7 +55,7 @@
    "lane_fraction": 1.0,
    "source": "john",
    "date": "2026-09-06",
-   "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)"
+   "note": "belt family = 1 lane; John's `For Claude Lifts.spz2bp` (2026-09-06) is the geometry reference for every Lift1/Lift2 Up/Down/Left variant"
   },
   {
    "prefix": "TrashDefault",
@@ -63,12 +63,39 @@
    "source": "wiki",
    "date": "2026-09-06",
    "note": "sink: accepts on all four sides, unlimited rate (wiki Trash page)"
+  },
+  {
+   "prefix": "StackerStraight",
+   "lane_fraction": 0.16666666666666666,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "'Stackers, 6 per belt' -- John's `For Claude Stackers.spz2bp`: 1->6 fan of StackerStraight (rear inputs on both floors, front output). This is the wiki's plain milestone Stacker (ratio 6)."
+  },
+  {
+   "prefix": "StackerDefault",
+   "lane_fraction": 0.25,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "'Bent Stackers, 4 per belt' -- same blueprint: 1->4 fan of StackerDefault (output to the SIDE, local dir 3). This is the wiki's researched Stacker (Bent) (ratio 4)."
   }
  ],
  "questions": [
-  "Stacker id mapping: wiki 'Stacker' (milestone, ratio 6/lane) vs 'Stacker (Bent)' (researched, ratio 4/lane). buildings.json has StackerDefaultVariant (output to the SIDE, local dir 3) and StackerStraightVariant (output FRONT). Which id is the 6-per-lane one? rates.json currently follows the wiki mapping Default=6, Straight=4 -- unverified.",
-  "Lifts (Lift1Layer/Lift2Layer): assumed belt family = 1 lane; never measured. Confirm or correct.",
-  "Painter / Crystal Generator: wiki lists levels 3-5 only (ratio 4 and 6 per lane); is the sandbox at max upgrade level, i.e. are ratios what we should design to?",
-  "Space belt lane = 4 belts (wiki). Our bus rule is 12 belt lanes per platform notch = one space-belt input. Confirm one space belt = 12 lanes x 4 = 48 belt-lanes at full, i.e. the 4x scale factor."
- ]
+  "Painter / Crystal Generator: wiki ratios (4 and 6 per lane) are stated for upgrade levels 3-5 only. Is the sandbox at max upgrade level, i.e. is the ratio column what we design to? (Only matters when Phase 2 paint is laid out.)"
+ ],
+ "facts": {
+  "full_space_belt": {
+   "belt_lanes": 48,
+   "ports_per_platform": 4,
+   "lanes_per_port": 12,
+   "port_shape": "3 floors x 4 belts",
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "A Full Space Belt (FSB) delivers 48 belts of throughput: 4 ports on a platform, each 12 belts (3 levels of 4). Matches the wiki (space-belt lane = 4 belts, 12 lanes)."
+  },
+  "scope": {
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "Sandbox allows crystals, but the MAM target is basic shapes + painting first; crystals (Crystal Generator, 6/lane) come after."
+  }
+ }
 }

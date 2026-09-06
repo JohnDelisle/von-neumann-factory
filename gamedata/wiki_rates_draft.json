@@ -359,7 +359,7 @@
  },
  "Stacker": {
   "buildings_json_ids": [
-   "StackerDefaultVariant"
+   "StackerStraightVariant"
   ],
   "items_per_second": [
    0.1667,
@@ -381,13 +381,13 @@
   "lane_fraction": 0.1667,
   "footprint": "1 x 1 x 2 (two floors)",
   "inputs": "2: bottom-shape input on floor 0 rear, top-shape input on floor 1 rear (buildings.json: both Direction 2)",
-  "outputs": "1 on floor 0; buildings.json StackerDefaultVariant outputs to the SIDE (Direction 3)",
-  "mechanic": "Top input falls onto bottom input; halves merge into one layer, full shapes stack; layers above 4 are discarded; falling crystals shatter. 6 per belt (slowest shape machine). NOTE: buildings.json id mapping to wiki 'Stacker' vs 'Stacker (Bent)' is best-effort: Default = side output, Straight = front output.",
+  "outputs": "1 on floor 0, FRONT (StackerStraightVariant, Direction 0). Mapping settled by John's `For Claude Stackers` blueprint 2026-09-06: 6 per belt = StackerStraight.",
+  "mechanic": "Top input falls onto bottom input; halves merge into one layer, full shapes stack; layers above 4 are discarded; falling crystals shatter. 6 per belt (slowest shape machine). NOTE: buildings.json id mapping to wiki 'Stacker' vs 'Stacker (Bent)' is best-effort: Default = side output, Straight = front output. Id = StackerStraightVariant (front output), per John's blueprint.",
   "wiki_file": "Stacker.txt"
  },
  "Bent Stacker": {
   "buildings_json_ids": [
-   "StackerStraightVariant"
+   "StackerDefaultVariant"
   ],
   "items_per_second": [
    0.25,
@@ -409,8 +409,8 @@
   "lane_fraction": 0.25,
   "footprint": "1 x 1 x 2 (two floors)",
   "inputs": "2 (rear, floor 0 and floor 1)",
-  "outputs": "1 (buildings.json StackerStraightVariant: front, Direction 0)",
-  "mechanic": "Researched variant, 1.5x the plain Stacker: 4 per belt. Same stacking rules. Id mapping best-effort (see Stacker).",
+  "outputs": "1 on floor 0, to the SIDE (StackerDefaultVariant, Direction 3). Mapping settled by John's `For Claude Stackers` blueprint 2026-09-06: 4 per belt = StackerDefault.",
+  "mechanic": "Researched variant, 1.5x the plain Stacker: 4 per belt. Same stacking rules. Id = StackerDefaultVariant (side output), per John's blueprint.",
   "wiki_file": "Stacker.txt"
  },
  "Painter": {

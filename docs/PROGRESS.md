@@ -36,7 +36,7 @@ building facts, keyed by internal-variant id (tiles, footprint, in/out faces fro
 `buildings.json`; `lane_fraction` + `per_lane` from `gamedata/rates_measured.json`
 (John / measured) else from the wiki mirror via `gamedata/wiki_rates_draft.json`).
 
-    python tools/rates.py          # PASS 131 variants (53 move items): 3 measured, 31 from John, 21 from wiki, 0 open, 4 questions for John
+    python tools/rates.py          # PASS 131 variants (53 move items): 3 measured, 31 from John, 21 from wiki, 0 open, 1 question for John
     python tools/rates.py --full   # every row + the batched question list
 
 **The wiki agrees with every measured rate**: Half Destroyer 1/3 lane (3/lane),
@@ -45,17 +45,18 @@ Cutter 1/4 (4/lane), 180 Rotator 1/2, Swapper 1/4, Pin Pusher 1/3, Painter 1/4,
 Crystal Generator 1/6, Extractor 1/4, Stacker 1/6 or 1/4 (see question 1), Trash unlimited.
 Ratios are level-invariant (Glossary: whole numbers at equal upgrade level).
 
-**Four questions for John (also printed by `rates.py --full`)** — answer once, they
-go into `rates_measured.json`:
-1. Stacker id mapping: wiki `Stacker` (milestone, 6/lane) vs `Stacker (Bent)`
-   (researched, 4/lane). `StackerDefaultVariant` outputs to the SIDE, `StackerStraight`
-   to the FRONT. Which is 6/lane? rates.json follows the wiki order (Default=6,
-   Straight=4) — unverified.
-2. Lifts: assumed belt family (1 lane), never measured.
-3. Painter / Crystal Generator ratios are for upgrade levels 3-5 only. Is the sandbox
-   at max level, i.e. design to the ratio column?
-4. One space belt = 12 lanes x 4 belts = 48 belt-lanes (wiki). Confirm that is the
-   4x scale factor we already use.
+**John answered (2026-09-06, same day), now rows in `rates_measured.json`:**
+1. Stacker mapping, from his `For Claude Stackers.spz2bp` (labels + counts):
+   `StackerStraight` (rear inputs both floors, FRONT output) = plain Stacker = **6 per
+   belt**; `StackerDefault` (SIDE output) = Bent Stacker = **4 per belt**. The wiki-order
+   guess was backwards; the blueprint's 1->6 and 1->4 fans are the proof.
+2. Lifts = belt family (1 lane); `For Claude Lifts.spz2bp` is the geometry reference
+   for Lift1/Lift2 Up/Down/Left variants (spiral up to floor 3 and down again).
+3. Scope: **basic shapes + painting MAM first; crystals later** (sandbox allows them).
+   One question left, only relevant at Phase 2: are the wiki's level-3..5 Painter
+   ratios (4/lane) what the sandbox runs at?
+4. **FSB = 48 belts: 4 ports per platform x 12 belts (3 floors x 4). Confirmed.**
+   Now `facts.full_space_belt` in `rates_measured.json`.
 
 **Next session does step 2 ONLY**: the layout compiler. Spec of <=10 lines ->
 `vn20_ne_quadrant_full_belt()` compiled from `rates.json` (`per_lane` drives the
