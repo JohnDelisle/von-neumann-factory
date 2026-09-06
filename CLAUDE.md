@@ -3,6 +3,8 @@
 Co-building a constructive **Make Anything Machine (MAM)** in Shapez 2 with John.
 
 ## Start a session like this
+0. **`docs/DIRECTIVE.md`** — standing instruction (2026-09-06): spec -> compile ->
+   verify -> measure; the compiler is the product. Its 8 rules override anything below.
 1. **`python tools/brief.py`** — measured state in ~14 lines: game up?, newest sandbox
    save, delivered counts + per-second rates, the broadcast goals, the active task.
    This replaces reading history to find out where you are.
@@ -60,20 +62,21 @@ known platforms and wiring them is minutes for him and is Claude's slowest, most
 error-prone path. Claude decodes, verifies (`tools/verify_mam.py`), designs logic,
 and codifies. See PLAYBOOK "Division of labour".
 
-## Session economics — these are measured, not vibes
-Cost per model call is **(context size) x (turns)**, and context never shrinks inside a
-session. Across the first seven sessions: 2,685 calls, 802M input tokens re-read,
-average context 299k per call; every session spent ~a third of its entire input budget
-on its last quarter of turns. See `docs/token-economics.md`.
-
-* **Batch experiments.** One restart should discriminate between several hypotheses,
-  never one. Sequential single-hypothesis builds is what burns a budget.
-* **Stop the session at ~200k context** — commit, update PROGRESS.md, hand off, clear.
-  Riding a session to 500k costs 3x per turn for the same work.
-* **Tools print verdicts, not data.** `PASS 118/118 islands, 0 rotation rewrites` beats
-  a table. Anything piped through `head` afterwards was already paid for in full.
-* **Prefer local deterministic code over a model call** — and over a subagent, which
-  starts cold and re-derives context this project has already paid for.
+## Standing rules (from `docs/DIRECTIVE.md`; the measurements are in `docs/token-economics.md`)
+1. **Spec, then compile, then verify, then measure.** Never hand-place cells for anything
+   the compiler can express; if it can't, extending the compiler is the deliverable.
+2. **Verdicts only.** Tool output is one line unless it FAILs. No `python -c` dumps.
+3. **Big reads go to a subagent** (decode a blueprint, census the library, read wiki
+   pages, walk a save) that returns a verdict or a table under 30 lines.
+4. **No narration.** Answer, act, report the verdict. Prose was 41% of all input.
+5. **One experiment per session.** `brief.py`, the one thing PROGRESS.md names, commit,
+   update PROGRESS.md, stop. Never past ~150k context; write the hand-off early.
+6. **Facts arrive before builds.** Print the rate/footprint row for every building a
+   module uses before laying it out; a missing row is the first task (wiki first).
+7. **Definition of done is machine-checkable.** No PASS script = ask John for the
+   missing constraint first. John is not the test harness.
+8. **Mechanical steps are one batched shell call**, or a small-model subagent when
+   they would take many turns.
 
 ## Workflow per change
 Edit `tools/build_modules.py` -> regenerate -> copy the `.spz2bp` into the in-game

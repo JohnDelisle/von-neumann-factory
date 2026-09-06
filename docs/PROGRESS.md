@@ -28,7 +28,20 @@ hand you an `IMapModel` for the wrong map.
 
 ---
 
-# >>> START HERE (2026-09-05, night): BUILD STAGE C — TASKS 1 AND 2 ARE DONE <<<
+# >>> START HERE (2026-09-06): DIRECTIVE step 1 — wiki slurp + `gamedata/rates.json` <<<
+
+`docs/DIRECTIVE.md` is standing instruction. The next session does step 1 ONLY:
+- Subagent: pull every page of https://shapez2.wiki.gg/ via the MediaWiki API
+  (`allpages`, then `parse&prop=wikitext`) into `gamedata/wiki/<title>.txt`; commit.
+  If fetching is blocked, stop and ask John to mirror the site.
+- Produce `gamedata/rates.json` (building -> lane fraction / items per s, footprint,
+  faces, floor rules) from wiki + `buildings.json`; known rows: CutterHalf 1/3 lane,
+  RotatorOneQuad 1/2, belts/splitters/mergers/ports 1. Unknowns go to John as ONE list.
+- Verdict: `python tools/rates.py` prints `PASS n buildings, m from wiki, k from John`.
+Then steps 2 (compiler reproducing VN-20 v2) and 3 (`experiment.py`), one per session.
+The stage C material below is superseded by this order; keep it for the WHY.
+
+## (superseded 2026-09-06) BUILD STAGE C — TASKS 1 AND 2 ARE DONE
 
 **You are a fresh session on purpose.** The previous one was ending near 200k context,
 where every turn costs three to four times what the same turn cost at the start. The
