@@ -1,11 +1,17 @@
 # Von Neumann Factory — Claude entry point
 
 Co-building a constructive **Make Anything Machine (MAM)** in Shapez 2 with John.
-Read these first, in order:
-1. `docs/PROGRESS.md` — current state, the active objective, resume steps.
-2. `docs/PLAYBOOK.md` — how we build: method, design patterns, gotchas.
-3. `docs/architecture.md` — the MAM design + John's reusable module ecosystem.
-4. `docs/conventions.md` — file formats + reverse-engineered game constraints.
+
+## Start a session like this
+1. **`python tools/brief.py`** — measured state in ~14 lines: game up?, newest sandbox
+   save, delivered counts + per-second rates, the broadcast goals, the active task.
+   This replaces reading history to find out where you are.
+2. **`docs/PROGRESS.md`** — current state and the active objective ONLY (~170 lines).
+   Superseded material lives in `docs/history/`; read it only when you need a WHY.
+3. **`docs/PLAYBOOK.md`** — how we build: method, design patterns, gotchas.
+4. `docs/architecture.md` (MAM design + John's modules) and `docs/conventions.md`
+   (file formats + game constraints) are **references — grep them for the thing you
+   need; do not read them front to back.**
 
 ## Environment — you may be in either of two setups
 - **Claude Code on John's Windows PC (local)** — you have DIRECT access:
@@ -31,14 +37,17 @@ oracle for anything the live half writes.
 John broadcasts shape goals on in-game signal channels; Claude builds machines that
 deliver them to the Vortex, and `research.json -> Shapes.StoredShapes` is the score.
 
-- **Channel 123 `CuCuCuCu` — DONE**, 460,464 delivered against a target of 1,000.
-- **Channel 789 `SuSuSuSu` — ACTIVE.** Mining and cutting work (107,724 `--SuSu--`
-  delivered); recombination stalls. One batched test is queued and specified.
+- **Channel 123 `CuCuCuCu` — DONE** (target was 1,000; we are past a million).
+- **Channel 789 `SuSuSuSu` — ACTIVE.** Mining and cutting work; recombination stalls.
+  One batched test is queued and specified in PROGRESS.md.
 - **Channel 456 `WuWuWuWu`** — untouched.
 
-**FIRST THING NEXT SESSION — read PROGRESS.md ">>> START HERE".** It names the exact
-next experiment, the 12-lane port rule that cost four builds, and the rules of
-engagement (sandbox save only; never touch the 72.8h save).
+**Do not quote delivered counts from memory or from a doc — `python tools/brief.py`
+measures them.** Numbers written into prose go stale within one sim hour.
+
+**FIRST THING NEXT SESSION — run `brief.py`, then read PROGRESS.md ">>> START HERE".**
+It names the exact next experiment, the 12-lane port rule that cost four builds, and
+the rules of engagement (sandbox save only; never touch the 72.8h save).
 
 Phases: 0 supply / **1 single-layer DONE** / 2 paint / 3 multi-layer / 4 pins /
 **5 scale-4x DONE**. Phase 2's open decision (band-merge at 4 painters/unit, ~54k, vs
@@ -48,6 +57,21 @@ the current 16 painters/unit, ~121k) is still John's call and still unmade.
 known platforms and wiring them is minutes for him and is Claude's slowest, most
 error-prone path. Claude decodes, verifies (`tools/verify_mam.py`), designs logic,
 and codifies. See PLAYBOOK "Division of labour".
+
+## Session economics — these are measured, not vibes
+Cost per model call is **(context size) x (turns)**, and context never shrinks inside a
+session. Across the first seven sessions: 2,685 calls, 802M input tokens re-read,
+average context 299k per call; every session spent ~a third of its entire input budget
+on its last quarter of turns. See `docs/token-economics.md`.
+
+* **Batch experiments.** One restart should discriminate between several hypotheses,
+  never one. Sequential single-hypothesis builds is what burns a budget.
+* **Stop the session at ~200k context** — commit, update PROGRESS.md, hand off, clear.
+  Riding a session to 500k costs 3x per turn for the same work.
+* **Tools print verdicts, not data.** `PASS 118/118 islands, 0 rotation rewrites` beats
+  a table. Anything piped through `head` afterwards was already paid for in full.
+* **Prefer local deterministic code over a model call** — and over a subagent, which
+  starts cold and re-derives context this project has already paid for.
 
 ## Workflow per change
 Edit `tools/build_modules.py` -> regenerate -> copy the `.spz2bp` into the in-game
