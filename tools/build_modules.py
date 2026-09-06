@@ -1892,8 +1892,10 @@ VN03C = Module("VN-03c rotate90CW 12lane compiled", bus_1x1(2), [CW])
 
 REGRESSIONS = [
     # in-game-validated blueprint            spec that must reproduce it cell for cell
-    ("VN-20 v2 validated.spz2bp",            VN20_V2),
-    ("For Claude VN-02 1to3 splitter.spz2bp", VN02C),
+    ("VN-20 v2 validated.spz2bp",            VN20_V2),   # John, 2026-09-06 afternoon
+    ("For Claude VN-02 1to3 splitter.spz2bp", VN02C),    # John's own layout, same day
+    ("VN-20 v3 validated.spz2bp",            VN20),      # John, 2026-09-06 night: "working nicely"
+    ("VN-03c validated.spz2bp",              VN03C),     # John, 2026-09-06 night: "working nicely"
 ]
 
 

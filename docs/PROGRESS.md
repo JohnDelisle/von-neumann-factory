@@ -58,13 +58,13 @@ then runs `validate_layout` (per-tile windows) + `trace_lanes` and prints ONE li
   reproduces BOTH cell for cell from `Module(name, shell, [ops])`; the build fails if
   either drifts. John's pattern is 240 vs 336 buildings for one cutter.
 - The hand-placed `_ne_isolator_floor()` / `_bus_to_quaded_filter_frame()` are deleted.
-- **VN-20 is now v3 (sp3 template, 1300 buildings, same (48, 576)) -- in the in-game
-  folder, NOT yet stamped.** v2 is what John validated; v3 is the same operators on
-  John's own butterfly. **Test recipe:** stamp VN-20 beside the v2 already on the map,
-  full belt in from the east; the NE-quadrant belt out the west must keep up (no
-  backlog at the receivers). One screenshot. If it fails, `VN20_V2` is one line away.
-- **VN-02c** in the folder is cell-identical to John's own blueprint (validated by
-  construction). **VN-03c** (rotators, 2/lane, 1->2 butterfly + launchers) is untested.
+- **All three compiled modules VALIDATED in-game by John (2026-09-06, night):
+  "VN-20 is working nicely. VN-03c is working nicely. VN-02c is working nicely."**
+  VN-20 v3 (sp3 template, 1300 buildings, (48, 576)), VN-02c (cell-identical to John's
+  own layout) and VN-03c (rotators 2/lane, 1->2 butterfly + launchers). Every one is
+  now a frozen fixture in `blueprints/reference/` and a cell-for-cell regression --
+  four fixtures, two shells, three butterflies (1->2, 1->3 cascade, 1->3 sp3). The
+  compiler has produced three modules from specs and zero placement failures.
 - Compiler limits (each is a missing primitive, not a workaround): 1x1 one-in/one-out
   operators only; fan-out N<=3; launchers only on the home straight; labels only on
   shells with a `label_at`. `op_row()` refuses anything else with the reason.
