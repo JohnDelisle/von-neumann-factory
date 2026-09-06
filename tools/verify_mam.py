@@ -26,6 +26,7 @@ import base64, collections, os, re, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from shapez_bp import decode_bp
 import build_modules as bm
+import say
 
 gv = bm.gv
 
@@ -148,8 +149,7 @@ def check_islands_and_belts(isls, check):
                                 f"{occupied[c]} at cell {c}")
             occupied[c] = i["T"]
     check(not overlaps, f"island footprints do not overlap ({len(overlaps)} clashes)")
-    for o in overlaps[:5]:
-        print(f"           {o}")
+    say.some(overlaps, label="more clashes")
 
     belts = {(i.get("X", 0), i.get("Y", 0), i.get("Z", 0)):
              (i["T"][len("SpaceBelt_"):], i.get("R", 0))
@@ -177,8 +177,7 @@ def check_islands_and_belts(isls, check):
                 dangling.append(f"{t} R{R} at ({x},{y},Z{z}) outputs into empty space "
                                 f"at {n}")
     check(not dangling, f"space belts all deliver somewhere ({len(dangling)} dead ends)")
-    for dd in dangling[:5]:
-        print(f"           {dd}")
+    say.some(dangling, label="more dead ends")
 
     orphans = []
     for (x, y, z), (t, R) in belts.items():
@@ -197,8 +196,7 @@ def check_islands_and_belts(isls, check):
                if b in belts else f"{b} is empty")
         orphans.append(f"{t} R{R} at ({x},{y},Z{z}) is fed by nothing -- {why}")
     check(not orphans, f"space belt chains all have a source ({len(orphans)} orphans)")
-    for o in orphans[:5]:
-        print(f"           {o}")
+    say.some(orphans, label="more orphans")
 
     stacked = []
     for (x, y, z), (t, R) in belts.items():
@@ -209,8 +207,7 @@ def check_islands_and_belts(isls, check):
                 stacked.append(f"{t} at ({x},{y},Z{z}) has {belts[(x, y, oz)][0]} "
                                f"directly {'below' if oz < z else 'above'} it")
     check(not stacked, f"Z-change units have clear space ({len(stacked)} blocked)")
-    for st in stacked[:5]:
-        print(f"           {st}")
+    say.some(stacked, label="more blocked")
 
 
 def verify(path):
@@ -218,14 +215,19 @@ def verify(path):
     ver, d = decode_bp(path)
     isls = gv(d["BP"]["Entries"])
     total = sum(len(gv((i.get("B") or {}).get("Entries"))) for i in isls)
-    print(f"\n=== {name}")
-    print(f"    {len(isls)} islands, {total} buildings")
+    say.detail(f"\n=== {name}")
+    say.detail(f"    {len(isls)} islands, {total} buildings")
 
-    fails = []
+    # A passing check is not news; a failing one is. Under --full every check
+    # prints, which is what you want when a verdict surprises you.
+    fails, ran, notes = [], [], []
 
     def check(ok, msg):
-        print(f"    [{'PASS' if ok else 'FAIL'}] {msg}")
-        if not ok:
+        ran.append(ok)
+        if ok:
+            say.detail(f"    [PASS] {msg}")
+        else:
+            print(f"    [FAIL] {msg}")
             fails.append(msg)
 
     FIXED = cells(bm.load_reference_island("Fancy A+B Side Overflow.spz2bp"))
@@ -273,12 +275,13 @@ def verify(path):
         # 1/unit = the band-merge (bands merged per position, then ONE cluster).
         arch = {5.0: "Phase 1 per-lane", 1.0: "band-merge"}.get(
             round(per_unit, 3), "UNRECOGNISED -- expected 5 (per-lane) or 1 (band-merge)")
-        print(f"           -> {per_unit:.0f} clusters per 4-lane unit "
-              f"({units} unit(s)) = {arch}")
+        notes.append(f"{arch}, {units} unit(s)")
+        say.detail(f"           -> {per_unit:.0f} clusters per 4-lane unit "
+                   f"({units} unit(s)) = {arch}")
         painters = sum(1 for i in isls if "Painter" in bm.label_texts(i)
                        or "Paint" in " ".join(bm.label_texts(i)))
         if painters:
-            print(f"           -> {painters} paint platform(s)")
+            notes.append(f"{painters} paint platform(s)")
 
     bad = []
     for i in isls:
@@ -290,15 +293,18 @@ def verify(path):
 
     check_islands_and_belts(isls, check)
 
+    say.verdict(not fails, "%s -- %d/%d checks, %d islands, %d buildings%s"
+                % (name, sum(ran), len(ran), len(isls), total,
+                   ("  [" + "; ".join(notes) + "]") if notes else ""))
     return fails
 
 
 if __name__ == "__main__":
+    paths = say.args()
     allfails = []
-    for p in sys.argv[1:]:
+    for p in paths:
         allfails += verify(p)
-    print()
-    if allfails:
-        print(f"{len(allfails)} CHECK(S) FAILED")
-        sys.exit(1)
-    print("all checks passed")
+    if len(paths) > 1:
+        say.verdict(not allfails, "%d file(s), %d failed check(s)"
+                    % (len(paths), len(allfails)))
+    sys.exit(1 if allfails else 0)

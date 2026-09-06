@@ -281,5 +281,8 @@ if __name__ == "__main__":
     w, bad = roundtrip_check(sys.argv[1])
     ni = sum(len(c["islands"]) for c in w["world"].values())
     nb = sum(len(i["buildings"]) for c in w["world"].values() for i in c["islands"])
-    print("%d chunks, %d islands, %d buildings" % (len(w["world"]), ni, nb))
-    print("round-trip: " + ("BYTE-IDENTICAL on every chunk" if not bad else "MISMATCH %s" % bad))
+    import say
+    where = "" if not bad else "  MISMATCH on chunk(s) %s" % bad[:5]
+    say.verdict(not bad, "round-trip byte-identical -- %d chunks, %d islands, %d buildings%s"
+                % (len(w["world"]), ni, nb, where))
+    sys.exit(1 if bad else 0)

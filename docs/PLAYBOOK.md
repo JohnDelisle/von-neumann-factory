@@ -301,3 +301,29 @@ Two files nobody had opened held what several sessions of decoding were aimed at
   is what decides whether a requested shape is even makeable on this map.
 
 The general move: **before decoding a binary, open every JSON in the archive.**
+
+## Tool output is a verdict, not a table (2026-09-05)
+
+Every read tool here now obeys one rule, enforced by `tools/say.py`:
+
+> **The default output fits in ~15 lines and ends in a verdict. Detail moves behind
+> `--full`, and the tool always says how many rows it held back.**
+
+    import say
+    say.detail("one row of evidence")                 # only under --full
+    say.some(rows, fmt=str, cap=5, label="more")      # capped, and honest about it
+    say.verdict(ok, "118/118 islands accepted")       # the last line
+    path = say.args()[0]                              # argv minus the flags
+
+Measured effect on the tools we had: `verify_mam.py` 13 lines -> **1**, `observe.py`
+~40 -> **8**, `resources.py` ~270 -> **17**, `save_world.py` round trip 2 -> **1**.
+Nothing was deleted; `--full` still prints every line it ever printed.
+
+**Why it matters more than it looks.** Cost per model call is (context size) x (turns),
+and a tool result is re-read by every later call in the session — so a 270-line table
+is paid for hundreds of times, and a table that gets piped through `head` was paid for
+in full before the `head` ran. `docs/token-economics.md` has the measurements.
+
+The same rule applies to anything typed ad hoc: **do not print a table and then read
+it — write the assertion, and print PASS/FAIL plus the two or three numbers that decide
+it.** If a verdict ever surprises you, `--full` is right there.

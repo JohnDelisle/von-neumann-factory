@@ -48,30 +48,23 @@ in its last quarter of turns). New since you last looked: `tools/brief.py`,
 `tools/token_report.py`, this file cut from 1,138 lines to ~220 with the remainder in
 `docs/history/`, and a start-a-session procedure at the top of `CLAUDE.md`.
 
-## Task 1 (do this first, it pays for the rest of the session)
+## Task 1 — DONE (2026-09-05, late)
 
-**Make the read tools print verdicts, not data.** 34% of context weight came from Bash
-results — ad-hoc `python -c` dumps, `for` loops over islands, whole-file `cat`s — and
-the worst single results were ~30k chars each. A number that gets piped through `head`
-afterwards was still paid for in full.
+Every read tool now obeys one rule, enforced by `tools/say.py`: **the default output
+fits in ~15 lines and ends in a verdict; detail moves behind `--full`, and the tool
+says how many rows it held back.** Measured: `verify_mam.py` 13 lines -> **1**
+(`PASS ... -- 11/11 checks, 1567 islands, 163044 buildings [band-merge, 4 unit(s)]`),
+`observe.py` ~40 -> **8**, `resources.py` ~270 -> **17**, `save_world.py` round trip
+-> **1**. Nothing was deleted; `--full` still prints every line it used to.
 
-The rule: **a tool's DEFAULT output must fit in ~15 lines and end in a verdict.
-Detail moves behind `--full`.** Concretely:
+`say.py` is the whole convention: `say.detail()`, `say.some(rows, cap=5)`,
+`say.verdict(ok, msg)`, `say.args()` for argv minus the flags. New tools use it. See
+PLAYBOOK "Tool output is a verdict, not a table".
 
-| tool | today | wanted |
-|---|---|---|
-| `verify_mam.py` | a line per check | `PASS 47/47 checks, 118 islands, band-merge, 4 paint platforms` — per-check lines only for failures, or under `--full` |
-| `observe.py` | 15 shapes + island lists | 5 shapes + counts; the lists behind `--full` (and say plainly that `brief.py` covers the daily case) |
-| `resources.py`, `save_islands.py` | tables | counts + the extremes that decide the question |
-| `save_world.py` round trip | dumps on mismatch | `ROUNDTRIP OK 18,966 islands` or the FIRST differing offset only |
-| `stamp.py`, the `build_*.py` generators | per-island prints | `WROTE 118 islands, 12 lanes, size law OK` |
-
-**Acceptance criterion, measurable:** at the end of your session run
-`python tools/token_report.py --top`. No single tool result should exceed ~4k chars and
-`tool:Bash` share should be heading below 25%. Report both numbers in the handoff.
-
-Same rule applies to anything you type ad hoc: do not print a table and then read it —
-write the assertion, print PASS/FAIL and the two or three numbers that decide it.
+**The rule survives the tools it was written for:** anything typed ad hoc obeys it too
+— do not print a table and then read it; write the assertion and print PASS/FAIL plus
+the two or three numbers that decide it. `python tools/token_report.py --top` is the
+acceptance test: no single tool result much above 4k chars.
 
 ## Task 2 — is the space belt actually saturated? (VN-18's loose end)
 

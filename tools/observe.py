@@ -26,6 +26,7 @@ import json, struct, sys, zipfile, os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import save_world as sw
+import say
 
 
 def stored_shapes(w):
@@ -72,27 +73,39 @@ def main(path, wanted):
     print("\n  DELIVERED TO THE VORTEX (research.json Shapes.StoredShapes)")
     if not ss:
         print("    nothing yet")
-    for k, v in sorted(ss.items(), key=lambda kv: -kv[1])[:15]:
+    rows = sorted(ss.items(), key=lambda kv: -kv[1])
+    shown = rows if say.FULL else rows[:5]
+    for k, v in shown:
         mark = "  <-- goal" if k in wanted else ""
         print("    %-30s %8d%s" % (k, v, mark))
+    if len(rows) > len(shown):
+        print("    (%d more shapes behind --full)" % (len(rows) - len(shown)))
     for k in wanted:
         if k not in ss:
             print("    %-30s %8d  <-- goal" % (k, 0))
 
     ints, shapes = broadcasts(w)
-    print("\n  BROADCAST GOALS")
+    say.detail("\n  BROADCAST GOALS")
     for (x, y, s) in shapes:
         chans = [c for (cx, cy, c) in ints if (cx, cy) == (x, y)]
-        print("    (%d,%d)  channel %-6s shape %s"
+        say.detail("    (%d,%d)  channel %-6s shape %s"
               % (x, y, chans[0] if chans else "?", s))
 
     live = live_islands(w)
-    print("\n  ISLANDS WITH CARGO IN FLIGHT  (%d)" % len(live))
+    say.detail("\n  ISLANDS WITH CARGO IN FLIGHT  (%d)" % len(live))
     for x, y, z, t, n in live[:20]:
-        print("    (%d,%d,z%d) %-28s state %d bytes" % (x, y, z, t, n))
+        say.detail("    (%d,%d,z%d) %-28s state %d bytes" % (x, y, z, t, n))
     if not live:
-        print("    none -- nothing was moving when this was saved")
+        say.detail("    none -- nothing was moving when this was saved")
+
+    # The lists above are evidence; this is the answer. A state record bigger than
+    # the empty form is NOT proof a machine runs (VN-15 read the empty form while
+    # delivering 28,000 shapes) -- the rates in tools/brief.py are.
+    print("  %d shape(s) delivered, %d broadcast goal(s), %d island(s) with a "
+          "non-empty state record  (--full for the lists)"
+          % (len(ss), len(shapes), len(live)))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2:] or ["CuCuCuCu"])
+    a = say.args()
+    main(a[0], a[1:] or ["CuCuCuCu"])

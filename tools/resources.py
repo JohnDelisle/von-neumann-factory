@@ -45,6 +45,9 @@ CH = bytes.fromhex("ee7446a6"); SH = bytes.fromhex("da7cf209"); FL = bytes.fromh
 CHUNK_TILES = 64
 
 
+import say
+
+
 def read_resources(path):
     z = zipfile.ZipFile(path)
     S = read_strings(z.read("strings.bin"))
@@ -123,12 +126,12 @@ def main(path, targets):
     for (cx, cy), c in sorted(ch.items()):
         xs = [x for _, x, _ in c["shapes"]]; ys = [y for _, _, y in c["shapes"]]
         span = ("x %d..%d  y %d..%d" % (min(xs), max(xs), min(ys), max(ys))) if xs else "no shape patches"
-        print("    chunk (%3d,%3d)  covers x %d..%d y %d..%d   %4d tiles   %s"
+        say.detail("    chunk (%3d,%3d)  covers x %d..%d y %d..%d   %4d tiles   %s"
               % (cx, cy, cx * CHUNK_TILES - 32, cx * CHUNK_TILES + 31,
                  cy * CHUNK_TILES - 32, cy * CHUNK_TILES + 31, len(c["shapes"]), span))
-    print("\n  SHAPES PRESENT")
-    for code, n in Counter(s for s, _, _ in tiles).most_common():
-        print("    %-12s %5d tiles" % (code, n))
+    pres = Counter(s for s, _, _ in tiles).most_common()
+    print("  SHAPES PRESENT: %d distinct" % len(pres))
+    say.some(pres, fmt=lambda r: "%-12s %5d tiles" % r, cap=6, label="more shapes")
     for t in targets:
         print("\n  SOURCES FOR %s" % t)
         rows = sources_for(ch, t)
@@ -141,4 +144,5 @@ def main(path, targets):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2:] or ["CuCuCuCu", "WuWuWuWu", "SuSuSuSu"])
+    a = say.args()
+    main(a[0], a[1:] or ["CuCuCuCu", "WuWuWuWu", "SuSuSuSu"])
