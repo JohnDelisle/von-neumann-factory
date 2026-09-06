@@ -57,22 +57,31 @@ is the rule working, not an interruption. Read the sections in order and go.
 ## VN-20 — NE-quadrant isolator at full belt, Claude's own layout (2026-09-06)
 
 John asked for a platform of Claude's design: full space belt in, only the NE
-quadrant out. Shipped as `VN-20 NE quadrant full belt.spz2bp` (in-game folder and
-`blueprints/`); **awaiting John's in-game assessment** — not yet stamped or run.
+quadrant out. **v2** is in the in-game folder and `blueprints/` as
+`VN-20 NE quadrant full belt.spz2bp`, awaiting John's second assessment.
 
-- **Shell**: `Foundation_1x4` R1, the `Quaded Filter` shell verbatim — 4 rows x 12
-  lanes, in on the EAST edge (local X17, R2), out on the WEST edge (X2). 1,156 buildings.
-- **Per lane**: HalfDestroy -> Rot90CW -> HalfDestroy -> Rot90CCW = original NE quadrant
-  in its original position. Operators are half belt speed, so each lane splits once
-  into two parallel 4-operator chains and merges back (384 operators; one splitter and
-  one merger per lane, no butterflies).
+- **v1 REJECTED by John in-game**: it split each lane in two, and a **Half Destroyer
+  keeps up with only a THIRD of a belt lane — three per lane, not two.** A one-quad
+  Rotator keeps up with half a lane (two per lane, as in his `Clockwise`).
+  **John's rule: for every building placed, know its throughput and put as many in
+  parallel as the lane needs.** Now in the PLAYBOOK's building-rate table below.
+- **v2**: same shell (`Foundation_1x4` R1, the `Quaded Filter` shell verbatim — 4 rows
+  x 12 lanes, EAST in at local X17, WEST out at X2), every lane split 1->2->3 into
+  three parallel HalfDestroy -> Rot90CW -> HalfDestroy -> Rot90CCW chains and merged
+  back through two mergers. 576 operators (288 cutters, 288 rotators), 1,636 buildings.
 - **Verified offline**: `trace_lanes()` in `build_modules.py` walks every lane through
-  the game's own `BeltInputs`/`BeltOutputs` — `PASS 48 lanes, 96 paths, 384 operators
-  all on-path`, lane-preserving. The tracer was first checked against John's VN-02 and
-  VN-03 (launchers included) and passes both.
-- **Unverified in-game**: that a 1x4 at R1 stamps with these row offsets (copied from
-  the Quaded Filter, so it should), and that direct operator-to-operator chaining holds
-  at 12-lane scale (VN-01 validated it on one lane).
+  the game's own `BeltInputs`/`BeltOutputs` — `PASS 48 lanes, 144 paths, 576
+  operators all on-path`, lane-preserving. Checked first against John's VN-02 and
+  VN-03 (launchers included); both pass.
+- **Still unverified in-game**: v2's throughput end to end (v1 stamped and ran, so
+  the 1x4 shell and direct operator chaining are no longer in doubt).
+
+### Building rates per belt lane (John, in-game, 2026-09-06)
+| building | keeps up with | per lane |
+|---|---|---|
+| `CutterHalf` (Half Destroyer) | 1/3 lane | **3** |
+| `RotatorOneQuad` / `CCW` | 1/2 lane | **2** (John's `Clockwise`) |
+| belts, splitters, mergers, ports | full lane | 1 |
 
 ## VN-19 — the mine works; the Vortex end is now the cap (2026-09-05, night)
 

@@ -1438,17 +1438,23 @@ def vn14_band_merge_aggregator():
 #   {NE,SE,SW,NW} -HD-> {NE,SE} -Rot90CW-> {SE,SW} -HD-> {SE} -Rot90CCW-> {NE}
 # i.e. the original NE quadrant, back in its original position.
 #
-# Throughput: each operator runs at half belt speed (John's `Clockwise` and VN-02
-# both spend two operator cells per lane), so every lane is split ONCE into two
-# parallel HD->CW->HD->CCW chains and merged back -- one splitter and one merger per
-# lane instead of four butterflies. 32 operators per floor, 96 per band, 384 total.
+# Throughput -- MEASURED BY JOHN IN-GAME (2026-09-06, v1 rejected): a Half Destroyer
+# keeps up with only ONE THIRD of a belt lane, so it takes THREE in parallel per lane;
+# a one-quad Rotator keeps up with half a lane (John's `Clockwise` spends two per
+# lane). v1 split each lane in two and bottlenecked on the cutters. v2 splits every
+# lane THREE ways into three parallel HD->CW->HD->CCW chains and merges back, so each
+# operator sees a third of a lane: enough for the cutter, over-provisioned for the
+# rotators. 48 operators per floor, 144 per band, 576 on the platform. RULE, from
+# John: for every building placed, know its throughput and put as many in parallel
+# as the lane needs.
 #
-# Designed in the 1x1 bus frame (south-in Y17 / north-out Y2, lanes X8-11, R3): the
-# outer lanes step out to X6/X13 first so every lane has a free neighbour column to
-# split into (X5-6, X8-9, X10-11, X13-14), chains run Y14..11, merge at Y10, and the
-# outer lanes step back in at Y9. Then rotated one step CCW into the Quaded Filter
-# frame and repeated on L0-2 and on the four rows. `trace_lanes()` walks every lane
-# through the finished geometry; it, not this comment, is the verdict.
+# Designed in the 1x1 bus frame (south-in Y17 / north-out Y2, lanes X8-11, R3). The
+# four lanes fan out to centre columns 5, 8, 11, 14 (rows Y16/Y15), each splits
+# 1->2->3 into columns c-1, c, c+1 (rows Y14/Y13), the chains run four cells straight,
+# two mergers (Y8, Y7) rejoin the lane, and rows Y6/Y5 bring it back to its home
+# column. Then rotated one step CCW into the Quaded Filter frame and repeated on
+# L0-2 and on the four rows. `trace_lanes()` walks every lane through the finished
+# geometry; it, not this comment, is the verdict.
 FWD = "BeltDefaultForwardInternalVariant"
 LT = "BeltDefaultLeftInternalVariant"            # left turn: enters heading R, exits R-1
 RT = "BeltDefaultLeftInternalVariantMirrored"    # right turn: enters heading R, exits R+1
@@ -1463,31 +1469,35 @@ def _ne_isolator_floor():
     """One floor, bus frame: (x, y, R, T). Four lanes X8-11, flow north."""
     c = []
 
-    def chain(x):
-        c.extend((x, 14 - i, 3, t) for i, t in enumerate(NE_OPS))
+    def chain(x, y_top):
+        c.extend((x, y_top - i, 3, t) for i, t in enumerate(NE_OPS))
 
-    # lane X8: step out to X6, split into X5/X6, merge at (6,10), step back in at Y9
-    c += [(8, 17, 3, RX), (8, 16, 3, LT), (7, 16, 2, FWD), (6, 16, 2, RT),
-          (6, 15, 3, SPL), (5, 15, 2, RT)]
-    chain(6); chain(5)
-    c += [(5, 10, 3, RT), (6, 10, 3, MGL), (6, 9, 3, RT), (7, 9, 0, FWD), (8, 9, 0, LT)]
-    c += [(8, y, 3, FWD) for y in range(8, 2, -1)] + [(8, 2, 3, TX)]
-    # lane X9: split into X8/X9
-    c += [(9, 17, 3, RX), (9, 16, 3, FWD), (9, 15, 3, SPL), (8, 15, 2, RT)]
-    chain(9); chain(8)
-    c += [(8, 10, 3, RT), (9, 10, 3, MGL)]
-    c += [(9, y, 3, FWD) for y in range(9, 2, -1)] + [(9, 2, 3, TX)]
-    # lane X10: mirror of X9, split into X10/X11
-    c += [(10, 17, 3, RX), (10, 16, 3, FWD), (10, 15, 3, SPR), (11, 15, 0, LT)]
-    chain(10); chain(11)
-    c += [(11, 10, 3, LT), (10, 10, 3, MGR)]
-    c += [(10, y, 3, FWD) for y in range(9, 2, -1)] + [(10, 2, 3, TX)]
-    # lane X11: mirror of X8, step out to X13, split into X13/X14
-    c += [(11, 17, 3, RX), (11, 16, 3, RT), (12, 16, 0, FWD), (13, 16, 0, LT),
-          (13, 15, 3, SPR), (14, 15, 0, LT)]
-    chain(13); chain(14)
-    c += [(14, 10, 3, LT), (13, 10, 3, MGR), (13, 9, 3, LT), (12, 9, 2, FWD), (11, 9, 2, RT)]
-    c += [(11, y, 3, FWD) for y in range(8, 2, -1)] + [(11, 2, 3, TX)]
+    def lane(home, centre, entry, exit_):
+        """`entry`/`exit_` route the lane home<->centre; the middle is uniform."""
+        nonlocal c
+        c.extend(entry)
+        c += [(centre, 14, 3, SPL), (centre - 1, 14, 2, RT),          # 1 -> 2, left
+              (centre, 13, 3, SPR), (centre + 1, 13, 0, LT)]          # 2 -> 3, right
+        chain(centre - 1, 13); chain(centre, 12); chain(centre + 1, 12)
+        c += [(centre - 1, 9, 3, FWD), (centre - 1, 8, 3, RT), (centre, 8, 3, MGL),
+              (centre + 1, 8, 3, FWD), (centre + 1, 7, 3, LT), (centre, 7, 3, MGR)]
+        c.extend(exit_)
+        c += [(home, y, 3, FWD) for y in range(exit_[-1][1] - 1, 2, -1)] + [(home, 2, 3, TX)]
+
+    # lane X8 -> centre 5 (out along Y16, back along Y5)
+    lane(8, 5, [(8, 17, 3, RX), (8, 16, 3, LT), (7, 16, 2, FWD), (6, 16, 2, FWD),
+                (5, 16, 2, RT), (5, 15, 3, FWD)],
+         [(5, 6, 3, FWD), (5, 5, 3, RT), (6, 5, 0, FWD), (7, 5, 0, FWD), (8, 5, 0, LT)])
+    # lane X9 -> centre 8 (out along Y15, back along Y6)
+    lane(9, 8, [(9, 17, 3, RX), (9, 16, 3, FWD), (9, 15, 3, LT), (8, 15, 2, RT)],
+         [(8, 6, 3, RT), (9, 6, 0, LT)])
+    # lane X10 -> centre 11 (mirror of X9)
+    lane(10, 11, [(10, 17, 3, RX), (10, 16, 3, FWD), (10, 15, 3, RT), (11, 15, 0, LT)],
+         [(11, 6, 3, LT), (10, 6, 2, RT)])
+    # lane X11 -> centre 14 (mirror of X8)
+    lane(11, 14, [(11, 17, 3, RX), (11, 16, 3, RT), (12, 16, 0, FWD), (13, 16, 0, FWD),
+                  (14, 16, 0, LT), (14, 15, 3, FWD)],
+         [(14, 6, 3, FWD), (14, 5, 3, LT), (13, 5, 2, FWD), (12, 5, 2, FWD), (11, 5, 2, RT)])
     return c
 
 
@@ -1508,7 +1518,7 @@ def vn20_ne_quadrant_full_belt():
             for x, y, R, T in floor:
                 lx, ly, lR = _bus_to_quaded_filter_frame(x, y, R)
                 b.append(be(T, X=lx, Y=ly + dy, L=L, R=lR))
-        b.append(be("LabelDefaultInternalVariant", X=6, Y=15 + dy, L=0, R=0,
+        b.append(be("LabelDefaultInternalVariant", X=6, Y=16 + dy, L=0, R=0,
                     C=label_config("NE only" if k else "VN-20 NE only  E in / W out")))
     # bounds: the 1x4 skips the 1x1 window check, so do it per row here
     for e in b:
@@ -1520,7 +1530,7 @@ def vn20_ne_quadrant_full_belt():
     n_lanes, n_ops = trace_lanes(b, NE_OPS, is_in=lambda e: e["X"] == 17,
                                  is_out=lambda e: e["X"] == 2,
                                  lane_key=lambda e: (e["Y"], e["L"]), where="VN-20")
-    assert (n_lanes, n_ops) == (48, 384), (n_lanes, n_ops)
+    assert (n_lanes, n_ops) == (48, 576), (n_lanes, n_ops)
     return blueprint_islands([our_island("Foundation_1x4", b, R=1, where="VN-20")])
 
 
