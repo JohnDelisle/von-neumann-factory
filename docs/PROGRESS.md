@@ -54,6 +54,46 @@ measure — one game session.
 The previous session stopped at 211k context rather than start this build there; that
 is the rule working, not an interruption. Read the sections in order and go.
 
+## VN-19 — the mine works; the Vortex end is now the cap (2026-09-05, night)
+
+John re-stamped all twelve miners. Normalised against VN-15's untouched Cu miner:
+
+| build | Ru / Cu | what it means |
+|---|---|---|
+| twelve miners as Claude built them | 4.001 | one working miner out of twelve |
+| after John fixed ONE | 7.871 | one platform = one lane = 4 Cu-units |
+| after Claude rotated the other eleven islands 180 deg | 7.83 | **no effect — island R is inert** |
+| **all twelve re-stamped by John** | **27.985** | **7x the original build; Ru at 2,896/s** |
+
+### Both collectors are now saturated, and that is the new bottleneck
+
+Every belt on collector A and collector B reads **3,162 B** of cargo state against the
+empty **474 B**, and the mergers read 4,047-6,427 B. Before the fix they were all at
+474 B. The mine is now out-producing the delivery.
+
+**This is John's rule arriving on schedule: emptying a full space belt takes FOUR
+Vortex ports.** Each collector currently lands on ONE hub edge — A on hub tile (0,-1)
+EAST, B on (0,-1) NORTH — so each is draining at roughly a quarter of what it carries.
+
+### The next build
+
+Split each collector into **four branches near the hub and land them on four separate
+edge ports**. The hub has 12 outward edges x 12 lanes and VN-17 already copied John's
+full 144-lane feed, so every edge is live and any machine only has to reach one.
+
+Two collectors, both full, therefore want **eight ports** between them. Belts only —
+no platform internals — which is the kind of generation that has worked reliably
+(VN-18 wrote 118 belt islands and the game accepted all 118 unchanged).
+
+Expected if the rule holds and the mine can feed it: 12 lanes = 48 Cu-units, against
+27.985 today.
+
+### Verify before measuring, every time
+
+`python tools/verify_miners.py <save>` — steps one island the way each miner's senders
+point and checks something is there to receive. It passes all twelve now, and flags the
+leftover miner at **(-2,-3)** beside the Vortex, which fires west into empty space.
+
 ## Task 1 — DONE (2026-09-05, late)
 
 Every read tool now obeys one rule, enforced by `tools/say.py`: **the default output
