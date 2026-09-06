@@ -1427,6 +1427,191 @@ def vn14_band_merge_aggregator():
     return blueprint_islands(out)
 
 
+
+# ---------------------------------------------------------------- VN-20
+# NE-QUADRANT ISOLATOR at full belt: `Foundation_1x4`, east-in / west-out, 4 bands x
+# 12 lanes = 48 lanes -- the same shell as John's `Quaded Filter` (island R=1, ports
+# at local X=17 / X=2, R2, lane Y = 20k-12..20k-9), copied from it, not chosen.
+# The layout inside is Claude's own, at John's request (2026-09-06).
+#
+# Shape math per item (cut plane is world-vertical; HalfDestroy keeps world-EAST):
+#   {NE,SE,SW,NW} -HD-> {NE,SE} -Rot90CW-> {SE,SW} -HD-> {SE} -Rot90CCW-> {NE}
+# i.e. the original NE quadrant, back in its original position.
+#
+# Throughput: each operator runs at half belt speed (John's `Clockwise` and VN-02
+# both spend two operator cells per lane), so every lane is split ONCE into two
+# parallel HD->CW->HD->CCW chains and merged back -- one splitter and one merger per
+# lane instead of four butterflies. 32 operators per floor, 96 per band, 384 total.
+#
+# Designed in the 1x1 bus frame (south-in Y17 / north-out Y2, lanes X8-11, R3): the
+# outer lanes step out to X6/X13 first so every lane has a free neighbour column to
+# split into (X5-6, X8-9, X10-11, X13-14), chains run Y14..11, merge at Y10, and the
+# outer lanes step back in at Y9. Then rotated one step CCW into the Quaded Filter
+# frame and repeated on L0-2 and on the four rows. `trace_lanes()` walks every lane
+# through the finished geometry; it, not this comment, is the verdict.
+FWD = "BeltDefaultForwardInternalVariant"
+LT = "BeltDefaultLeftInternalVariant"            # left turn: enters heading R, exits R-1
+RT = "BeltDefaultLeftInternalVariantMirrored"    # right turn: enters heading R, exits R+1
+SPL, SPR = "Splitter1To2LInternalVariant", "Splitter1To2LInternalVariantMirrored"
+MGL, MGR = "Merger2To1LInternalVariant", "Merger2To1LInternalVariantMirrored"
+HD, CW, CCW = "CutterHalfInternalVariant", "RotatorOneQuadInternalVariant", "RotatorOneQuadCCWInternalVariant"
+RX, TX = "BeltPortReceiverInternalVariant", "BeltPortSenderInternalVariant"
+NE_OPS = [HD, CW, HD, CCW]
+
+
+def _ne_isolator_floor():
+    """One floor, bus frame: (x, y, R, T). Four lanes X8-11, flow north."""
+    c = []
+
+    def chain(x):
+        c.extend((x, 14 - i, 3, t) for i, t in enumerate(NE_OPS))
+
+    # lane X8: step out to X6, split into X5/X6, merge at (6,10), step back in at Y9
+    c += [(8, 17, 3, RX), (8, 16, 3, LT), (7, 16, 2, FWD), (6, 16, 2, RT),
+          (6, 15, 3, SPL), (5, 15, 2, RT)]
+    chain(6); chain(5)
+    c += [(5, 10, 3, RT), (6, 10, 3, MGL), (6, 9, 3, RT), (7, 9, 0, FWD), (8, 9, 0, LT)]
+    c += [(8, y, 3, FWD) for y in range(8, 2, -1)] + [(8, 2, 3, TX)]
+    # lane X9: split into X8/X9
+    c += [(9, 17, 3, RX), (9, 16, 3, FWD), (9, 15, 3, SPL), (8, 15, 2, RT)]
+    chain(9); chain(8)
+    c += [(8, 10, 3, RT), (9, 10, 3, MGL)]
+    c += [(9, y, 3, FWD) for y in range(9, 2, -1)] + [(9, 2, 3, TX)]
+    # lane X10: mirror of X9, split into X10/X11
+    c += [(10, 17, 3, RX), (10, 16, 3, FWD), (10, 15, 3, SPR), (11, 15, 0, LT)]
+    chain(10); chain(11)
+    c += [(11, 10, 3, LT), (10, 10, 3, MGR)]
+    c += [(10, y, 3, FWD) for y in range(9, 2, -1)] + [(10, 2, 3, TX)]
+    # lane X11: mirror of X8, step out to X13, split into X13/X14
+    c += [(11, 17, 3, RX), (11, 16, 3, RT), (12, 16, 0, FWD), (13, 16, 0, LT),
+          (13, 15, 3, SPR), (14, 15, 0, LT)]
+    chain(13); chain(14)
+    c += [(14, 10, 3, LT), (13, 10, 3, MGR), (13, 9, 3, LT), (12, 9, 2, FWD), (11, 9, 2, RT)]
+    c += [(11, y, 3, FWD) for y in range(8, 2, -1)] + [(11, 2, 3, TX)]
+    return c
+
+
+def _bus_to_quaded_filter_frame(x, y, R):
+    """One CCW step about the 1x1 centre: south-in/north-out -> east-in/west-out."""
+    return y, 19 - x, (R + 3) % 4
+
+
+ROW_DY = [-20, 0, 20, 40]      # Quaded Filter rows k=0..3: lanes at 20k-12..20k-9
+
+
+def vn20_ne_quadrant_full_belt():
+    """VN-20: full belt in (east), only the NE quadrant out (west), Foundation_1x4."""
+    b = []
+    floor = _ne_isolator_floor()
+    for k, dy in enumerate(ROW_DY):
+        for L in range(3):
+            for x, y, R, T in floor:
+                lx, ly, lR = _bus_to_quaded_filter_frame(x, y, R)
+                b.append(be(T, X=lx, Y=ly + dy, L=L, R=lR))
+        b.append(be("LabelDefaultInternalVariant", X=6, Y=15 + dy, L=0, R=0,
+                    C=label_config("NE only" if k else "VN-20 NE only  E in / W out")))
+    # bounds: the 1x4 skips the 1x1 window check, so do it per row here
+    for e in b:
+        for x, y, L in footprint_cells(e):
+            k = (y + 20) // 20
+            m = LABEL_EDGE_MARGIN if e["T"].startswith("Label") else 0
+            assert 0 <= k < 4 and 2 + m <= x <= 17 - m and 2 + m <= y - ROW_DY[k] <= 17 - m, \
+                f"{e['T']} at ({e['X']},{e['Y']}) leaves the row window at {(x, y)}"
+    n_lanes, n_ops = trace_lanes(b, NE_OPS, is_in=lambda e: e["X"] == 17,
+                                 is_out=lambda e: e["X"] == 2,
+                                 lane_key=lambda e: (e["Y"], e["L"]), where="VN-20")
+    assert (n_lanes, n_ops) == (48, 384), (n_lanes, n_ops)
+    return blueprint_islands([our_island("Foundation_1x4", b, R=1, where="VN-20")])
+
+
+# ---------------------------------------------------------------- belt tracing
+def load_building_io(path=None):
+    """{variant: (inputs, outputs)} as (dx, dy, dz, face) from the game's export."""
+    with open(os.path.join(path or BASEDATA_DIR, "buildings.json"), encoding="utf-8") as f:
+        data = json.load(f)
+    out = {}
+    for bd in data:
+        for v in bd.get("InternalVariants", []):
+            conv = lambda lst: [(p["Position_L"]["X"], p["Position_L"]["Y"],
+                                 p["Position_L"]["Z"], p["Direction_L"]) for p in lst]
+            out[v["Id"]] = (conv(v.get("BeltInputs", [])), conv(v.get("BeltOutputs", [])))
+    return out
+
+
+BUILDING_IO = load_building_io()
+FACE = [(1, 0), (0, 1), (-1, 0), (0, -1)]       # local direction index -> local vector
+
+
+def trace_lanes(buildings, expect_ops, is_in, is_out, lane_key, where=""):
+    """Walk every lane from its edge receiver to an edge sender; print a verdict.
+
+    Every path must (1) reach a sender on the platform's out edge, on the SAME row,
+    lane Y and floor it entered on (lane-preserving), (2) pass exactly `expect_ops`
+    in order, and (3) between them all paths must cover every operator cell.
+    Splitters fork the walk; mergers just join it. A sender that is NOT on the out
+    edge is a belt launcher: the walk jumps to the first catcher 1-4 cells ahead in
+    its column (conventions: "Belt launchers / catchers"). Raises on the first
+    violation. `is_in(e)` / `is_out(e)` pick the edge ports; `lane_key(e)` is what a
+    lane must preserve between them, e.g. `lambda e: (e["Y"], e["L"])`.
+    """
+    by_cell, ops_all = {}, set()
+    for e in buildings:
+        for cell in footprint_cells(e):
+            by_cell[cell] = e
+        if e["T"] in expect_ops:
+            ops_all.add((e["X"], e["Y"], e["L"]))
+
+    def ports(e, which):
+        ins, outs = BUILDING_IO[e["T"]]
+        res = []
+        for dx, dy, dz, d in (ins if which == "in" else outs):
+            rx, ry = rotate_offset(dx, dy, e["R"])
+            fx, fy = rotate_offset(*FACE[d], e["R"])
+            cell = (e["X"] + rx, e["Y"] + ry, e["L"] + dz)
+            res.append((cell, (cell[0] + fx, cell[1] + fy, cell[2])))
+        return res
+
+    receivers = [e for e in buildings if e["T"] == RX and is_in(e)]
+    seen_ops, n_paths = set(), 0
+    for r in receivers:
+        stack = [(r, [], {(r["X"], r["Y"], r["L"])})]
+        while stack:
+            e, path, visited = stack.pop()
+            if e["T"] == TX and not is_out(e):            # a launcher: hop 1-4 cells
+                fx, fy = rotate_offset(1, 0, e["R"])
+                hop = [by_cell.get((e["X"] + fx * n, e["Y"] + fy * n, e["L"])) for n in (2, 3, 4, 5)]
+                hop = [h for h in hop if h is not None and h["T"] == RX]
+                assert hop, f"{where}: launcher at ({e['X']},{e['Y']},L{e['L']}) has no catcher"
+                stack.append((hop[0], path, visited | {(hop[0]["X"], hop[0]["Y"], hop[0]["L"])}))
+                continue
+            if e["T"] == TX:
+                assert lane_key(e) == lane_key(r), (
+                    f"{where}: lane from ({r['X']},{r['Y']},L{r['L']}) ends at "
+                    f"({e['X']},{e['Y']},L{e['L']})")
+                assert [t for _, t in path] == expect_ops, (
+                    f"{where}: lane from ({r['X']},{r['Y']},L{r['L']}) passes "
+                    f"{[t[:12] for _, t in path]}")
+                seen_ops.update(c for c, _ in path)
+                n_paths += 1
+                continue
+            nxt = []
+            for cell, ahead in ports(e, "out"):
+                e2 = by_cell.get(ahead)
+                if e2 is not None and any(a == cell for _, a in ports(e2, "in")):
+                    nxt.append(e2)
+            assert nxt, f"{where}: dead end after {e['T']} at ({e['X']},{e['Y']},L{e['L']})"
+            for e2 in nxt:
+                key = (e2["X"], e2["Y"], e2["L"])
+                assert key not in visited, f"{where}: loop at {key}"
+                p2 = path + ([(key, e2["T"])] if e2["T"] in expect_ops else [])
+                stack.append((e2, p2, visited | {key}))
+    assert seen_ops == ops_all, f"{where}: {len(ops_all - seen_ops)} operator cells never visited"
+    print(f"TRACE {where}: PASS {len(receivers)} lanes, {n_paths} paths, "
+          f"{len(ops_all)} operators all on-path, every lane "
+          f"{'>'.join(t[:6] for t in expect_ops)}")
+    return len(receivers), len(ops_all)
+
+
 MODULES = {
     "VN-00 coord test": vn00_coord_test,
     "VN-01 quad isolator 1lane": vn01_quad_isolator_1lane,
@@ -1450,6 +1635,7 @@ MODULES = {
     "VN-13 colour brain all": vn13_colour_brain_all,
     "VN-13t2 one island labelled": vn13t2_one_island_labelled,
     "VN-14 band merge aggregator": vn14_band_merge_aggregator,
+    "VN-20 NE quadrant full belt": vn20_ne_quadrant_full_belt,
 }
 
 if __name__ == "__main__":

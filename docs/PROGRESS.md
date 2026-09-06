@@ -54,6 +54,26 @@ measure — one game session.
 The previous session stopped at 211k context rather than start this build there; that
 is the rule working, not an interruption. Read the sections in order and go.
 
+## VN-20 — NE-quadrant isolator at full belt, Claude's own layout (2026-09-06)
+
+John asked for a platform of Claude's design: full space belt in, only the NE
+quadrant out. Shipped as `VN-20 NE quadrant full belt.spz2bp` (in-game folder and
+`blueprints/`); **awaiting John's in-game assessment** — not yet stamped or run.
+
+- **Shell**: `Foundation_1x4` R1, the `Quaded Filter` shell verbatim — 4 rows x 12
+  lanes, in on the EAST edge (local X17, R2), out on the WEST edge (X2). 1,156 buildings.
+- **Per lane**: HalfDestroy -> Rot90CW -> HalfDestroy -> Rot90CCW = original NE quadrant
+  in its original position. Operators are half belt speed, so each lane splits once
+  into two parallel 4-operator chains and merges back (384 operators; one splitter and
+  one merger per lane, no butterflies).
+- **Verified offline**: `trace_lanes()` in `build_modules.py` walks every lane through
+  the game's own `BeltInputs`/`BeltOutputs` — `PASS 48 lanes, 96 paths, 384 operators
+  all on-path`, lane-preserving. The tracer was first checked against John's VN-02 and
+  VN-03 (launchers included) and passes both.
+- **Unverified in-game**: that a 1x4 at R1 stamps with these row offsets (copied from
+  the Quaded Filter, so it should), and that direct operator-to-operator chaining holds
+  at 12-lane scale (VN-01 validated it on one lane).
+
 ## VN-19 — the mine works; the Vortex end is now the cap (2026-09-05, night)
 
 John re-stamped all twelve miners. Normalised against VN-15's untouched Cu miner:
