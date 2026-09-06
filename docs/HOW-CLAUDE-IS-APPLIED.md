@@ -43,8 +43,11 @@ experiment only, ~440 lines), `docs/PLAYBOOK.md` (method and gotchas), and the t
 reference docs grepped, never read front to back.
 
 **The loop** (`docs/PLAYBOOK.md`, "Working method"):
-1. Claude writes the generator, regenerates, copies the `.spz2bp` into the in-game
-   folder, commits and pushes.
+1. Claude writes a module SPEC (operators per lane + shell); the layout compiler in
+   `tools/build_modules.py` fans lanes by the measured rates, routes, validates and
+   traces it (since 2026-09-06 -- before that Claude hand-placed cells, which is where
+   every placement failure came from). Regenerate, copy the `.spz2bp` into the
+   in-game folder, commit and push.
 2. John refreshes the blueprint folder, stamps the module, plumbs it, runs it, and
    reports what he sees (a sentence, sometimes a screenshot).
 3. Claude codifies the outcome: a verdict tool, a docs entry, a rule.
@@ -134,10 +137,11 @@ cannot recur.
 
 ## Where it is weak, for the assessor
 
-1. **Game facts still arrive by failure.** Building rates, port bands, footprint
-   anchors, launcher gaps: each was learned from a failed stamp. A short table of
-   per-building throughput, filled in by John once, would have prevented VN-20 v1 and
-   probably VN-02's own bottleneck. The rate table in `PROGRESS.md` has three rows.
+1. **Game facts used to arrive by failure.** Building rates, port bands, footprint
+   anchors, launcher gaps: each was learned from a failed stamp. Since 2026-09-06
+   `gamedata/rates.json` (wiki + John + measurements, 131 variants) is read by the
+   compiler before any cell is placed; the remaining prose rules in `conventions.md`
+   are still being converted to checks as the compiler needs them.
 2. **The human loop is the bottleneck, not the model.** Claude can now run the game,
    but stamping a blueprint and reading a throughput problem by eye is still John's
    job. Whether the bridge can stamp and measure a module unattended has not been

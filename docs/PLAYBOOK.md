@@ -44,13 +44,27 @@ Claude's build effort is best spent on new logic and on replication/parameterisa
   `Painter`, `Overflow`) — don't rebuild what he's already validated.
 - **Operation-agnostic routing.** A proven split/merge butterfly (e.g. `Clockwise`)
   can have its operator cells swapped (rotator<->cutter) to make a new module with
-  the same validated routing. Verify each item passes exactly ONE operator.
+  the same validated routing. Verify each item passes exactly ONE operator. Since
+  2026-09-06 the compiler does this: the butterfly is a template, the operators a list.
 - **No waste.** Decompose base shapes with `Quad Splitter` (use all 4 quadrants);
   never isolate-one-and-discard-three.
 - **Launchers on straight runs** for traversal speed (not throughput). Only where a
   real >=1-tile gap exists; never zero-span; avoid launcher spaghetti.
 - **Assemble a layer only from DISJOINT single-quadrant pieces** (distinct
   positions) — rigid-body stacking merges disjoint, stacks overlapping onto a new layer.
+
+## Modules are specs; the compiler places cells (DIRECTIVE step 2, 2026-09-06)
+
+`Module(name, shell, per_lane=[ops], labels=...)` in `tools/build_modules.py` is the
+whole design of a lane-operator platform. `compile_module()` looks up every operator's
+`per_lane` in `rates.json`, fans 1->N->1 with the butterfly validated in-game as VN-20
+v2, lets the `Shell` rotate and tile the bus frame (1x1 bus, John's 1x4 Quaded Filter
+shell), then runs `validate_layout` + `trace_lanes` and prints one verdict line.
+`check_vn20_regression()` diffs the compiled VN-20 against the frozen fixture
+`blueprints/reference/VN-20 v2 validated.spz2bp` on every build. The rule that follows:
+**when you want to hand-place a cell, the compiler is missing a primitive -- add the
+primitive** (a new Shell, a wider fan-out, a two-input operator, launchers), never a
+tuple list. The compiler's own `assert` messages say which primitive is missing.
 
 ## Building rates live in `gamedata/rates.json`, not in prose (2026-09-06)
 

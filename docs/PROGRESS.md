@@ -1,6 +1,6 @@
 # Project status & session handoff
 
-_Last updated: **2026-09-06** (afternoon). This file is the **current state only** —
+_Last updated: **2026-09-06** (evening). This file is the **current state only** —
 everything superseded now lives in `docs/history/`. Read this, then `docs/PLAYBOOK.md`
 (method, patterns, gotchas). `docs/architecture.md` and `docs/conventions.md` are
 **references: grep them for the thing you need, do not read them front to back**._
@@ -28,45 +28,47 @@ hand you an `IMapModel` for the wrong map.
 
 ---
 
-# >>> START HERE (2026-09-06, afternoon): DIRECTIVE step 2 — the layout compiler <<<
+# >>> START HERE (2026-09-06, evening): DIRECTIVE step 3 — `experiment.py` <<<
 
-**Step 1 is DONE (2026-09-06):** `gamedata/wiki/` mirrors all 153 wiki articles
-(`python tools/wiki_slurp.py`, 429-aware); `gamedata/rates.json` is the one table of
-building facts, keyed by internal-variant id (tiles, footprint, in/out faces from
-`buildings.json`; `lane_fraction` + `per_lane` from `gamedata/rates_measured.json`
-(John / measured) else from the wiki mirror via `gamedata/wiki_rates_draft.json`).
+**Step 2 is DONE (2026-09-06):** the layout compiler lives in `tools/build_modules.py`
+("layout compiler" section). A module is a spec:
 
-    python tools/rates.py          # PASS 131 variants (53 move items): 3 measured, 31 from John, 21 from wiki, 0 open, 0 questions for John
-    python tools/rates.py --full   # every row + the batched question list
+    VN20 = Module("VN-20 NE quadrant full belt", QUADED_FILTER_SHELL, [HD, CW, HD, CCW],
+                  labels=["VN-20 NE only  E in / W out"] + ["NE only"] * 3)
 
-**The wiki agrees with every measured rate**: Half Destroyer 1/3 lane (3/lane),
-one-quad Rotator 1/2 (2/lane), belts/splitters/mergers/ports 1. New from the wiki:
-Cutter 1/4 (4/lane), 180 Rotator 1/2, Swapper 1/4, Pin Pusher 1/3, Painter 1/4,
-Crystal Generator 1/6, Extractor 1/4, Stacker 1/6 or 1/4 (see question 1), Trash unlimited.
-Ratios are level-invariant (Glossary: whole numbers at equal upgrade level).
+`compile_module()` reads `per_lane` for every operator from `gamedata/rates.json`,
+fans each lane 1->N->1 (N = max per_lane), lays the VN-20 v2 butterfly (1->2 and 1->3
+templates, greedy row-sharing for the lane walks), places it once per tile of the
+`Shell` (the Shell owns the frame rotation: `bus_1x1(R)` and `QUADED_FILTER_SHELL`),
+then runs `validate_layout` (per-tile windows) + `trace_lanes` and prints ONE line.
 
-**John answered (2026-09-06, same day), now rows in `rates_measured.json`:**
-1. Stacker mapping, from his `For Claude Stackers.spz2bp` (labels + counts):
-   `StackerStraight` (rear inputs both floors, FRONT output) = plain Stacker = **6 per
-   belt**; `StackerDefault` (SIDE output) = Bent Stacker = **4 per belt**. The wiki-order
-   guess was backwards; the blueprint's 1->6 and 1->4 fans are the proof.
-2. Lifts = belt family (1 lane); `For Claude Lifts.spz2bp` is the geometry reference
-   for Lift1/Lift2 Up/Down/Left variants (spiral up to floor 3 and down again).
-3. Scope: **basic shapes + painting MAM first; crystals later** (sandbox allows them).
-   Painter (John): **4 per belt, 45 shapes/min each, 450 L/min paint each** -> the
-   sandbox is at max upgrade level (belt 180/min); design to the wiki ratio column.
-   One painted belt needs 1800 L/min = one level-5 fluid launcher/catcher.
-4. **FSB = 48 belts: 4 ports per platform x 12 belts (3 floors x 4). Confirmed.**
-   Now `facts.full_space_belt` in `rates_measured.json`.
+    python tools/build_modules.py blueprints
+    REGRESSION VN-20 v2: PASS 1636 cells identical      <- cell-for-cell vs the frozen fixture
+    COMPILE VN-20 ...: -> fan 3; 1636 buildings; TRACE PASS 48 lanes, 576 operators
+    COMPILE VN-02c half-destroy 12lane compiled: CutterHalf(3/lane) -> fan 3; TRACE PASS 12 lanes, 36 operators
+    COMPILE VN-03c rotate90CW 12lane compiled: RotatorOneQuad(2/lane) -> fan 2; TRACE PASS 12 lanes, 24 operators
 
-**Next session does step 2 ONLY**: the layout compiler. Spec of <=10 lines ->
-`vn20_ne_quadrant_full_belt()` compiled from `rates.json` (`per_lane` drives the
-1->N->1 fan-out), routed with the butterfly read out of John's `Clockwise` / `Quaded
-Filter` shell, no coordinate transforms in module code, `validate_layout` +
-`trace_lanes` PASS `(48, 576)`. Then VN-02 and VN-03 from the same compiler.
-Step 3 (`experiment.py`) the session after. DIRECTIVE §3's last bullet (turn
-`conventions.md` prose into rows + checks) is still open; do it as the compiler needs
-each rule, not as a separate pass.
+- The hand-placed `_ne_isolator_floor()` / `_bus_to_quaded_filter_frame()` are deleted.
+  `blueprints/reference/VN-20 v2 validated.spz2bp` is the frozen in-game-validated
+  file; the regression runs on every build and fails the build if a cell moves.
+- **VN-02c / VN-03c are in the in-game folder, untested.** They are compiled
+  versions of John's `VN-02`/`VN-03` (same 1x1 bus shell, island R=2). Differences:
+  VN-02c has 3 cutters/lane (John's has 2, the count that starved VN-20 v1), no
+  launchers, and a symmetric 1->2 / 1->3 butterfly instead of John's interleaved one.
+  **Test recipe for John:** stamp VN-02c beside VN-02 on the same bus, full belt in;
+  both should keep up; VN-02c should not starve. Screenshot of the two output belts.
+- Compiler limits (each is a missing primitive, not a workaround): 1x1 one-in/one-out
+  operators only; fan-out N<=3; straight belts, no launchers; labels only on shells
+  with a `label_at`. `op_row()` refuses anything else with the reason.
+
+**Next session does step 3 ONLY**: `tools/experiment.py BLUEPRINT [--minutes N]
+[--expect LANES]`: stamp into the sandbox (`stamp.py`) -> `game.py up` -> `bridge.py
+speed 25` -> wait N sim-minutes -> save -> `brief.py`-style rate -> `PASS x/s
+(expect >= y)` or `FAIL`; then a batch mode for several variants in one game session.
+Definition of done: VN-20 v1 (two per lane; regenerate it with `compile_floor` at
+N=2 for the test) reports FAIL and v2 PASS with no human in the loop.
+DIRECTIVE §3's last bullet (conventions.md prose -> rows + checks) stays open; do it
+as the compiler needs each rule.
 
 The stage C material below is superseded by this order; keep it for the WHY.
 

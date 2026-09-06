@@ -1024,28 +1024,30 @@ def footprint_cells(entry):
     return out
 
 
-def validate_layout(buildings, where="", foundation="Foundation_1x1"):
+def validate_layout(buildings, where="", foundation="Foundation_1x1", windows=None):
     """Refuse a layout that the game would reject or mis-stamp.
 
     Catches, for every building INCLUDING the hidden cells of multi-cell ones:
       * anything outside the buildable [2,17] window;
       * two buildings sharing a cell.
-    Only 1x1 foundations are bounds-checked -- for a multi-platform foundation the
-    local-coordinate window depends on the island rotation (a Foundation_1x4 at R1
-    runs along Y, not X), which we have not pinned down, so bounds are skipped and
-    only collisions are checked.
+    Bounds: a 1x1 is checked against the [2,17] window; a multi-platform foundation
+    passes `windows=` (one (x_lo, x_hi, y_lo, y_hi) per tile, see `Shell.windows()`)
+    or gets collision checks only.
     """
     problems, occupied = [], {}
-    check_bounds = foundation == "Foundation_1x1"
+    if windows is None and foundation == "Foundation_1x1":
+        windows = [(PLATFORM_MIN, PLATFORM_MAX, PLATFORM_MIN, PLATFORM_MAX)]
     for e in buildings:
         for cell in footprint_cells(e):
             x, y, L = cell
-            margin = LABEL_EDGE_MARGIN if e["T"] == "LabelDefaultInternalVariant" else 0
-            lo, hi = PLATFORM_MIN + margin, PLATFORM_MAX - margin
-            if check_bounds and not (lo <= x <= hi and lo <= y <= hi):
+            m = LABEL_EDGE_MARGIN if e["T"] == "LabelDefaultInternalVariant" else 0
+            inside = windows is None or any(x0 + m <= x <= x1 - m and y0 + m <= y <= y1 - m
+                                            for x0, x1, y0, y1 in windows)
+            if not inside:
+                lo, hi = PLATFORM_MIN + m, PLATFORM_MAX - m
                 why = ("-- a label body needs one cell of margin, so it must stay "
-                       f"within [{lo},{hi}]" if margin else
-                       f"-- outside the buildable [{lo},{hi}] window")
+                       f"within [{lo},{hi}] of its tile" if m else
+                       f"-- outside the buildable [{lo},{hi}] window of every tile")
                 problems.append(
                     f"{e['T']} at ({e['X']},{e['Y']},L{e.get('L',0)}) occupies {cell} {why}")
             if cell in occupied:
@@ -1465,73 +1467,10 @@ RX, TX = "BeltPortReceiverInternalVariant", "BeltPortSenderInternalVariant"
 NE_OPS = [HD, CW, HD, CCW]
 
 
-def _ne_isolator_floor():
-    """One floor, bus frame: (x, y, R, T). Four lanes X8-11, flow north."""
-    c = []
-
-    def chain(x, y_top):
-        c.extend((x, y_top - i, 3, t) for i, t in enumerate(NE_OPS))
-
-    def lane(home, centre, entry, exit_):
-        """`entry`/`exit_` route the lane home<->centre; the middle is uniform."""
-        nonlocal c
-        c.extend(entry)
-        c += [(centre, 14, 3, SPL), (centre - 1, 14, 2, RT),          # 1 -> 2, left
-              (centre, 13, 3, SPR), (centre + 1, 13, 0, LT)]          # 2 -> 3, right
-        chain(centre - 1, 13); chain(centre, 12); chain(centre + 1, 12)
-        c += [(centre - 1, 9, 3, FWD), (centre - 1, 8, 3, RT), (centre, 8, 3, MGL),
-              (centre + 1, 8, 3, FWD), (centre + 1, 7, 3, LT), (centre, 7, 3, MGR)]
-        c.extend(exit_)
-        c += [(home, y, 3, FWD) for y in range(exit_[-1][1] - 1, 2, -1)] + [(home, 2, 3, TX)]
-
-    # lane X8 -> centre 5 (out along Y16, back along Y5)
-    lane(8, 5, [(8, 17, 3, RX), (8, 16, 3, LT), (7, 16, 2, FWD), (6, 16, 2, FWD),
-                (5, 16, 2, RT), (5, 15, 3, FWD)],
-         [(5, 6, 3, FWD), (5, 5, 3, RT), (6, 5, 0, FWD), (7, 5, 0, FWD), (8, 5, 0, LT)])
-    # lane X9 -> centre 8 (out along Y15, back along Y6)
-    lane(9, 8, [(9, 17, 3, RX), (9, 16, 3, FWD), (9, 15, 3, LT), (8, 15, 2, RT)],
-         [(8, 6, 3, RT), (9, 6, 0, LT)])
-    # lane X10 -> centre 11 (mirror of X9)
-    lane(10, 11, [(10, 17, 3, RX), (10, 16, 3, FWD), (10, 15, 3, RT), (11, 15, 0, LT)],
-         [(11, 6, 3, LT), (10, 6, 2, RT)])
-    # lane X11 -> centre 14 (mirror of X8)
-    lane(11, 14, [(11, 17, 3, RX), (11, 16, 3, RT), (12, 16, 0, FWD), (13, 16, 0, FWD),
-                  (14, 16, 0, LT), (14, 15, 3, FWD)],
-         [(14, 6, 3, FWD), (14, 5, 3, LT), (13, 5, 2, FWD), (12, 5, 2, FWD), (11, 5, 2, RT)])
-    return c
-
-
-def _bus_to_quaded_filter_frame(x, y, R):
-    """One CCW step about the 1x1 centre: south-in/north-out -> east-in/west-out."""
-    return y, 19 - x, (R + 3) % 4
-
-
-ROW_DY = [-20, 0, 20, 40]      # Quaded Filter rows k=0..3: lanes at 20k-12..20k-9
-
-
-def vn20_ne_quadrant_full_belt():
-    """VN-20: full belt in (east), only the NE quadrant out (west), Foundation_1x4."""
-    b = []
-    floor = _ne_isolator_floor()
-    for k, dy in enumerate(ROW_DY):
-        for L in range(3):
-            for x, y, R, T in floor:
-                lx, ly, lR = _bus_to_quaded_filter_frame(x, y, R)
-                b.append(be(T, X=lx, Y=ly + dy, L=L, R=lR))
-        b.append(be("LabelDefaultInternalVariant", X=6, Y=16 + dy, L=0, R=0,
-                    C=label_config("NE only" if k else "VN-20 NE only  E in / W out")))
-    # bounds: the 1x4 skips the 1x1 window check, so do it per row here
-    for e in b:
-        for x, y, L in footprint_cells(e):
-            k = (y + 20) // 20
-            m = LABEL_EDGE_MARGIN if e["T"].startswith("Label") else 0
-            assert 0 <= k < 4 and 2 + m <= x <= 17 - m and 2 + m <= y - ROW_DY[k] <= 17 - m, \
-                f"{e['T']} at ({e['X']},{e['Y']}) leaves the row window at {(x, y)}"
-    n_lanes, n_ops = trace_lanes(b, NE_OPS, is_in=lambda e: e["X"] == 17,
-                                 is_out=lambda e: e["X"] == 2,
-                                 lane_key=lambda e: (e["Y"], e["L"]), where="VN-20")
-    assert (n_lanes, n_ops) == (48, 576), (n_lanes, n_ops)
-    return blueprint_islands([our_island("Foundation_1x4", b, R=1, where="VN-20")])
+# The hand-placed `_ne_isolator_floor()` / `_bus_to_quaded_filter_frame()` that
+# built VN-20 v2 are gone (2026-09-06): the layout compiler below produces the same
+# cells from a spec, and `blueprints/reference/VN-20 v2 validated.spz2bp` is the
+# frozen regression fixture. See `docs/history/` for the hand-placed version.
 
 
 # ---------------------------------------------------------------- belt tracing
@@ -1552,7 +1491,7 @@ BUILDING_IO = load_building_io()
 FACE = [(1, 0), (0, 1), (-1, 0), (0, -1)]       # local direction index -> local vector
 
 
-def trace_lanes(buildings, expect_ops, is_in, is_out, lane_key, where=""):
+def trace_lanes(buildings, expect_ops, is_in, is_out, lane_key, where="", quiet=False):
     """Walk every lane from its edge receiver to an edge sender; print a verdict.
 
     Every path must (1) reach a sender on the platform's out edge, on the SAME row,
@@ -1616,10 +1555,287 @@ def trace_lanes(buildings, expect_ops, is_in, is_out, lane_key, where=""):
                 p2 = path + ([(key, e2["T"])] if e2["T"] in expect_ops else [])
                 stack.append((e2, p2, visited | {key}))
     assert seen_ops == ops_all, f"{where}: {len(ops_all - seen_ops)} operator cells never visited"
-    print(f"TRACE {where}: PASS {len(receivers)} lanes, {n_paths} paths, "
-          f"{len(ops_all)} operators all on-path, every lane "
-          f"{'>'.join(t[:6] for t in expect_ops)}")
+    if not quiet:
+        print(f"TRACE {where}: PASS {len(receivers)} lanes, {n_paths} paths, "
+              f"{len(ops_all)} operators all on-path, every lane "
+              f"{'>'.join(t[:6] for t in expect_ops)}")
     return len(receivers), len(ops_all)
+
+
+# ---------------------------------------------------------------- layout compiler
+# DIRECTIVE step 2 (2026-09-06). A module is a SPEC; this code turns it into cells.
+#
+#   Module("VN-20 ...", shell=QUADED_FILTER_SHELL, per_lane=[HD, CW, HD, CCW])
+#
+# Everything is designed in ONE frame, the 1x1 "bus" frame (south-in Y17, north-out
+# Y2, lanes X8-11, flow north = R3, floors L0-2); the Shell says how many copies of
+# that 20x20 tile the foundation holds and how each is rotated/offset into the
+# platform's local frame. No module function carries a coordinate transform.
+#
+# Fan-out N per lane = max(per_lane) over the chain's operators, read from
+# gamedata/rates.json (rule 6: facts before builds). The butterfly is the one
+# VALIDATED IN-GAME as VN-20 v2: each lane walks to the entry column of a group of
+# N adjacent columns, splits 1->2(->3) through Splitter1To2L(+Mirrored), runs N
+# parallel operator chains, rejoins through Merger2To1L(+Mirrored), and walks home.
+# Lane-to-group walks share rows greedily (disjoint spans on one row), which is
+# exactly the outer-lanes-first arrangement of VN-20 v2 and John's `Clockwise`.
+#
+# The compiler is not trusted: every compile runs validate_layout (bounds per tile,
+# collisions) and trace_lanes (the game's own BeltInputs/BeltOutputs) and prints
+# one verdict line. `check_vn20_regression()` diffs the compiled VN-20 cell-for-cell
+# against the frozen `blueprints/reference/VN-20 v2 validated.spz2bp`.
+RATES_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                          "gamedata", "rates.json")
+with open(RATES_PATH, encoding="utf-8") as _f:
+    RATES = json.load(_f)
+
+BUS_LANES = (8, 9, 10, 11)          # home columns in the bus frame
+BUS_IN_Y, BUS_OUT_Y = 17, 2          # receiver row / sender row
+FLOORS = (0, 1, 2)
+LABEL = "LabelDefaultInternalVariant"
+
+
+class Shell:
+    """How a foundation is tiled with bus-frame 20x20 tiles.
+
+    `tiles` = [(ccw_steps, dx, dy), ...]: each tile is the bus frame rotated
+    `ccw_steps` quarter-turns counter-clockwise about the 1x1 centre, then shifted.
+    `label_at` is the (x, y) of a per-tile label in the PLATFORM frame (before dy).
+    """
+    def __init__(self, name, foundation, island_R, tiles, is_in, is_out, lane_key, label_at=None):
+        self.name, self.foundation, self.island_R = name, foundation, island_R
+        self.tiles, self.is_in, self.is_out, self.lane_key = tiles, is_in, is_out, lane_key
+        self.label_at = label_at
+
+    @staticmethod
+    def _ccw(x, y, R):
+        return y, 19 - x, (R + 3) % 4
+
+    def place(self, x, y, R, tile):
+        steps, dx, dy = tile
+        for _ in range(steps):
+            x, y, R = self._ccw(x, y, R)
+        return x + dx, y + dy, R
+
+    def windows(self):
+        """Buildable rectangles (x_lo, x_hi, y_lo, y_hi), one per tile."""
+        return [(PLATFORM_MIN + dx, PLATFORM_MAX + dx, PLATFORM_MIN + dy, PLATFORM_MAX + dy)
+                for _, dx, dy in self.tiles]
+
+
+# 1x1 in the plain bus frame. VN-02/VN-03 sit at island R=2 so they snap into John's
+# bus the way his `Clockwise` does; the R is the island's, the cells are unchanged.
+def bus_1x1(island_R=2):
+    return Shell("bus 1x1", "Foundation_1x1", island_R, tiles=[(0, 0, 0)],
+                 is_in=lambda e: e["Y"] == BUS_IN_Y, is_out=lambda e: e["Y"] == BUS_OUT_Y,
+                 lane_key=lambda e: (e["X"], e["L"]))
+
+
+# John's `Quaded Filter` shell: Foundation_1x4 at island R=1, four rows 20 apart, EAST
+# in at local X17 and WEST out at X2 -- one CCW step of the bus frame per row.
+QUADED_FILTER_SHELL = Shell(
+    "Quaded Filter 1x4", "Foundation_1x4", 1, tiles=[(1, 0, 20 * k - 20) for k in range(4)],
+    is_in=lambda e: e["X"] == 17, is_out=lambda e: e["X"] == 2,
+    lane_key=lambda e: (e["Y"], e["L"]), label_at=(6, 16))
+
+
+class Module:
+    def __init__(self, name, shell, per_lane, labels=None):
+        self.name, self.shell, self.per_lane, self.labels = name, shell, list(per_lane), labels
+
+
+def op_row(T):
+    """The rates.json row for an operator, checked to be a 1-in/1-out lane operator."""
+    row = RATES.get(T)
+    assert row is not None, f"{T}: no row in gamedata/rates.json (rule 6: facts first)"
+    assert row.get("per_lane"), f"{T}: rates.json has no per_lane -- ask John / the wiki"
+    assert len(row["inputs"]) == 1 and len(row["outputs"]) == 1 and row["footprint"] == "1x1x1", (
+        f"{T}: {row['footprint']} with {len(row['inputs'])} in / {len(row['outputs'])} out -- "
+        f"the compiler only chains 1x1 one-in/one-out operators; extend it (DIRECTIVE 1)")
+    return row
+
+
+def _belt_path(points, heading, exit_heading=3):
+    """Belt cells along a rectilinear polyline of waypoints, entered on `heading` and
+    leaving the last waypoint on `exit_heading`.
+
+    Returns (x, y, R, T) for every cell from the first waypoint to the last, INCLUDING
+    both ends. Corners get a Left/Right turn piece with R = incoming heading; straights
+    get Forward. Consecutive waypoints share x or y.
+    """
+    def step(a, b):
+        dx, dy = (b[0] > a[0]) - (b[0] < a[0]), (b[1] > a[1]) - (b[1] < a[1])
+        return FACE.index((dx, dy))
+
+    def piece(h, h2):
+        if h2 == h:
+            return FWD
+        if h2 == (h - 1) % 4:
+            return LT
+        assert h2 == (h + 1) % 4, f"U-turn {h}->{h2}"
+        return RT
+    cells, h = [], heading
+    for i, p in enumerate(points):
+        if i + 1 == len(points):
+            cells.append((p[0], p[1], h, piece(h, exit_heading)))
+            break
+        h2 = step(p, points[i + 1])
+        cells.append((p[0], p[1], h, piece(h, h2)))
+        x, y = p[0] + FACE[h2][0], p[1] + FACE[h2][1]
+        while (x, y) != tuple(points[i + 1]):
+            cells.append((x, y, h2, FWD))
+            x, y = x + FACE[h2][0], y + FACE[h2][1]
+        h = h2
+    return cells
+
+
+def _assign_rows(spans, first_row, direction):
+    """Greedy row sharing: each (lane, lo, hi) span takes the first row (from
+    `first_row`, stepping `direction`) where it overlaps no span already there."""
+    rows, out = [], {}
+    for lane, lo, hi in spans:
+        for i, taken in enumerate(rows):
+            if all(hi < a or lo > b for a, b in taken):
+                taken.append((lo, hi))
+                out[lane] = first_row + direction * i
+                break
+        else:
+            rows.append([(lo, hi)])
+            out[lane] = first_row + direction * (len(rows) - 1)
+    return out, len(rows)
+
+
+def _dedupe(pts):
+    return [p for i, p in enumerate(pts) if i == 0 or p != pts[i - 1]]
+
+
+def compile_floor(ops, N):
+    """One floor of a 4-lane bus tile: (x, y, R, T) cells, flow north."""
+    K = len(ops)
+    assert 1 <= N <= 3, f"fan-out {N} per lane: the compiler knows 1->2 and 1->3 butterflies only"
+    x0 = 10 - 2 * N                                   # 4 groups of N columns, centred
+    groups = [list(range(x0 + N * i, x0 + N * (i + 1))) for i in range(4)]
+    # entry column of each group: centre for N=3; for N=2 the inner column, so the
+    # west half splits west and the east half splits east (mirrored template)
+    entry = [g[1] if N == 3 else (g[-1] if i < 2 else g[0]) if N == 2 else g[0]
+             for i, g in enumerate(groups)]
+    cells = []
+
+    # --- distribution: home column -> entry column, rows just below the receiver
+    spans = sorted(((h, min(h, c), max(h, c)) for h, c in zip(BUS_LANES, entry)),
+                   key=lambda s: -(s[2] - s[1]))
+    d_rows, D = _assign_rows([s for s in spans if s[1] != s[2]], BUS_IN_Y - 1, -1)
+    y_s = BUS_IN_Y - 1 - D                            # first butterfly row
+    for h, c in zip(BUS_LANES, entry):
+        cells.append((h, BUS_IN_Y, 3, RX))
+        if D:
+            r = d_rows.get(h)
+            pts = [(h, BUS_IN_Y - 1), (h, r), (c, r), (c, y_s + 1)] if r is not None \
+                else [(h, BUS_IN_Y - 1), (h, y_s + 1)]
+            cells += _belt_path(_dedupe(pts), 3)
+
+    # --- butterfly + chains + merge, per group
+    def chain(x, y_top):
+        cells.extend((x, y_top - i, 3, t) for i, t in enumerate(ops))
+
+    y_m = None
+    for i, c in enumerate(entry):
+        if N == 1:
+            chain(c, y_s)
+            y_m = y_s - K
+        elif N == 2:
+            mirror = i >= 2
+            side = c + 1 if mirror else c - 1
+            cells += [(c, y_s, 3, SPR if mirror else SPL),
+                      (side, y_s, 0 if mirror else 2, LT if mirror else RT)]
+            chain(side, y_s - 1)
+            chain(c, y_s - 1)
+            e = y_s - K
+            cells += [(side, e - 1, 3, LT if mirror else RT), (c, e - 1, 3, MGR if mirror else MGL)]
+            y_m = e - 2
+        else:
+            cells += [(c, y_s, 3, SPL), (c - 1, y_s, 2, RT), (c, y_s - 1, 3, SPR), (c + 1, y_s - 1, 0, LT)]
+            chain(c - 1, y_s - 1)
+            chain(c, y_s - 2)
+            chain(c + 1, y_s - 2)
+            e = y_s - K                               # last op row of the c-1 chain
+            cells += [(c - 1, e - 1, 3, FWD), (c - 1, e - 2, 3, RT), (c, e - 2, 3, MGL),
+                      (c + 1, e - 2, 3, FWD), (c + 1, e - 3, 3, LT), (c, e - 3, 3, MGR)]
+            y_m = e - 4
+
+    # --- return: entry column -> home column, then straight to the sender
+    spans = sorted(((h, min(h, c), max(h, c)) for h, c in zip(BUS_LANES, entry)),
+                   key=lambda s: (s[2] - s[1]))
+    r_rows, Dr = _assign_rows([s for s in spans if s[1] != s[2]], y_m, -1)
+    assert y_m - Dr >= BUS_OUT_Y, f"{K} ops x{N} do not fit the tile: return rows reach {y_m - Dr}"
+    for h, c in zip(BUS_LANES, entry):
+        r = r_rows.get(h)
+        pts = [(c, y_m), (c, r), (h, r), (h, BUS_OUT_Y + 1)] if r is not None \
+            else [(c, y_m), (h, BUS_OUT_Y + 1)]
+        cells += _belt_path(_dedupe(pts), 3)
+        cells.append((h, BUS_OUT_Y, 3, TX))
+    return cells
+
+
+def compile_module(m):
+    """Spec -> validated, traced building list. Prints the verdict; raises on FAIL."""
+    rows = [op_row(T) for T in m.per_lane]
+    N = max(r["per_lane"] for r in rows)
+    facts = " ".join(f"{T.replace('InternalVariant', '')}({r['per_lane']}/lane,{r['source']})"
+                     for T, r in zip(m.per_lane, rows))
+    floor = compile_floor(m.per_lane, N)
+    sh, b = m.shell, []
+    for k, tile in enumerate(sh.tiles):
+        for L in FLOORS:
+            for x, y, R, T in floor:
+                lx, ly, lR = sh.place(x, y, R, tile)
+                b.append(be(T, X=lx, Y=ly, L=L, R=lR))
+        if m.labels:
+            assert sh.label_at, f"{sh.name} has no label anchor"
+            text = m.labels[k] if isinstance(m.labels, (list, tuple)) else m.labels
+            b.append(be(LABEL, X=sh.label_at[0], Y=sh.label_at[1] + tile[2], L=0, R=0,
+                        C=label_config(text)))
+    validate_layout(b, where=m.name, foundation=sh.foundation, windows=sh.windows())
+    n_lanes, n_ops = trace_lanes(b, m.per_lane, is_in=sh.is_in, is_out=sh.is_out,
+                                 lane_key=sh.lane_key, where=m.name, quiet=True)
+    lanes = len(BUS_LANES) * len(FLOORS) * len(sh.tiles)
+    want = (lanes, lanes * N * len(m.per_lane))
+    assert (n_lanes, n_ops) == want, f"{m.name}: traced {(n_lanes, n_ops)}, spec says {want}"
+    print(f"COMPILE {m.name}: {facts} -> fan {N}; {len(b)} buildings; "
+          f"TRACE PASS {n_lanes} lanes, {n_ops} operators")
+    return b
+
+
+def build(m):
+    return blueprint_islands([our_island(m.shell.foundation, compile_module(m),
+                                         R=m.shell.island_R, where=m.name)])
+
+
+# ---------------------------------------------------------------- compiled modules
+# VN-20: full belt in (east), only the NE quadrant out (west), Quaded Filter shell.
+# Shape math per item (cut plane is world-vertical; HalfDestroy keeps world-EAST):
+#   {NE,SE,SW,NW} -HD-> {NE,SE} -Rot90CW-> {SE,SW} -HD-> {SE} -Rot90CCW-> {NE}
+VN20 = Module("VN-20 NE quadrant full belt", QUADED_FILTER_SHELL, [HD, CW, HD, CCW],
+              labels=["VN-20 NE only  E in / W out"] + ["NE only"] * 3)
+# VN-02c / VN-03c: the 12-lane half-destroy and rotate-CW stages compiled from one
+# operator each. John's hand-tuned VN-02/VN-03 (launcher runs, 2 cutters/lane) stay as
+# the in-game A/B reference; the compiled ones fan by the measured rate (HD 3, Rot 2).
+VN02C = Module("VN-02c half-destroy 12lane compiled", bus_1x1(2), [HD])
+VN03C = Module("VN-03c rotate90CW 12lane compiled", bus_1x1(2), [CW])
+
+
+def check_vn20_regression():
+    """The compiler must reproduce the in-game-validated VN-20 v2 CELL FOR CELL."""
+    ref = load_reference_island("VN-20 v2 validated.spz2bp")
+
+    def key(e):
+        return (e["X"], e["Y"], e["L"], e["R"], e["T"], json.dumps(e.get("C"), sort_keys=True))
+    want = sorted(key(e) for e in gv(ref["B"]["Entries"]))
+    got = sorted(key(e) for e in compile_module(VN20))
+    assert (ref["T"], ref["R"]) == (VN20.shell.foundation, VN20.shell.island_R), (ref["T"], ref["R"])
+    assert got == want, (f"VN-20 regression: {len(set(want) - set(got))} cells missing, "
+                         f"{len(set(got) - set(want))} extra")
+    print(f"REGRESSION VN-20 v2: PASS {len(got)} cells identical")
 
 
 MODULES = {
@@ -1645,11 +1861,14 @@ MODULES = {
     "VN-13 colour brain all": vn13_colour_brain_all,
     "VN-13t2 one island labelled": vn13t2_one_island_labelled,
     "VN-14 band merge aggregator": vn14_band_merge_aggregator,
-    "VN-20 NE quadrant full belt": vn20_ne_quadrant_full_belt,
+    "VN-20 NE quadrant full belt": lambda: build(VN20),
+    "VN-02c half-destroy 12lane compiled": lambda: build(VN02C),
+    "VN-03c rotate90CW 12lane compiled": lambda: build(VN03C),
 }
 
 if __name__ == "__main__":
     outdir = sys.argv[1] if len(sys.argv) > 1 else "blueprints"
+    check_vn20_regression()
     os.makedirs(outdir, exist_ok=True)
     for name, fn in MODULES.items():
         code = encode_bp(5, check_configs(fn()))
