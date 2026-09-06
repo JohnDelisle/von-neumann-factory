@@ -190,7 +190,11 @@ namespace ClaudeBridge
                 case "console": return RunConsole(string.Join(" ", rest));
 
                 // ---- simulation control: iteration speed is iteration cost
-                case "speed": return Reflect.Set("core.SimulationSpeed.Speed", rest.FirstOrDefault() ?? "1");
+                // Setting SimulationSpeedManager.Speed changes NOTHING (measured 2026-09-06:
+                // delivered/s identical at 1 and 25). The console command is what the game
+                // itself uses. NOTE: source fixed, deployed dll not yet rebuilt -- until then
+                // call `console time.global-setspeed N` directly (tools/experiment.py does).
+                case "speed": return RunConsole("time.global-setspeed " + (rest.FirstOrDefault() ?? "1"));
                 case "pause": return Reflect.Set("core.SimulationSpeed.IsPaused", "true");
                 case "resume": return Reflect.Set("core.SimulationSpeed.IsPaused", "false");
 

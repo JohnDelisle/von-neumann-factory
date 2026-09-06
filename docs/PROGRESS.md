@@ -1,6 +1,6 @@
 # Project status & session handoff
 
-_Last updated: **2026-09-06** (night). This file is the **current state only** —
+_Last updated: **2026-09-06** (late night). This file is the **current state only** —
 everything superseded now lives in `docs/history/`. Read this, then `docs/PLAYBOOK.md`
 (method, patterns, gotchas). `docs/architecture.md` and `docs/conventions.md` are
 **references: grep them for the thing you need, do not read them front to back**._
@@ -16,7 +16,7 @@ committed + pushed.
 ```
 python tools/brief.py              # where everything stands, measured, in ~14 lines
 python tools/game.py up            # stop game, start it, load the NAMED sandbox
-python tools/bridge.py speed 25    # run the sim hot
+python tools/bridge.py console time.global-setspeed 25   # run hot (the `speed` verb is inert)
 ```
 
 `brief.py` reads the newest sandbox save plus the running game: delivered counts and
@@ -28,7 +28,52 @@ hand you an `IMapModel` for the wrong map.
 
 ---
 
-# >>> START HERE (2026-09-06, evening): DIRECTIVE step 3 — `experiment.py` <<<
+# >>> START HERE (2026-09-07): DIRECTIVE steps 1-3 are DONE; reconcile the lane rate, then ch 789 <<<
+
+**Step 3 is DONE (2026-09-06, late night): `tools/experiment.py` measured, unattended:**
+
+    python tools/experiment.py --module VN20_V1 --module VN20_V2 --reference VN20 --minutes 3 --warmup 2
+    REF  VN-20 NE quadrant full belt: 1723.6 Ru------/s over 183 sim-s  (35.9/lane over 48 lanes)
+    FAIL VN-20 NE quadrant full belt v1 2perlane: 1152.3 Ru------/s over 181 sim-s  (bar 1637.4)
+    PASS VN-20 NE quadrant full belt: 1724.3 Ru------/s over 182 sim-s  (bar 1637.4)   <- v2
+    sandbox restored: 9 run saves removed; backup-v135 re-written as newest
+
+v1 (two Half Destroyers per lane) delivers exactly 2/3 of v3 (1152/1724 = 0.668): the
+compiler's per_lane fan-out is now a MEASURED ratio, not John's eye. Nobody watched.
+How it works (docstring has the detail): newest sandbox save -> delete the island in the
+test slot (3,-1) and the noise island (5,5) -> stamp the variant into the slot with the
+slot's own footprint and rotation (asserted) -> write as newest backup -> `load` in the
+running game -> hot -> warm up -> pause+save+clock -> N sim-min -> pause+save+clock ->
+delivered delta / sim seconds. The REFERENCE (v3) is measured first in the same slot, so
+the bar (0.95 x ref) is a measured full belt, not a doc number. `--expect-rate` for an
+absolute bar, `--base` to pin the save, `--keep` to keep the run's saves.
+
+**Four game facts the run uncovered (all measured; each one falsified a belief):**
+1. `bridge.py speed N` (SimulationSpeedManager.Speed) changes NOTHING -- delivered/s was
+   identical at 1 and 25. Every "at 25x" in history was 1x. The console command
+   `time.global-setspeed N` is the real one (`bridge.py console time.global-setspeed 25`).
+   `mod/ClaudeBridge/ClaudeBridge.cs` is fixed in source; **the dll is NOT rebuilt yet**.
+2. At "25x" this 11k-building map ticks ~3.3x. `TotalPlaytime` advances at the REQUESTED
+   speed (23.6x), so any rate per playtime-second at high speed is wrong by ~7x --
+   including the ones brief.py prints while the game runs hot.
+3. `core.SimulationSpeed.SimulationTime_G` counts ticks actually performed (1.0x at 1x,
+   ~3.1x at "25x", 0 while paused). It is THE sim clock. `pause`/`resume` work.
+4. **One lane of this slot delivers 35.9 Ru------/s**, 12x the 3.0/s belt figure in
+   `gamedata/rates.json` (research.json has `LRUGlobalSpeed: 2` and the sandbox is at max
+   upgrades). The compiler's per_lane RATIOS held exactly (2/3), so builds are unaffected,
+   but the absolute belt/machine rows in rates.json are in some other unit or level.
+
+**Next session, in order (one experiment):**
+1. `brief.py`. Ask John what one lane carries at this research level (wiki `Conveyor Belt`
+   + `Speed` upgrades), then fix rates.json's `items_per_second` or document the unit.
+2. Then channel 789 `SuSuSuSu` with experiment.py as the oracle: stamp the queued
+   recombination variant into a slot, measure, verdict -- no screenshot round-trips.
+3. Housekeeping: sandbox folder holds probe saves backup-v136..v151 from this session
+   (harmless; John may delete). Rebuild the mod dll when the game is next restarted.
+DIRECTIVE §3's last bullet (conventions.md prose -> rows + checks) stays open; do it as
+the compiler needs each rule.
+
+## (superseded 2026-09-06) DIRECTIVE step 2 hand-off, kept for the WHY
 
 **Step 2 is DONE (2026-09-06):** the layout compiler lives in `tools/build_modules.py`
 ("layout compiler" section). A module is a spec:

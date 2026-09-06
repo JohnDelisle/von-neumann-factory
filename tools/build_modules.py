@@ -1644,9 +1644,12 @@ class Module:
     """`fan`: "sp3" (default; John's Splitter1To3/Merger3To1 butterfly, 2026-09-06) or
     "cascade" (the 1->2->3 splitter cascade of VN-20 v2). `launchers`: replace the
     home straight after the return row with launcher->catcher hops (speed only)."""
-    def __init__(self, name, shell, per_lane, labels=None, fan="sp3", launchers=True):
+    def __init__(self, name, shell, per_lane, labels=None, fan="sp3", launchers=True, N=None):
         self.name, self.shell, self.per_lane, self.labels = name, shell, list(per_lane), labels
         self.fan, self.launchers = fan, launchers
+        # N: fan-out OVERRIDE, for experiment.py's deliberately-wrong variants only.
+        # Production modules leave it None and take the measured per_lane from rates.json.
+        self.N = N
 
 
 def op_row(T):
@@ -1843,8 +1846,8 @@ def _launch_home_straights(cells, y_top):
 def compile_module(m):
     """Spec -> validated, traced building list. Prints the verdict; raises on FAIL."""
     rows = [op_row(T) for T in m.per_lane]
-    N = max(r["per_lane"] for r in rows)
-    facts = " ".join(f"{T.replace('InternalVariant', '')}({r['per_lane']}/lane,{r['source']})"
+    N = m.N or max(r["per_lane"] for r in rows)
+    facts = ("FORCED N=%d; " % N if m.N else "") + " ".join(f"{T.replace('InternalVariant', '')}({r['per_lane']}/lane,{r['source']})"
                      for T, r in zip(m.per_lane, rows))
     floor = compile_floor(m.per_lane, N, fan=m.fan, launchers=m.launchers)
     sh, b = m.shell, []
@@ -1886,6 +1889,9 @@ VN20_V2 = Module(VN20.name, VN20.shell, VN20.per_lane, labels=VN20.labels,
 # VN-02c / VN-03c: the 12-lane half-destroy and rotate-CW stages compiled from one
 # operator each. John's hand-tuned VN-02/VN-03 (launcher runs, 2 cutters/lane) stay as
 # the in-game A/B reference; the compiled ones fan by the measured rate (HD 3, Rot 2).
+# The known-bad two-per-lane VN-20 (v1 starved in-game). NOT in MODULES: it exists so
+# tools/experiment.py has a build that must FAIL the throughput check.
+VN20_V1 = Module(VN20.name + " v1 2perlane", VN20.shell, VN20.per_lane, labels=VN20.labels, N=2)
 VN02C = Module("VN-02c half-destroy 12lane compiled", bus_1x1(2), [HD])
 VN03C = Module("VN-03c rotate90CW 12lane compiled", bus_1x1(2), [CW])
 

@@ -355,6 +355,18 @@ The same rule applies to anything typed ad hoc: **do not print a table and then 
 it — write the assertion, and print PASS/FAIL plus the two or three numbers that decide
 it.** If a verdict ever surprises you, `--full` is right there.
 
+## The sim clock is `SimulationTime_G`; the `speed` verb was inert (2026-09-06)
+
+`tools/experiment.py` is the throughput oracle: stamp a variant into the test slot,
+measure delivered/s against a REFERENCE measured in the same slot, verdict. Three clocks
+exist and two lie: `SimulationSpeedManager.Speed` (what `bridge.py speed` set) does
+nothing; `time.global-setspeed 25` via the console does, but the map only ticks ~3.3x,
+while `TotalPlaytime` advances 23.6x. Only `core.SimulationSpeed.SimulationTime_G`
+advances with the ticks performed. So: run hot with the console command, read the clock
+with `pause` around the save, divide by clock delta, and never trust a rate quoted "at
+25x" from before this date. Measure the reference every run -- the belt carried 35.9
+items/s per lane here, 12x what rates.json says, and the 2/3 ratio still came out exact.
+
 ## Measure ratios against a control, never absolute rates (2026-09-05)
 
 `TotalPlaytime` counts REAL seconds, not sim ticks, so a "shapes per second" figure
