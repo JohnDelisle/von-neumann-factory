@@ -259,7 +259,9 @@ Two collectors because no single straight row on a ragged patch touches 12 miner
     RightTurn R / LeftTurn R      enters on heading R, leaves on R+1 / R-1
     LeftFwdMerger R               main flow R, SIDE INPUT from the neighbour at R+1
     RightFwdMerger R              main flow R, SIDE INPUT from the neighbour at R-1
-    Layout_ShapeMiner R           the platform's 12 output lanes leave on edge R
+    Layout_ShapeMiner             WRONG BELOW -- see the correction under Task 2.
+                                  The SENDERS' own R is the direction, and the band
+                                  must sit on the edge it fires through. Island R is inert.
     Layout_ShapeMinerExtension R  points at the next node in the chain to the miner
 
 ### The Vortex, and why VN-17 was still worth it

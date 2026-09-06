@@ -343,19 +343,39 @@ one number the conclusion actually rested on.
 Corollary: **an exact small integer is a finding, not a coincidence.** 4.00x said "one
 miner + three boosters" — one lane — long before the severing experiment confirmed it.
 
-## Miner platforms merge when they touch (2026-09-05)
+## A miner fires where its SENDERS point, not where its island points (2026-09-05)
 
-A solid rectangle of 12 `Layout_ShapeMiner` + 36 `Layout_ShapeMinerExtension` produced
-**one unit's output**, not twelve: 48 ore tiles, one lane. Cutting five of the twelve
-lanes out of the save changed delivery by 1.7%, and the severed collector's belts
-stayed at the empty 474-byte form — those miners had never been sending anything.
+VN-18 built twelve boosted miners and delivered one lane. Every island placed, every
+rotation read back exactly as written, the size law passed, `verify_mam` passed. All
+twelve were firing their 12-lane sender band into their own booster row.
 
-This is the adjacency trap one level up from the known one. The known trap is that
-contiguous miners with the wrong rotation are silently **rewritten** to extensions on
-load. The new one: even when the rotations are right and the islands survive as
-`Layout_ShapeMiner`, **touching units appear to share a single production group, and
-only three boosters count.**
+    WRONG (what PROGRESS said, and what the generator assumed):
+        a platform's 12 output lanes leave on edge R, the ISLAND's rotation
+    RIGHT (measured):
+        the SENDER BUILDING's own R is the world direction it fires, and the band
+        must physically sit on the edge it fires through. The island's R does not
+        steer output at all.
 
-**So: leave a gap between mining units.** Space every miner + 3 boosters clear of the
-next, and verify by rate, not by reading the layout back — the layout read back clean
-in the failing build.
+Proof, in the order it arrived:
+* VN-15 works: senders R2 (west), and it sits east of the hub, firing west into it.
+* John re-stamped ONE miner with the band moved to the local south edge, senders R1.
+  Delivery went from 4.00 to 7.87 Cu-units — one platform worth as much as my other
+  eleven put together.
+* I rotated the other eleven islands 180 degrees on that theory. Ru/Cu went 7.87 ->
+  7.83: **no effect**. Island rotation is inert for this.
+* John re-stamped all eleven properly; `tools/verify_miners.py` then showed all twelve
+  firing into a space belt where before every one fired into a `MinerExtension`.
+
+**An earlier version of this section claimed contiguous miner platforms merge into one
+production group.** That was inference from the exact 4.00x ratio and it was wrong —
+the ratio was one working miner among twelve, not a merged blob. Keep `verify_miners.py`
+in the loop instead of theorising: it asks the only question that matters, which is
+whether anything is standing where the senders point.
+
+## Emptying a full space belt takes FOUR Vortex ports (John, 2026-09-05)
+
+A saturated space belt cannot be dumped into a single hub edge — **it needs four ports
+on the Vortex to drain**. A collector that merges twelve lanes into one belt and lands
+it on one edge is therefore throttled at the delivery end no matter how good the mine
+is. Budget hub frontage accordingly when sizing any machine.
+
