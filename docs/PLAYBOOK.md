@@ -364,8 +364,17 @@ nothing; `time.global-setspeed 25` via the console does, but the map only ticks 
 while `TotalPlaytime` advances 23.6x. Only `core.SimulationSpeed.SimulationTime_G`
 advances with the ticks performed. So: run hot with the console command, read the clock
 with `pause` around the save, divide by clock delta, and never trust a rate quoted "at
-25x" from before this date. Measure the reference every run -- the belt carried 35.9
-items/s per lane here, 12x what rates.json says, and the 2/3 ratio still came out exact.
+25x" from before this date. Measure the reference every run.
+
+## Vortex counts are items x the Shape Multiplier (2026-09-06, resolved 2026-09-07)
+
+`experiment.py` measured 35.9 delivered/s per lane, 12x rates.json's 3.0 items/s belt,
+and the 2/3 ratio still came out exact. The 12 is the Shop's Shape Multiplier
+(`research.json -> LinearUpgrades.UpgradeLevels.LRUShapeQuantity` = 11, i.e. x12): every
+shape entering the Vortex is counted 12 times. rates.json is right (LRUGlobalSpeed 2 =
+180/min = 3.0/s, the wiki max). `brief.py` and `experiment.py` now print the multiplier
+and the physical items/s next to every count rate; `brief.shape_multiplier(save)` reads
+it. Ratios never needed the fix; any ABSOLUTE bar (`--expect-rate`) must be in counts.
 
 ## Measure ratios against a control, never absolute rates (2026-09-05)
 

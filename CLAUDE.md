@@ -42,10 +42,12 @@ John broadcasts shape goals on in-game signal channels; Claude builds machines t
 deliver them to the Vortex, and `research.json -> Shapes.StoredShapes` is the score.
 
 - **Channel 123 `CuCuCuCu` — DONE** (target was 1,000; we are past a million).
-- **Channel 789 `SuSuSuSu` — ACTIVE.** Mining and cutting work; recombination stalls.
-  One batched test is queued and specified in PROGRESS.md.
+- **Channel 789 `SuSuSuSu` — ACTIVE.** Stage C (split, rotate 180, lift, stack) delivers
+  SuSuSuSu, measured unattended 2026-09-07 by `tools/vn16_stage_c.py`; it is a hand-placed
+  probe. Next: teach the compiler the stacker/branch primitives, then the 12-lane module.
 - **Channel 456 `WuWuWuWu`** — untouched.
 
+**Vortex counts are 12x physical items** (Shop Shape Multiplier; `brief.py` prints both).
 **Do not quote delivered counts from memory or from a doc — `python tools/brief.py`
 measures them.** Numbers written into prose go stale within one sim hour.
 

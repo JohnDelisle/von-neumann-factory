@@ -183,6 +183,18 @@ def measure(minutes, warmup, speed, shape):
     return deltas.get(shape, 0) / sim_s if sim_s > 0 else 0.0, shape, sim_s
 
 
+def restore_sandbox(base, before):
+    """Leave the sandbox as found: every save this run wrote goes, then the base is
+    re-written as the newest file so the game's next load is John's map."""
+    mine = [p for p in brief.newest_saves(500) if p not in before]
+    for p in mine:
+        os.remove(p)
+    back = stamp.next_backup(os.path.dirname(base))
+    shutil.copyfile(base, back)
+    print("sandbox restored: %d run saves removed; %s re-written as %s"
+          % (len(mine), os.path.basename(base), os.path.basename(back)))
+
+
 # ------------------------------------------------------------------ driver
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__,
@@ -238,8 +250,9 @@ def main(argv):
         if ref is not None:
             label, rate, shape, sim_s = run(ref)
             bar = rate * TOL
-            print("REF  %s: %.1f %s/s over %.0f sim-s  (%.1f/lane over %d lanes)"
-                  % (label, rate, shape, sim_s, rate / a.lanes, a.lanes))
+            mult = brief.shape_multiplier(base)
+            print("REF  %s: %.1f %s/s over %.0f sim-s  (%.1f/lane over %d lanes = %.2f items/s/lane physical, Shape Multiplier x%d)"
+                  % (label, rate, shape, sim_s, rate / a.lanes, a.lanes, rate / a.lanes / mult, mult))
         for bpf in variants:
             label, rate, shape, sim_s = run(bpf)
             v = "PASS" if rate >= bar else "FAIL"
@@ -247,15 +260,7 @@ def main(argv):
             print("%s %s: %.1f %s/s over %.0f sim-s  (bar %.1f)" % (v, label, rate, shape, sim_s, bar))
     finally:
         if not a.keep:
-            # leave the sandbox as found: every save this run wrote goes, then the base
-            # is re-written as the newest file so the game's next load is John's map.
-            mine = [p for p in brief.newest_saves(500) if p not in before]
-            for p in mine:
-                os.remove(p)
-            back = stamp.next_backup(os.path.dirname(base))
-            shutil.copyfile(base, back)
-            print("sandbox restored: %d run saves removed; %s re-written as %s"
-                  % (len(mine), os.path.basename(base), os.path.basename(back)))
+            restore_sandbox(base, before)
     return 0 if verdicts and all(v == "PASS" for v in verdicts) else 1
 
 

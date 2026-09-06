@@ -51,6 +51,15 @@ def light(path):
                 json.loads(z.read("savegame.json")))
 
 
+def shape_multiplier(path):
+    """Vortex counts are items x this (Shop 'Shape Multiplier', LRUShapeQuantity+1).
+    The sandbox is at x12: 35.9 delivered/s per lane is ONE 3.0 items/s belt."""
+    import zipfile
+    with zipfile.ZipFile(path) as z:
+        r = json.loads(z.read("research.json"))
+    return int(r.get("LinearUpgrades", {}).get("UpgradeLevels", {}).get("LRUShapeQuantity", 0)) + 1
+
+
 def game_state():
     try:
         import game
@@ -120,12 +129,13 @@ def main(argv):
         except Exception:
             prev = {}
 
-    print("\n  VORTEX  (research.json Shapes.StoredShapes)")
+    mult = shape_multiplier(path)
+    print("\n  VORTEX  (research.json Shapes.StoredShapes; Shape Multiplier x%d: counts = %d x items)" % (mult, mult))
     if not ss:
         print("    nothing delivered yet")
     for k, v in sorted(ss.items(), key=lambda kv: -kv[1])[:8]:
         d = v - prev.get(k, v)
-        rate = "  %8.1f/s" % (d / dt) if dt > 0 and d else ""
+        rate = "  %8.1f/s = %.2f items/s" % (d / dt, d / dt / mult) if dt > 0 and d else ""
         print("    %-14s %10d %+9d%s" % (k, v, d, rate))
 
     print("\n  GOALS  (ConstantSignals on the map)")

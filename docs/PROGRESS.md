@@ -28,7 +28,49 @@ hand you an `IMapModel` for the wrong map.
 
 ---
 
-# >>> START HERE (2026-09-07): DIRECTIVE steps 1-3 are DONE; reconcile the lane rate, then ch 789 <<<
+# >>> START HERE (2026-09-08): ch 789 stage C delivers SuSuSuSu (measured); next = the stacker primitive in the compiler, or the full-lane ch 789 module <<<
+
+**Two things landed 2026-09-07, both measured by the game, nobody watching:**
+
+1. **The "12x belt" is the Shop's Shape Multiplier, not a rates.json error.**
+   `research.json -> LinearUpgrades.UpgradeLevels.LRUShapeQuantity = 11` (x12): the Vortex
+   counts every delivered shape 12 times. rates.json's 3.0 items/s belt is right
+   (LRUGlobalSpeed 2 = 180/min, the wiki max); 35.9 counts/s per lane IS one full belt.
+   `brief.py` and `experiment.py` now print the multiplier and physical items/s beside
+   every count rate (`brief.shape_multiplier(save)`). Absolute bars are in COUNTS.
+
+2. **Channel 789 stage C works.** `python tools/vn16_stage_c.py` (unattended, same
+   oracle as experiment.py; `--dry-run` traces the platform offline first):
+
+       REF  stage B (reference): 21.7 --SuSu--/s over 183 sim-s (1.80 items/s)
+       PASS stage C L: 3.2 SuSuSuSu/s over 181 sim-s (0.27 items/s; bar 3.0)
+
+   The old stage C's "prime suspect" was right and was settled OFFLINE: direction is
+   0=E 1=S 2=W 3=N and rotation R ADDS to a building's local face (the in-game-validated
+   VN-02c splitter pair proves it), so `Splitter1To2L`'s side output on a westbound R2
+   lane leaves to +Y (y=11), not -Y. Variant L (plain splitter, branch on y=11 ->
+   RotatorHalf -> Lift1UpForward -> floor-1 belts -> StackerStraight floor-1 input) is
+   the layout; the mirrored variant R never had to run. Also learned: the sandbox trunk
+   had lost islands (-1,-3) and (-1,-2) (John built around the hub's south side), which
+   is why `--SuSu--` sat at 329,364 -- every test save re-adds them, the base does not.
+   **John: the sandbox itself still has the gap and stage B, not stage C.** To keep it,
+   run with `--keep` or stamp it yourself.
+
+**Open measurement (small, do it first next time):** the stacker delivered 0.27 items/s
+against rates.json's 1/6-lane = 0.50 cap. Either StackerStraight's lane_fraction is 1/12
+at this level or the floor-1 feed starves it. One `--minutes 5` run with a Belt Reader,
+or a second stacker in series, decides it; rates.json gets the row either way.
+
+**Next session (one thing):** the compiler needs the primitives stage C used by hand --
+a 2-in/1-out operator (stacker) fed by a split+lift branch. Spec it as `Module(...,
+[HD, SPLIT(ROT180 -> LIFT) ... STACK])` or the nearest shape that reproduces
+`stage_c_platform(+1)` cell for cell as its regression fixture, then the 12-lane ch 789
+module is a 2-line spec like VN-20. Housekeeping: rebuild `mod/ClaudeBridge` dll when
+the game is next restarted (source fix for the `speed` verb is unreleased).
+
+## (superseded 2026-09-07) DIRECTIVE step 3 hand-off, kept for the four measured facts
+
+(was: >>> START HERE (2026-09-07): DIRECTIVE steps 1-3 are DONE; reconcile the lane rate, then ch 789 <<<
 
 **Step 3 is DONE (2026-09-06, late night): `tools/experiment.py` measured, unattended:**
 
@@ -62,16 +104,6 @@ absolute bar, `--base` to pin the save, `--keep` to keep the run's saves.
    `gamedata/rates.json` (research.json has `LRUGlobalSpeed: 2` and the sandbox is at max
    upgrades). The compiler's per_lane RATIOS held exactly (2/3), so builds are unaffected,
    but the absolute belt/machine rows in rates.json are in some other unit or level.
-
-**Next session, in order (one experiment):**
-1. `brief.py`. Ask John what one lane carries at this research level (wiki `Conveyor Belt`
-   + `Speed` upgrades), then fix rates.json's `items_per_second` or document the unit.
-2. Then channel 789 `SuSuSuSu` with experiment.py as the oracle: stamp the queued
-   recombination variant into a slot, measure, verdict -- no screenshot round-trips.
-3. Housekeeping: sandbox folder holds probe saves backup-v136..v151 from this session
-   (harmless; John may delete). Rebuild the mod dll when the game is next restarted.
-DIRECTIVE §3's last bullet (conventions.md prose -> rows + checks) stays open; do it as
-the compiler needs each rule.
 
 ## (superseded 2026-09-06) DIRECTIVE step 2 hand-off, kept for the WHY
 

@@ -6,7 +6,7 @@
    "lane_fraction": 1.0,
    "source": "john",
    "date": "2026-09-06",
-   "note": "belts keep up with a full lane"
+   "note": "belts keep up with a full lane. UNIT: items_per_second is PHYSICAL items on the belt (LRUGlobalSpeed 2 = 180/min = 3.0/s, the wiki max); the Vortex StoredShapes count is items x (LRUShapeQuantity+1) -- x12 in the sandbox -- so a delivered/s of 35.9 per lane IS one full 3.0/s belt (measured 2026-09-06)"
   },
   {
    "prefix": "BeltPortReceiver",
