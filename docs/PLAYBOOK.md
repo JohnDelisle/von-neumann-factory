@@ -60,8 +60,12 @@ whole design of a lane-operator platform. `compile_module()` looks up every oper
 `per_lane` in `rates.json`, fans 1->N->1 with the butterfly validated in-game as VN-20
 v2, lets the `Shell` rotate and tile the bus frame (1x1 bus, John's 1x4 Quaded Filter
 shell), then runs `validate_layout` + `trace_lanes` and prints one verdict line.
-`check_vn20_regression()` diffs the compiled VN-20 against the frozen fixture
-`blueprints/reference/VN-20 v2 validated.spz2bp` on every build. The rule that follows:
+`check_regressions()` diffs compiled specs against frozen in-game-validated fixtures
+in `blueprints/reference/` on every build (VN-20 v2 and John's `VN-02 1to3 splitter`,
+both cell for cell). **When John sends a better layout, it becomes a fixture and a
+template, in that order**: decode it, render the floor as a grid, read the pattern,
+add it as a `fan=` option, and prove the compiler reproduces his cells exactly. That is
+how the compiler learns; it took one exchange for the 1->3 splitter. The rule that follows:
 **when you want to hand-place a cell, the compiler is missing a primitive -- add the
 primitive** (a new Shell, a wider fan-out, a two-input operator, launchers), never a
 tuple list. The compiler's own `assert` messages say which primitive is missing.

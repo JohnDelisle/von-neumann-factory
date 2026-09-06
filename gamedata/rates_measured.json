@@ -86,6 +86,20 @@
    "items_per_second": 0.75,
    "fluid_l_per_min": 450,
    "note": "John: 4 painters max out one belt; each delivers 45 shapes/min (0.75/s) and consumes 450 L/min of paint. Wiki level-5 row; sandbox is therefore at max upgrade level."
+  },
+  {
+   "prefix": "Splitter1To3",
+   "lane_fraction": 1.0,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "one belt in, three out (left/forward/right); the game balances exactly 1/3 per output. Used in his VN-02 variant (blueprints/reference/For Claude VN-02 1to3 splitter.spz2bp)"
+  },
+  {
+   "prefix": "Merger3To1",
+   "lane_fraction": 1.0,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "three in (behind/left/right), one out; the 1->3 butterfly's merge half"
   }
  ],
  "questions": [],

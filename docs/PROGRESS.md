@@ -1,6 +1,6 @@
 # Project status & session handoff
 
-_Last updated: **2026-09-06** (evening). This file is the **current state only** —
+_Last updated: **2026-09-06** (night). This file is the **current state only** —
 everything superseded now lives in `docs/history/`. Read this, then `docs/PLAYBOOK.md`
 (method, patterns, gotchas). `docs/architecture.md` and `docs/conventions.md` are
 **references: grep them for the thing you need, do not read them front to back**._
@@ -43,23 +43,31 @@ templates, greedy row-sharing for the lane walks), places it once per tile of th
 then runs `validate_layout` (per-tile windows) + `trace_lanes` and prints ONE line.
 
     python tools/build_modules.py blueprints
-    REGRESSION VN-20 v2: PASS 1636 cells identical      <- cell-for-cell vs the frozen fixture
-    COMPILE VN-20 ...: -> fan 3; 1636 buildings; TRACE PASS 48 lanes, 576 operators
-    COMPILE VN-02c half-destroy 12lane compiled: CutterHalf(3/lane) -> fan 3; TRACE PASS 12 lanes, 36 operators
-    COMPILE VN-03c rotate90CW 12lane compiled: RotatorOneQuad(2/lane) -> fan 2; TRACE PASS 12 lanes, 24 operators
+    REGRESSION VN-20 v2 validated.spz2bp: PASS 1636 cells identical
+    REGRESSION For Claude VN-02 1to3 splitter.spz2bp: PASS 240 cells identical
+    COMPILE VN-20 ...: -> fan 3; 1300 buildings; TRACE PASS 48 lanes, 576 operators
+    COMPILE VN-02c half-destroy 12lane compiled: CutterHalf(3/lane) -> fan 3; 240 buildings; TRACE PASS 12 lanes, 36 operators
+    COMPILE VN-03c rotate90CW 12lane compiled: RotatorOneQuad(2/lane) -> fan 2; 180 buildings; TRACE PASS 12 lanes, 24 operators
 
+- **Two 1->3 butterflies, both in-game-validated, both regression fixtures** in
+  `blueprints/reference/`: `VN-20 v2 validated.spz2bp` (Claude's 1->2->3 cascade,
+  `fan="cascade"`) and `For Claude VN-02 1to3 splitter.spz2bp` (John's, same evening:
+  `Splitter1To3`/`Merger3To1` for the outer lanes -- the game balances 1/3 per output --
+  and an edge-entry sideways `Splitter1To2L` pair for the inner lanes, chains aligned,
+  launcher hops on the home straight; `fan="sp3"`, the default). The compiler
+  reproduces BOTH cell for cell from `Module(name, shell, [ops])`; the build fails if
+  either drifts. John's pattern is 240 vs 336 buildings for one cutter.
 - The hand-placed `_ne_isolator_floor()` / `_bus_to_quaded_filter_frame()` are deleted.
-  `blueprints/reference/VN-20 v2 validated.spz2bp` is the frozen in-game-validated
-  file; the regression runs on every build and fails the build if a cell moves.
-- **VN-02c / VN-03c are in the in-game folder, untested.** They are compiled
-  versions of John's `VN-02`/`VN-03` (same 1x1 bus shell, island R=2). Differences:
-  VN-02c has 3 cutters/lane (John's has 2, the count that starved VN-20 v1), no
-  launchers, and a symmetric 1->2 / 1->3 butterfly instead of John's interleaved one.
-  **Test recipe for John:** stamp VN-02c beside VN-02 on the same bus, full belt in;
-  both should keep up; VN-02c should not starve. Screenshot of the two output belts.
+- **VN-20 is now v3 (sp3 template, 1300 buildings, same (48, 576)) -- in the in-game
+  folder, NOT yet stamped.** v2 is what John validated; v3 is the same operators on
+  John's own butterfly. **Test recipe:** stamp VN-20 beside the v2 already on the map,
+  full belt in from the east; the NE-quadrant belt out the west must keep up (no
+  backlog at the receivers). One screenshot. If it fails, `VN20_V2` is one line away.
+- **VN-02c** in the folder is cell-identical to John's own blueprint (validated by
+  construction). **VN-03c** (rotators, 2/lane, 1->2 butterfly + launchers) is untested.
 - Compiler limits (each is a missing primitive, not a workaround): 1x1 one-in/one-out
-  operators only; fan-out N<=3; straight belts, no launchers; labels only on shells
-  with a `label_at`. `op_row()` refuses anything else with the reason.
+  operators only; fan-out N<=3; launchers only on the home straight; labels only on
+  shells with a `label_at`. `op_row()` refuses anything else with the reason.
 
 **Next session does step 3 ONLY**: `tools/experiment.py BLUEPRINT [--minutes N]
 [--expect LANES]`: stamp into the sandbox (`stamp.py`) -> `game.py up` -> `bridge.py

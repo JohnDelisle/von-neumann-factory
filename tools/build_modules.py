@@ -1464,6 +1464,7 @@ SPL, SPR = "Splitter1To2LInternalVariant", "Splitter1To2LInternalVariantMirrored
 MGL, MGR = "Merger2To1LInternalVariant", "Merger2To1LInternalVariantMirrored"
 HD, CW, CCW = "CutterHalfInternalVariant", "RotatorOneQuadInternalVariant", "RotatorOneQuadCCWInternalVariant"
 RX, TX = "BeltPortReceiverInternalVariant", "BeltPortSenderInternalVariant"
+SP3, MG3 = "Splitter1To3InternalVariant", "Merger3To1InternalVariant"
 NE_OPS = [HD, CW, HD, CCW]
 
 
@@ -1640,8 +1641,12 @@ QUADED_FILTER_SHELL = Shell(
 
 
 class Module:
-    def __init__(self, name, shell, per_lane, labels=None):
+    """`fan`: "sp3" (default; John's Splitter1To3/Merger3To1 butterfly, 2026-09-06) or
+    "cascade" (the 1->2->3 splitter cascade of VN-20 v2). `launchers`: replace the
+    home straight after the return row with launcher->catcher hops (speed only)."""
+    def __init__(self, name, shell, per_lane, labels=None, fan="sp3", launchers=True):
         self.name, self.shell, self.per_lane, self.labels = name, shell, list(per_lane), labels
+        self.fan, self.launchers = fan, launchers
 
 
 def op_row(T):
@@ -1709,16 +1714,33 @@ def _dedupe(pts):
     return [p for i, p in enumerate(pts) if i == 0 or p != pts[i - 1]]
 
 
-def compile_floor(ops, N):
-    """One floor of a 4-lane bus tile: (x, y, R, T) cells, flow north."""
+def compile_floor(ops, N, fan="sp3", launchers=False):
+    """One floor of a 4-lane bus tile: (x, y, R, T) cells, flow north.
+
+    Two 1->3 butterflies are known, both validated in-game:
+      "cascade" -- VN-20 v2: every lane walks to its group's CENTRE column, splits
+                   1->2->3 through two Splitter1To2L rows, chains staggered by one row,
+                   two Merger2To1L rows. K+4 rows, two lane-walk rows each way.
+      "sp3"     -- John's VN-02 variant (`For Claude VN-02 1to3 splitter.spz2bp`): the
+                   outer lanes walk to a centre column and use Splitter1To3/Merger3To1
+                   (the game balances 1/3 per output); the inner lanes enter their group
+                   at its EDGE column and fan sideways through a Splitter1To2L pair, so
+                   they never leave their home column. All chains aligned. K+2 rows,
+                   one lane-walk row each way. 240 vs 336 buildings for one cutter.
+    """
     K = len(ops)
     assert 1 <= N <= 3, f"fan-out {N} per lane: the compiler knows 1->2 and 1->3 butterflies only"
+    assert fan in ("sp3", "cascade"), fan
     x0 = 10 - 2 * N                                   # 4 groups of N columns, centred
     groups = [list(range(x0 + N * i, x0 + N * (i + 1))) for i in range(4)]
-    # entry column of each group: centre for N=3; for N=2 the inner column, so the
-    # west half splits west and the east half splits east (mirrored template)
-    entry = [g[1] if N == 3 else (g[-1] if i < 2 else g[0]) if N == 2 else g[0]
-             for i, g in enumerate(groups)]
+    # entry column of each group. N=2: the inner column (west half splits west, east
+    # half splits east). N=3 cascade: the centre. N=3 sp3: centre for the outer groups,
+    # the home-side edge for the inner ones (lane 9 -> column 9, lane 10 -> column 10).
+    if N == 3 and fan == "sp3":
+        entry = [groups[0][1], groups[1][2], groups[2][0], groups[3][1]]
+    else:
+        entry = [g[1] if N == 3 else (g[-1] if i < 2 else g[0]) if N == 2 else g[0]
+                 for i, g in enumerate(groups)]
     cells = []
 
     # --- distribution: home column -> entry column, rows just below the receiver
@@ -1753,7 +1775,7 @@ def compile_floor(ops, N):
             e = y_s - K
             cells += [(side, e - 1, 3, LT if mirror else RT), (c, e - 1, 3, MGR if mirror else MGL)]
             y_m = e - 2
-        else:
+        elif fan == "cascade":
             cells += [(c, y_s, 3, SPL), (c - 1, y_s, 2, RT), (c, y_s - 1, 3, SPR), (c + 1, y_s - 1, 0, LT)]
             chain(c - 1, y_s - 1)
             chain(c, y_s - 2)
@@ -1762,6 +1784,21 @@ def compile_floor(ops, N):
             cells += [(c - 1, e - 1, 3, FWD), (c - 1, e - 2, 3, RT), (c, e - 2, 3, MGL),
                       (c + 1, e - 2, 3, FWD), (c + 1, e - 3, 3, LT), (c, e - 3, 3, MGR)]
             y_m = e - 4
+        else:                                         # sp3: chains aligned at y_s-1
+            g0, g1, g2 = groups[i]
+            e = y_s - K - 1                           # merge row
+            if c == g1:                               # centre entry: 1->3 in one cell
+                cells += [(c, y_s, 3, SP3), (g0, y_s, 2, RT), (g2, y_s, 0, LT),
+                          (g0, e, 3, RT), (c, e, 3, MG3), (g2, e, 3, LT)]
+            elif c == g2:                             # east-edge entry, fan west
+                cells += [(g2, y_s, 3, SPL), (g1, y_s, 2, SPR), (g0, y_s, 2, RT),
+                          (g0, e, 3, RT), (g1, e, 0, MGR), (g2, e, 3, MGL)]
+            else:                                     # west-edge entry, fan east
+                cells += [(g0, y_s, 3, SPR), (g1, y_s, 0, SPL), (g2, y_s, 0, LT),
+                          (g0, e, 3, MGR), (g1, e, 2, MGL), (g2, e, 3, LT)]
+            for x in (g0, g1, g2):
+                chain(x, y_s - 1)
+            y_m = e - 1
 
     # --- return: entry column -> home column, then straight to the sender
     spans = sorted(((h, min(h, c), max(h, c)) for h, c in zip(BUS_LANES, entry)),
@@ -1774,7 +1811,33 @@ def compile_floor(ops, N):
             else [(c, y_m), (h, BUS_OUT_Y + 1)]
         cells += _belt_path(_dedupe(pts), 3)
         cells.append((h, BUS_OUT_Y, 3, TX))
+    if launchers:
+        cells = _launch_home_straights(cells, y_m - Dr)
     return cells
+
+
+LAUNCH_GAP_MAX = 4      # conventions: a launcher throws 1-4 tiles to the next catcher
+
+
+def _launch_home_straights(cells, y_top):
+    """Replace each lane's straight run from `y_top` down to row 3 (all Forward R3
+    cells in the home column) with launcher->catcher hops, greedy MAX gap from the
+    exit end -- John's chunking in `For Claude VN-02 1to3 splitter`: rows 11..3 become
+    sender 11 / catcher 9, sender 8 / catcher 3. Runs under 3 cells stay belts."""
+    by = {(x, y): i for i, (x, y, R, T) in enumerate(cells)}
+    drop, add = set(), []
+    for h in BUS_LANES:
+        run = [y for y in range(y_top, BUS_OUT_Y, -1)
+               if (h, y) in by and cells[by[(h, y)]][2:] == (3, FWD)]
+        if len(run) < 3 or run != list(range(y_top, y_top - len(run), -1)):
+            continue
+        lo, hi = run[-1], run[0]
+        while hi - lo + 1 >= 3:
+            snd = min(lo + LAUNCH_GAP_MAX + 1, hi)
+            drop.update(by[(h, y)] for y in range(lo, snd + 1))
+            add += [(h, lo, 3, RX), (h, snd, 3, TX)]
+            lo = snd + 1
+    return [c for i, c in enumerate(cells) if i not in drop] + add
 
 
 def compile_module(m):
@@ -1783,7 +1846,7 @@ def compile_module(m):
     N = max(r["per_lane"] for r in rows)
     facts = " ".join(f"{T.replace('InternalVariant', '')}({r['per_lane']}/lane,{r['source']})"
                      for T, r in zip(m.per_lane, rows))
-    floor = compile_floor(m.per_lane, N)
+    floor = compile_floor(m.per_lane, N, fan=m.fan, launchers=m.launchers)
     sh, b = m.shell, []
     for k, tile in enumerate(sh.tiles):
         for L in FLOORS:
@@ -1817,6 +1880,9 @@ def build(m):
 #   {NE,SE,SW,NW} -HD-> {NE,SE} -Rot90CW-> {SE,SW} -HD-> {SE} -Rot90CCW-> {NE}
 VN20 = Module("VN-20 NE quadrant full belt", QUADED_FILTER_SHELL, [HD, CW, HD, CCW],
               labels=["VN-20 NE only  E in / W out"] + ["NE only"] * 3)
+# The in-game-validated v2 layout, kept compilable as the regression fixture's spec.
+VN20_V2 = Module(VN20.name, VN20.shell, VN20.per_lane, labels=VN20.labels,
+                 fan="cascade", launchers=False)
 # VN-02c / VN-03c: the 12-lane half-destroy and rotate-CW stages compiled from one
 # operator each. John's hand-tuned VN-02/VN-03 (launcher runs, 2 cutters/lane) stay as
 # the in-game A/B reference; the compiled ones fan by the measured rate (HD 3, Rot 2).
@@ -1824,18 +1890,30 @@ VN02C = Module("VN-02c half-destroy 12lane compiled", bus_1x1(2), [HD])
 VN03C = Module("VN-03c rotate90CW 12lane compiled", bus_1x1(2), [CW])
 
 
-def check_vn20_regression():
-    """The compiler must reproduce the in-game-validated VN-20 v2 CELL FOR CELL."""
-    ref = load_reference_island("VN-20 v2 validated.spz2bp")
+REGRESSIONS = [
+    # in-game-validated blueprint            spec that must reproduce it cell for cell
+    ("VN-20 v2 validated.spz2bp",            VN20_V2),
+    ("For Claude VN-02 1to3 splitter.spz2bp", VN02C),
+]
 
+
+def check_regressions():
+    """Every fixture is an in-game-validated layout; the compiler must reproduce each
+    CELL FOR CELL from its spec. A fixture that stops matching is a compiler change
+    that needs a new in-game test, not a tolerance."""
     def key(e):
         return (e["X"], e["Y"], e["L"], e["R"], e["T"], json.dumps(e.get("C"), sort_keys=True))
-    want = sorted(key(e) for e in gv(ref["B"]["Entries"]))
-    got = sorted(key(e) for e in compile_module(VN20))
-    assert (ref["T"], ref["R"]) == (VN20.shell.foundation, VN20.shell.island_R), (ref["T"], ref["R"])
-    assert got == want, (f"VN-20 regression: {len(set(want) - set(got))} cells missing, "
-                         f"{len(set(got) - set(want))} extra")
-    print(f"REGRESSION VN-20 v2: PASS {len(got)} cells identical")
+    for fixture, m in REGRESSIONS:
+        ref = load_reference_island(fixture)
+        want = sorted(key(e) for e in gv(ref["B"]["Entries"]))
+        got = sorted(key(e) for e in compile_module(m))
+        assert (ref["T"], ref["R"]) == (m.shell.foundation, m.shell.island_R), (ref["T"], ref["R"])
+        assert got == want, (f"REGRESSION {fixture}: FAIL {len(set(want) - set(got))} cells "
+                             f"missing, {len(set(got) - set(want))} extra")
+        print(f"REGRESSION {fixture}: PASS {len(got)} cells identical")
+
+
+check_vn20_regression = check_regressions
 
 
 MODULES = {
@@ -1868,7 +1946,7 @@ MODULES = {
 
 if __name__ == "__main__":
     outdir = sys.argv[1] if len(sys.argv) > 1 else "blueprints"
-    check_vn20_regression()
+    check_regressions()
     os.makedirs(outdir, exist_ok=True)
     for name, fn in MODULES.items():
         code = encode_bp(5, check_configs(fn()))
