@@ -1,0 +1,2 @@
+= Shape Gravity Rules =
+#REDIRECT [[Shapes#Shape Gravity Rules]]

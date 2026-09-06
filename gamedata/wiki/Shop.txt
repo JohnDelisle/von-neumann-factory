@@ -1,0 +1,293 @@
+= Shop =
+== Overview ==
+
+Upgrades and unlockable items may be purchased from the Shop with <span class="gl">Research Points</span>. The shop has six categories: [[#Upgrades|Upgrades]], [[#Machines|Machines]], [[#Platforms|Platforms]], [[#Trains|Trains]], [[#Wires|Wires]] and [[#Decorations|Decorations]].
+
+Note: The Milestone Required is the Milestone for the 'Classic-Regular' [[Scenario]].
+
+== Upgrades ==
+
+Upgrades speed up shape production and delivery.
+ 
+=== Speed Multiplier ===
+Increases the speed of all Machines and Platforms - affects both processing and transport speed.
+
+Milestone Required: 0
+{| class="wikitable"
+! Level !! 1 !! 2 !! 3
+|-
+| Research Points
+| N/A
+| [[File:Research-Icon-100.png|20px]] 5000
+| [[File:Research-Icon-100.png|20px]] 10k
+|-
+| Amount || 100% || 125% || 150%
+|-
+! Machine !! colspan="3"|Speed
+|-
+| Conveyer Belt || 120 || 150 || 180
+|-
+| Belt Launcher || 120 || 150 || 180
+|-
+| Rotators || 60 || 75 || 90
+|-
+| Half Destroyer || 40 || 50 || 60
+|-
+| Pin Pusher || 40 || 50 || 60
+|-
+| Mini-Miner || 30 || 37.5 || 45
+|-
+| Cutter || 30 || 37.5 || 45
+|-
+| Swapper || 30 || 37.5 || 45
+|-
+| Bent Stacker || 30 || 37.5 || 45
+|-
+| Painter || 30 || 37.5 || 45
+|-
+| Stacker || 20 || 25 || 30
+|-
+| Crystal Generator || 20 || 25 || 30
+|}
+
+Note: The fluid input/output rate of [[Pump]]s, [[Fluid Launcher]]s, [[Color Mixer]]s, and [[Fluid Tank]]s, along with the fluid requirements for [[Painter]]s and [[Crystal Generator]]s all increase synchronously with the Speed Multiplier upgrade level.
+
+=== Vortex Inputs ===
+
+Increases the number of [[Conveyor Belt]]s you can feed into the [[Vortex]].
+
+Milestone Required: 0
+{| class="wikitable"
+! Level !! 1 !! 2 !! 3 !! 4 !! 5
+|-
+| Research Points
+| N/A
+| [[File:Research-Icon-100.png|20px]] 700
+| [[File:Research-Icon-100.png|20px]] 1000
+| [[File:Research-Icon-100.png|20px]] 1500
+| [[File:Research-Icon-100.png|20px]] 4000
+|-
+| Vortex Inputs || 4 || 6 || 8 || 10 || 12
+|}
+
+=== Platform Capacity ===
+Increases the Platform Capacity needed to build [[Space Platforms]].
+
+Milestone Required: 0
+{| class="wikitable"
+! Level !! 1 !! 2 !! 3 !! 4 !! 5 !! 6 !! 7 !! 8 !! 9 !! 10
+|-
+| Research Points
+| N/A
+| [[File:Research-Icon-100.png|20px]] 100
+| [[File:Research-Icon-100.png|20px]] 400
+| [[File:Research-Icon-100.png|20px]] 800
+| [[File:Research-Icon-100.png|20px]] 2000
+| [[File:Research-Icon-100.png|20px]] 5000
+| [[File:Research-Icon-100.png|20px]] 10k
+| [[File:Research-Icon-100.png|20px]] 50k
+| [[File:Research-Icon-100.png|20px]] 120k
+| [[File:Research-Icon-100.png|20px]] 250k
+|-
+| Platform Capacity || 0 || 1000 || 1500 || 2500 || 4000 || 8000 || 16k || 50k || 100k || 250k
+|}
+
+=== Train Speed ===
+Increases the speed of [[Trains]].
+
+Milestone Required: 2
+{| class="wikitable"
+! Level !! 1 !! 2 !! 3 !! 4
+|-
+| Research Points
+| N/A
+| [[File:Research-Icon-100.png|20px]] 800
+| [[File:Research-Icon-100.png|20px]] 1200
+| [[File:Research-Icon-100.png|20px]] 3000
+|-
+| Train Speed || 100% || 140% || 180% || 200%
+|}
+
+=== Train Capacity ===
+Increases the amount of packages that a [[Train]] wagon can carry per machine level.
+
+Milestone Required: 2
+{| class="wikitable"
+! Level !! 1 !! 2 !! 3 !! 4 !! 5 !! 6
+|-
+| Research Points
+| N/A
+| [[File:Research-Icon-100.png|20px]] 800
+| [[File:Research-Icon-100.png|20px]] 1200
+| [[File:Research-Icon-100.png|20px]] 1800
+| [[File:Research-Icon-100.png|20px]] 3000
+| [[File:Research-Icon-100.png|20px]] 5000
+|-
+| Train Capacity || 1 || 2 || 3 || 4 || 5 || 6
+|}
+
+Also see: [[Trains#Train Capacity|Train Capacity]]
+
+=== Shape Multiplier ===
+Makes every shape that you deliver to the [[Vortex]] count multiple times!
+
+Milestone Required: 8
+{| class="wikitable"
+! Level !! 1 !! 2 !! 3 !! 4 !! 5 !! 6 !! 7 !! 8 !! 9 !! 10 !! 11 !! 12
+|-
+| Research Points
+| N/A
+| [[File:Research-Icon-100.png|20px]] 35k
+| [[File:Research-Icon-100.png|20px]] 75k
+| [[File:Research-Icon-100.png|20px]] 125k
+| [[File:Research-Icon-100.png|20px]] 175k
+| [[File:Research-Icon-100.png|20px]] 350k
+| [[File:Research-Icon-100.png|20px]] 400k
+| [[File:Research-Icon-100.png|20px]] 450k
+| [[File:Research-Icon-100.png|20px]] 500k
+| [[File:Research-Icon-100.png|20px]] 550k
+| [[File:Research-Icon-100.png|20px]] 600k
+| [[File:Research-Icon-100.png|20px]] 999900
+|-
+| Multiplier || 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10 || 11 || 12
+|-
+| Operator Level || N/A || TBD || TBD || TBD || TBD || TBD || TBD || TBD || TBD || TBD || TBD || TBD
+|}
+
+When shapes are delivered to the [[Vortex]] either via [[Belt]]s or [[Trains]], the amount of shapes will be multiplied by the current multiplier. Due to its high costs, the Shape Multiplier is end-game and emulates an infinite upgrade similar to [[Shapez 1]].
+
+Note: The 'Operator Level' row in the table above indicates which [[Operator Level]] is required to have enough Research Points to buy the current level, assuming a save in the Normal scenario with all milestones and jobs completed, all unlockable and linear upgrades bought, including the [[Trains#Cosmetic Rails|Trains - Roller Coaster]] upgrade, but excluding the Shape Multiplier.
+
+== Machines ==
+
+{| class="wikitable"
+! Upgrade Name !! Milestone<br>Required !! Research<br>Points
+|-
+| [[Cutter#Cutter | Cutter]] || 0 || [[File:Research-Icon-100.png|20px]] 300
+|-
+| [[Swapper]] || 0 || [[File:Research-Icon-100.png|20px]] 1200
+|-
+| [[Trash]] || 0 || [[File:Research-Icon-100.png|20px]] 400
+|-
+| [[Rotator#Reverse Rotator|Reverse Rotator]] || 0 || [[File:Research-Icon-100.png|20px]] 200
+|-
+| [[180° Rotator]]|| 0 || [[File:Research-Icon-100.png|20px]] 600
+|-
+| [[Stacker|Bent Stacker]] || 0 || [[File:Research-Icon-100.png|20px]] 600
+|-
+| [[Overflow Splitter]] || 0 || [[File:Research-Icon-100.png|20px]] 2000
+|-
+| [[3rd Machine Level]] || 0 || [[File:Research-Icon-100.png|20px]] 5000
+|-
+| [[Fluid Tank]] || 1 || [[File:Research-Icon-100.png|20px]] 1000
+|}
+
+== Platforms ==
+
+{| class="wikitable"
+! Upgrade Name !! Milestone<br>Required !! Research<br>Points
+|-
+| [[Machine Platforms#Linear Platforms|Longer Platforms]]
+* 3x1 Platform
+* 4x1 Platform
+| 1 || [[File:Research-Icon-100.png|20px]] 1000
+|-
+| [[Machine Platforms#Irregular Platforms|Irregular Platforms]]
+* Small L-shaped (L3) Platform
+* Large L-shaped (L4) Platform
+* T-shaped (T4) Platform
+* S-shaped (S4) Platform
+* X-shaped (C5) Platform
+| 1 || [[File:Research-Icon-100.png|20px]] 2200
+|-
+| [[Machine Platforms#Blocky Platforms|Blocky Platforms]]
+* 2x2 Platform
+* 3x2 Platform
+* 4x2 Platform
+| 1 || [[File:Research-Icon-100.png|20px]] 3200
+|-
+| [[Machine Platforms#Blocky Platforms|3x3 Platform]]
+* 3x3 Platform
+| 1 || [[File:Research-Icon-100.png|20px]] 9000
+|}
+
+== Trains ==
+{| class="wikitable"
+! Upgrade Name !! Milestone<br>Required !! Research<br>Points
+|-
+| [[Trains#Fluid Wagon|Fluid Wagon]] || 2 || [[File:Research-Icon-100.png|20px]] 2600
+|-
+| [[Trains#Filler Wagon|Spacer Wagon]] || 2 || [[File:Research-Icon-100.png|20px]] 1200
+|-
+| [[Trains#Wait Stop|Wait Stop]] || 2 || [[File:Research-Icon-100.png|20px]]3000
+|-
+| [[Trains#Transfer Stations|Wagon Transfer Platform]] || 2 || [[File:Research-Icon-100.png|20px]] 4200
+|-
+| [[Trains|Station Spacer]] || 2 || [[File:Research-Icon-100.png|20px]] 4000
+|-
+| [[Trains|Primary Colors]] || 2 || [[File:Research-Icon-100.png|20px]] 2400
+|-
+| [[Trains|Secondary Colors]] || 2 || [[File:Research-Icon-100.png|20px]] 3200
+|-
+| [[Trains|White Color]] || 2 || [[File:Research-Icon-100.png|20px]] 4800
+|-
+| [[Trains#Cosmetic Rails|Roller Coaster]] <ref>Roller Coaster requires the [[Supporter Edition]] DLC</ref> || 2 || N/A
+|}
+<references />
+
+== Wires ==
+
+{| class="wikitable"
+! Upgrade Name !! Milestone<br>Required !! Research<br>Points
+|-
+| Wire Basics
+* [[Wire]]
+* [[Wire Bridge]]
+* [[Wire Transmitter]]
+* [[Wire Receiver]]
+* [[Belt Filter]]
+* [[Belt Reader]]
+* [[Pipe Gate]]
+* [[Signal Producer]]
+* [[Display]]
+* [[Toggle Button]]
+| 0 || [[File:Research-Icon-100.png|20px]] 2000
+|-
+| [[Logic Gates]]
+* [[AND Gate]]
+* [[OR Gate]]
+* [[NOT Gate]]
+* [[XOR Gate]]
+* [[Comparison Gate]]
+* [[Transistor Gate]]
+| 0 || [[File:Research-Icon-100.png|20px]] 1000
+|-
+| [[Simulated Machines]]
+* [[Simulated Rotator]]
+* [[Shape Analyzer]]
+* [[Simulated Unstacker]]
+* [[Simulated Stacker]]
+* [[Simulated Half Destroyer]]
+* [[Simulated Painter]]
+* [[Simulated Pin Pusher]]
+* [[Simulated Crystal Generator]]
+* [[Simulated Swapper]]
+| 0 || [[File:Research-Icon-100.png|20px]] 1000
+|-
+| Global Wire Transmission<ref>Global Wire Transmitters require the [[3rd Machine Level]]</ref>
+* [[Global Signal Transmitter]]
+* [[Global Signal Receiver]]
+| 0 || [[File:Research-Icon-100.png|20px]] 1000
+|-
+| Operator Shape Receiver
+* [[Operator Signal Receiver]]
+| 0 || [[File:Research-Icon-100.png|20px]] 800
+|}
+<references />
+
+== Decorations ==
+{| class="wikitable"
+! Upgrade Name !! Milestone<br>Required !! Research<br>Points
+|-
+| [[Label]] || 0 || [[File:Research-Icon-100.png|20px]] 400
+|}

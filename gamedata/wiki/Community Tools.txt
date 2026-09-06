@@ -1,0 +1,39 @@
+= Community Tools =
+Below is a list of community-made tools (web-based or downloadable apps/executables) for Shapez 2.
+
+<!--sorted alphabetically by author name-->
+{| class="wikitable"
+! Author !! Link !! Features
+|-
+| DontMash
+| https://community-vortex.shapez2.com
+| 3D Shape Viewer, 3D Blueprint Viewer, Public Blueprint Library
+|-
+| FatcatX
+| https://gamertools.github.io/ShapezTools/bpe.html
+| Convert list of shapes to wire signal constants
+|-
+| jiahao
+| https://shapez2-tools.com
+| Miner Layout Solver, QR Encoder
+|-
+| rowspan="3" | Loupau 38
+| https://loupau38.github.io/shapez2
+| 2D Shape Viewer, Ingame News Viewer
+|-
+| https://pypi.org/project/shapez2/
+| Python API and tools
+|-
+| https://github.com/Loupau38/shapez-2-tools
+| Configurations Manager, miscellaneous other tools
+|-
+| msty1
+| https://shapez.sweatshop.dev/scenarios
+| Custom scenarios
+|-
+| Vystel
+| https://vystel.github.io/shapez2-solver
+| Shape Solver
+|}
+
+''Feel free to add a tool you have made if it fits the description at the top of the page. For any questions, see the #wiki channel on [https://discord.gg/bvq5uGxW8G Discord], or the talk page here.''

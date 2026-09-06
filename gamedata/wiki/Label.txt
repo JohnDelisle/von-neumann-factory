@@ -1,0 +1,20 @@
+= Label =
+{{Machine Infobox
+|title=Label
+|image=Label-500.png
+|footprint=5 x 1 x 1
+|milestone=1
+|researchcost=4
+}}
+
+{{Shape Processing}}
+
+== Overview ==
+
+The Label displays text on [[Machine Platforms]].
+
+After placing the Label, select it and select the <span class="gl">Configure</span> button to enter the desired text.
+
+== Specifics ==
+
+Labels support any characters, and the [https://docs.unity3d.com/Packages/com.unity.textmeshpro@3.2/manual/RichTextSupportedTags.html Unity Text Mesh Pro Rich Text Tags] can also be used.

@@ -1,0 +1,56 @@
+= Operator Level =
+== Overview ==
+
+The Operator research tab allows for infinite goals and becomes the main focus after having completed all [[Milestones]] and [[Jobs]].
+
+It encourages players to keep and/or improve their milestone shape factories.
+
+== Operator Level ==
+
+The Operator Level is the number shown in the top half of the Operator tab. It is specific to each savegame and is increased by one each time a goal line level is completed.
+
+=== Ranking ===
+
+Under the Operator Level is shown the Operator percentage Ranking. The number will only be shown if it's below 50% and if cheats haven't been used in the savegame. As of Beta 0.1.0, this number is approximated and not based on live data. The formula used to get it is:
+
+<math>\frac{1}{2^{ \left ( \left (18+x \right )\times0.03 \right )}}</math>
+
+with <math>x</math> being the Operator Level. The number returned is then multiplied by 100 to get a percentage value, then rounded to <math>n</math> decimal places, where <math>n</math> is the largest integer in the range <math>[0;6]</math> such that <math>r \le 10^{-n}</math> where <math>r</math> is the rank not multiplied by 100. As a result, the ranking will start being shown at level 16, and it will stay at <math>0.000000%</math> starting from level 902.
+
+=== Shape Badges ===
+
+Next to the Operator Level is shown a shape badge. This shape is purely cosmetic and delivering it to the [[Vortex]] won't have any effect, some shapes are even impossible to create. Each [[Scenario]] has a list of shape badges defined and the one corresponding to the current level will be shown. In case the level is higher than the number of shapes that are listed, the last one will be used. {{Auto-Gen-OL-Shape-Badges}}
+
+=== Rewards ===
+
+The rewards for completing each Operator Level vary depending on the Goal Multiplier, the Copy/Paste Cost, and the Platform Limit selected through the [[Game Modes#Difficulties| Difficulty]] setting. The numbers provided in the following sections are for each of these settings at 100%. If Copy/Paste is free and/or the Platform Limit is unlimited, the respective rewards will not be shown or awarded. {{Auto-Gen-OL-Rewards}}
+
+== Goal Lines ==
+
+The goal lines are shown in the bottom half of the Operator tab. In each [[Scenario]], each [[Milestone]] starting from the 'Fluids & Painting' milestone has its own goal line that is unlocked when completing the milestone and that has the milestone's final shape as its unique shape. The Insane scenario is an exception and has some milestones which unlock multiple goal lines.
+
+===<span id="ROS"></span>Random Operator Shapes (ROS) ===
+
+Additionally, two random goal lines are available, for each of them, the shape is different and randomly generated for each level. The shapes are based on the savegame's [[Game Modes#Map Generation | seed]], meaning if multiple savegames are created with the same seed, the randomly generated shapes of each level will be the same in each savegame. Contrary to the other goal lines, these ones will automatically advance to the next level whenever the shape requirement is met.
+
+The algorithm used to generate those shapes after level 50 is summarized below, the first goal line doesn't allow crystals while the second one does :
+
+* Generate a 1 layer base shape 
+** The base shape is a random 2, 3, or 4 part shape similar to the ones available from asteroid patches
+** If crystals are allowed, the base shape can only have 2 or 3 parts
+* If crystals are allowed, the base shape is passed through a crystal generator
+* Repeat 4 times in the Insane scenario, 3 times otherwise :
+** Generate a 1 layer base shape (same rules as above)
+** Maybe pass it through a pin pusher
+** Stack it on top of what was previously generated
+** If crystals are allowed, maybe pass the result through a crystal generator
+
+As a result, the first one can contain regular [[Shapes#Part Types | part types]] of any color, [[Pins]], and empty parts. The second one can contain everything from the first one and also [[Crystals]].
+
+=== Requirements ===
+
+Each goal line's level is independent and the number of shapes required increases exponentially each level, according to the formula:
+
+<math>\text{round} \left (\frac{\text{min} \left (a\times \left (1+\frac{b}{100} \right )^x, \left (2^{31}-1001 \right ) \right )}{100} \right )\times100</math>
+
+where <math>a</math> is the starting amount, <math>b</math> is the growth percent per level, and <math>x</math> is the current level, thus the cost calculated is the one required to unlock level <math>x+1</math>. The first two values depend on the goal line and scenario, and can be found in the tables below, as well as graphs of the cost's evolution. Additionally, as a result of the formula used, a goal line can't ask more than 2,147,482,600 shapes per level, and the level at which each goal line reaches that cost is also indicated below. {{Auto-Gen-OL-Goal-Lines}}

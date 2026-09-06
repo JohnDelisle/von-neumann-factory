@@ -1,0 +1,6 @@
+= 3rd Machine Level =
+Unlocking the 3rd Level Upgrade allows players to build factories that use the 3rd machine floor of [[Machine Platforms]].
+
+The [[Wire#Global Transmitter and Receiver | Global Transmitter]] and [[Wire#Global Transmitter and Receiver | Global Receiver]] machines requires the 3rd Floor Upgrade.
+
+See also: [[Upgrades]]

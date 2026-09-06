@@ -1,0 +1,75 @@
+= Shapez 2 Architecture =
+== Overview ==
+
+This page explains the basics of the Shapez 2 architecture focusing on all the aspects required for an entity to be added via [[Modding | mods]].
+
+== Simulation ==
+
+=== Simulation States ===
+
+One of the most basic concepts in the game are the classes inherited from <code>ISimulationState</code>. Their responsibility is storing the specialized data for a specific type of simulation. These might range from the current shape data (Id & Position) or the amount of fluid left in the tank.
+
+You might notice that the interface inherits from a <code>ISyncable</code> interface. This means that the implementation should should have a method for serializing and deserializing their content. The visitor pattern was chosen for conveniently supporting local migration when data is nested
+
+=== Simulations ===
+
+<code>ISimulation</code> implementations are the most fundamental logical structures on the game. Classes implementing from this interface control how the logic in shapez 2 is executed.
+
+Although the requirements for a simulation are very slim, most simulations inherit from <code>Simulation<TState></code> and <code>IUpdatableSimulation</code> which enhance the simulation to be stateful and updatable, respectively. 
+
+For shape related simulations, these simulations might be one of the most complicated parts to write due to all requirements for keeping the simulation precise with Low and High UPS.
+
+Simulations have no spatial knowledge, they work directly with data addressed with indices. A <span class="gl">[[Rotator]]</span>, for example, receives a shape at Input #0, rotates it and outputs them at Output #0
+
+=== Connectable Simulations & Simulation Graph ===
+
+<code>ISimulation</code>s are very powerful, but not very interesting on their own. Producing fluid is not so fun when no other simulation can consume it. Here's where connectable simulations come in place, binding independent simulations together into a cluster.
+
+Every connectable simulation can have as many simulation connectors as required. These are have no spatial notion, connectable simulations do.  
+
+That is the information used to connect to other simulations, e.g., a <span class="gl">[[Mini-Miner]]</span> simulation connects to a <span class="gl">[[Conveyor Belt]]</span> simulation. More specifically, the extractor output is connected to the conveyor simulation input. 
+
+The <code>SimulationGraph</code> is the class responsible for taking connectable simulations and inserting/removing them into the simulation graph. The nodes are separated into clusters, allowing the simulation to be processed in parallel across multiple processors.
+
+=== Map Layout & Entities ===
+
+The map layout is simply a collection of Entities (<span class="gl">Machines</span> & <span class="gl">Platforms</span>). An entity is a simple, data-only structure consisting of:
+
+*<span class="gl">Definition</span>: Data definition shared across all buildings of the same type. Each definition has a unique ID, connector data and custom data holder.
+*<span class="gl">Transform</span>: Position and Rotation that define spatially where an entity is.
+*<span class="gl">State</span>: Holds a reference to a simulation state.
+*<span class="gl">Configuration</span>: Additional configuration data accessible to the player (e.g., the shape to be produced by an <span class="gl">[[Item Producer | Item Producer]]</span>).
+
+=== Simulation Systems ===
+
+The map can be manipulated by the player, but it does not have any simulation logic to it. So, how does placing a rotator building create a rotator simulation? Well, that’s where simulation systems come in, acting as the bridge between the map layout and the [[#Connectable Simulations & Simulation Graph | connectable simulations]]. 
+
+Behind the scenes, simulation systems are nothing more than a class that does pattern matching on the map layout and creates/destroys simulations based on it. The beauty about it is that simulations and entities are not directly dependent on one another and instead the links happen explicitly by the simulation systems.
+
+==== Examples ====
+
+Below are some examples that show why the pattern matching technique is very powerful in the context of shapez 2:
+
+<b><span class="gl">[[Rotator]]</span> (1 to 1):</b> One of the simplest examples in the game is the rotator. When a rotator building is placed, a specialized simulation system checks the <code>BuildingDefinitionId</code>. If it matches the rotator one, it creates a <code>RotatorSimulation</code>.
+
+This pattern is very common in the game. Internally referred to as an <b>atomic</b> building, meaning that when such a building is placed it will create a single simulation as a result of it. Since this is a common pattern, we have a class <code>AtomicBuildingSimulationSystem</code> that can be used to specify new systems.
+
+<b><span class="gl">[[Conveyor Belt#Belt Launcher and Catcher | Belt Launcher & Catcher]]</span> (2 to 1):</b> <span class="gl">[[Conveyor Belt#Belt Launcher and Catcher | Belt Launchers and Catchers]]</span> (called Belt Ports internally) are a case of multiple-buildings/single-simulation where two buildings are required for the pattern matching to create a transfer simulation. You might wonder what would happen when a receiver is removed leaving the sender unconnected. In that case the simulation system destroys the transfer simulation and creates a blocked one.
+
+<b><span class="gl">[[Conveyor Belt | Conveyor Belt]]</span> (N to 1):</b> A <code>ConveyorSimulation</code> is also a multiple-buildings/single-simulation created with the combination connected belt buildings. When a new belt is added to a position that it would connect with an existing conveyor, the conveyor simulation is destroyed and recreated.
+
+This example also highlights one interesting aspect of the codebase: <b>serialization is processed per entity</b>. Each belt holds a state that can hold up to two shapes (these can be serialized). The simulation is constructed by injecting all the individual belt states and aggregating them into one big state that uses all the individual belt states
+
+<b><span class="gl">[[Painter]]</span> (1 to 2):</b> The game also has content that is single-building/multiple-simulations, such as the <span class="gl">[[Painter]]</span> or the <span class="gl">[[Wire#Wire Bridge | Wire Bridge]]</span>. Even though the pattern matching supports this (it generally is handled by different simulation systems), it is considered technical debt by the developers. This is because multiple issues arise from such cases and it makes the propagation of data on the simulation systems less robust.
+
+== Rendering ==
+
+=== Static Rendering ===
+
+=== Dynamic Rendering ===
+
+== Placement ==
+
+== Research ==
+
+== Toolbar ==

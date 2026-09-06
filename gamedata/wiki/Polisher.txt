@@ -1,0 +1,2 @@
+= Polisher =
+polisher is the first machine in Manufacturer mode. it takes in half block of unrefined waste and makes it becone polished. polished waste is mainly usef for the Ruby station.

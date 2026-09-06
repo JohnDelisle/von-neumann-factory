@@ -1,0 +1,2 @@
+= Wire Bridge =
+#REDIRECT [[Wire#Wire_Bridge]]

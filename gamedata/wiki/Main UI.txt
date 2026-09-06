@@ -1,0 +1,30 @@
+= Main UI =
+[[File:Space-Mode-2560.png|640px]]
+
+== Overview ==
+
+== Navigation Buttons ==
+== Currency Values ==
+* Research Points
+* Platform Units
+* Blueprint Points
+
+== Help Buttons ==
+== View Mode Buttons ==
+View Modes
+* Machine mode
+* Space mode
+* Overview (map) mode
+See also: [[Map]]
+== Goal Shapes ==
+* Milestone shapes
+* Pinned shapes
+
+== Markers ==
+== View Toggles ==
+== Compass ==
+== Available Commands ==
+== Toolbars ==
+== Camera Snapping ==
+== Version Number ==
+== Feedback Button ==

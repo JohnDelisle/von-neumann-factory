@@ -1,0 +1,26 @@
+= Toggle Button =
+{{Machine Infobox
+|title=Toggle Button
+|image=Toggle-Button-500.png
+|footprint=1 x 1 x 1
+|wireinouts=0 : 1
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Wire Basics]]
+|researchcost=15
+}}
+
+{{Wires}}
+
+== Overview ==
+
+The Toggle Button outputs a logical signal. The Button is toggleable from the pop-up menu when the machine is selected or by pressing the 'Toggle Button' hotkey (default 'Tab') while hovering over it with the cursor.
+
+== Button State ==
+
+{| class="wikitable"
+! Button State !! Output !! Image
+|-
+| On || <code>1</code> || [[File:Button-On-200.png|75px|center]]
+|-
+| Off || <code>null</code> || [[File:Button-Off-200.png|75px|center]]
+|}

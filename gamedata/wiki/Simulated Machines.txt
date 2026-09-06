@@ -1,0 +1,172 @@
+= Simulated Machines =
+{{Machine Infobox
+|title=Simulated Machines
+|image=[[File:Simulated-Machines-GIF-500.gif]]
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Simulated Machines]]
+|researchcost=10
+}}
+
+{{Wires}}
+
+== Overview ==
+
+Simulated Machines are logistical machines whose function are similar to their normal [[Shape Machines]] or [[Fluid Machines]] counterparts. Simulated Machines differ in which they take shape and color signals as their input, and output signals respective to each machine.
+
+== Simulated Rotator ==
+
+The Simulated Rotator takes a shape signal as input and outputs the shape signal rotated by one shape part clockwise, this results in a 90° rotation in regular [[Scenarios]], and 60° in the hexagonal scenario.
+
+{| class="wikitable"
+! Input !! !! Output
+|-
+| <code>CuCu----</code> || → || <code>--CuCu--</code>
+|-
+| colspan="3"|
+|-
+| <code>Cu--Cu--</code> || → || <code>--Cu--Cu</code>
+|-
+| colspan="3"|
+|-
+| <code>HuHu--Hu--Hu</code> || → || <code>HuHuHu--Hu--</code>
+|}
+
+== Simulated Reverse Rotator ==
+
+The Simulated Reverse Rotator takes a shape signal as input and outputs the shape signal rotated by one shape part counterclockwise, this results in a 90° rotation in regular [[Scenarios]], and 60° in the hexagonal scenario.
+
+{| class="wikitable"
+! Input !! !! Output
+|-
+| <code>CuCu----</code> || → || <code>Cu----Cu</code>
+|-
+| colspan="3"|
+|-
+| <code>Cu--Cu--</code> || → || <code>--Cu--Cu</code>
+|-
+| colspan="3"|
+|-
+| <code>HuHu--Hu--Hu</code> || → || <code>Hu--Hu--HuHu</code>
+|}
+
+== Simulated Half Destroyer ==
+
+The Simulated Half Destroyer takes a shape signal as input and outputs the shape signal with the western half destroyed. The Simulated Half Destroyer follows the same checks for crystals and floating shapes as the normal [[Half Destroyer]].
+
+{| class="wikitable"
+! Input !! !! Output
+|-
+| <code>CuCuCuCu</code> || → || <code>CuCu----</code>
+|-
+| colspan="3"|
+|-
+| <code>Cu--Cu--</code> || → || <code>Cu------</code>
+|}
+
+== Simulated Stacker ==
+
+The Simulated Stacker takes two shape signals as inputs and outputs the shape signal of the shapes stacked on top of each other. The Simulated Stacker follows the same checks for crystals and floating shapes as the normal [[Stacker]]. If either input is <code>null</code>, the output will be <code>null</code>.
+
+By default, the Simulated Stacker's left input will be stacked on top of the right input, and vice versa if the machine is mirrored.
+
+{| class="wikitable"
+! Input A (Right) !! !! Input B (Left) !! !! Output
+|-
+| <code>--CuCu--</code> || + || <code>CuCu----</code> || → || <code>--CuCu--:CuCu----</code>
+|-
+| colspan="5"|
+|-
+| <code>CuCuCuCu</code> || + || <code>RuRuRuRu</code> || → || <code>CuCuCuCu:RuRuRuRu</code>
+|}
+
+== Simulated Unstacker ==
+
+The Simulated Unstacker takes a shape signal as input and outputs two shape signals on each side.
+
+By default, the top most layer of the shape is outputted on the left, the remaining layers are outputted on the right, and vice versa if the machine is mirrored. If the inputted shape has only one layer, that layer is outputted as the top most layer.
+
+Note : if vertically connected [[Crystals]] are separated in the unstacking process, they won't shatter.
+
+{| class="wikitable"
+! Input !! !! Output A (Left) !! !! Output B (Right)
+|-
+| <code>CuCuCuCu:RuRuRuRu:SuSuSuSu</code> || → || <code>SuSuSuSu</code> || & || <code>CuCuCuCu:RuRuRuRu</code>
+|-
+| colspan="5"|
+|-
+| <code>CuCuCuCu</code> || → || <code>CuCuCuCu</code> || & || <code>null</code>
+|}
+
+== Simulated Painter ==
+
+The Simulated Painter takes a shape and color signal as inputs and outputs the result of painting the topmost layer of the shape with that color.
+
+The shape signal input is on the rear, and the color signal input is on the side. If either input is <code>null</code>, the output will be <code>null</code>.
+
+{| class="wikitable"
+! Shape Input !! !! Color Input !! !! Output
+|-
+| <code>CuCuCuCu</code> || + || <code>color-r</code> || → || <code>CrCrCrCr</code>
+|-
+| colspan="5"|
+|-
+| <code>CuCuCuCu:RuRuRuRu</code> || + || <code>color-b</code> || → || <code>CuCuCuCu:RbRbRbRb</code>
+|}
+
+== Simulated Crystal Generator ==
+
+The Simulated Crystal Generator takes a shape and color signal as inputs and outputs the shape with crystals in that color relacing any pins or empty quadrants in the shape.
+
+The shape signal input is on the rear, and the color signal input is on the side. If either input is <code>null</code>, the output will be <code>null</code>.
+
+{| class="wikitable"
+! Shape Input !! !! Color Input !! !! Output
+|-
+| <code>Su--Su--</code> || + || <code>color-r</code> || → || <code>SucrSucr</code>
+|-
+| colspan="5"|
+|-
+| <code>P-P-P-P-:RuRu----</code> || + || <code>color-b</code> || → || <code>cbcbcbcb:RuRucbcb</code>
+|}
+
+== Simulated Swapper ==
+
+The Simulated Swapper takes two shape signals as inputs and outputs the results or swapping the west halves of both shapes. The Simulated Swapper follows the same checks for crystals and floating shapes as the normal [[Swapper]]. If either input is <code>null</code>, the output will be <code>null</code>.
+
+{| class="wikitable"
+! Input A !! !! Input B !! !! Output A !! !! Output B
+|-
+| <code>CuCuCuCu</code> || & || <code>RuRuRuRu</code> || → || <code>CuCuRuRu</code>|| & || <code>RuRuCuCu</code>
+|-
+| colspan="7"|
+|-
+| <code>SwSwCrCr</code> || & || <code>RbRbRbRb</code> || → || <code>SwSwRbRb</code>|| & || <code>RbRbCrCr</code>
+|}
+
+== Simulated Pin Pusher ==
+
+The Simulated Pin Pusher takes a shape signal as input and outputs the shape signal with pins pushed under the shape. The Simulated Pin Pusher follows the same checks for crystals and floating shapes as the normal [[Pin Pusher]].
+
+{| class="wikitable"
+! Input !! !! Output
+|-
+| <code>CuCuCuCu</code> || → || <code>P-P-P-P-:CuCuCuCu</code>
+|-
+| colspan="3"|
+|-
+| <code>Cu--Cu--</code> || → || <code>P---P---:Cu--Cu--</code>
+|}
+
+== Shape Analyzer ==
+
+The Shape Analyzer takes a shape code as input and checks the northeast part of the shape. The Shape Analyzer will then output the uncolored shape signal for that shape part through the top output, and the color signal of that shape part through the side output. If the shape part is either a [[Pins | Pin]] or empty, the color signal outputted will be <code>null</code>.
+
+{| class="wikitable"
+! Input !! !! Shape Output !! !! Color Output
+|-
+| <code>CuCuCuCu</code> || → || <code>Cu------</code> || & || <code>color-u</code>
+|-
+| colspan="5"|
+|-
+| <code>P-CuP-Sw</code> || → || <code>P-------</code> || & || <code>null</code>
+|}

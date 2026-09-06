@@ -1,0 +1,17 @@
+= Mini Pump =
+{{Machine Infobox
+|title=Mini Pump
+|image=Mini-Pump-500.png
+|footprint=1 x 1 x 1
+|fluidinouts=0 : 1
+|milestone=4
+|researchcost=N/A (Unlocked with milestone)
+|fluidoutput=300 • 375 • 450
+|fluidratio=4
+}}
+
+{{Fluid Machines}}
+
+== Overview ==
+
+The Mini Pump extracts fluid from an [[Asteroid Pump]].

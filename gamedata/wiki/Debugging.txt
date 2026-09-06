@@ -1,0 +1,54 @@
+= Debugging =
+{{distinguish|Debug Console}}
+== Overview ==
+
+Debugging using a Debugger is a good way to understand what's happening in real time.
+Main functions of Debuggers are:
+- Step by step execution
+- breakpoints
+- variable inspection
+
+It is best described here: [https://en.wikipedia.org/wiki/Debugger Wikipedia: Debugger]
+
+== Debugging Mods ==
+
+This page only describe one method, other should be added.
+It was written by Chief Arug here: [https://gist.github.com/ChiefArug/5c3567eb032030f99abfdb28a2350919 Setting up Debugging with Unity Game]
+
+=== Prerequisites ===
+
+* A debugger, or an IDE than offers debugging, such as [https://www.jetbrains.com/rider/ jetbrains rider], [https://visualstudio.microsoft.com/ visual studio], [https://dnspy.org dnSpy]
+* The game
+* Unity Editor matching the one used by the game ([https://unity.com/releases/editor/whats-new/6000.3.19f1 6000.3.19f1])
+
+=== Resources ===
+* Sources
+** [https://gist.github.com/ChiefArug/5c3567eb032030f99abfdb28a2350919 Setting up Debugging with Unity Game] (Chief Arug)
+** [https://en.wikipedia.org/wiki/Debugger Wikipedia: Debugger] 
+
+
+=== Environment setup ===
+
+==== Windows ====
+
+Your first need to [https://gist.github.com/ChiefArug/5c3567eb032030f99abfdb28a2350919#obtaining-a-debug-build optain a debug build]
+
+* Rider
+
+# [https://gist.github.com/ChiefArug/5c3567eb032030f99abfdb28a2350919#creating-a-debug-run-configuration-in-rider Creating a debug run configuration in rider]
+
+* Visual Studio
+
+** Prerequisites :
+
+*** Make sure to have the Unity Game Development extension on Visual Studio: [https://learn.microsoft.com/fr-fr/visualstudio/gamedev/unity/get-started/getting-started-with-visual-studio-tools-for-unity Installation process]
+
+
+# Manually start the game by clicking the .exe file (From your debug build)
+# You should see a first popup saying you can attach a "native" debugger, click ok
+# Then you should see a second popup saying you can attach a "managed" debugger, with a sentence saying: "Debugger is using port XXXXX". Don't click ok
+# In Visual Studio, click Debug > Attach Unity Debugger [[File:Visual Studio Attach Unity Debugger.png|frame|center]]
+# Select the Unity window showing: [[File:Selecting Unity Game while attaching a Visual Studio Debugger.png|frame|center]]
+You now have a runing Debugger than you can use to inspect variables, break, and Step-by-step execute.
+
+==== Linux and MacOS ====

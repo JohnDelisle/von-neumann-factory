@@ -1,0 +1,26 @@
+= Milestones =
+== Overview ==
+
+Milestones are the primary goals in Shapez 2 and require large numbers of shapes to complete. Completing Milestones unlocks new machines, new [[Upgrades]], and new [[Jobs]].
+
+Each [[Scenario]] has its own set of Milestones.
+
+== Milestone Lists ==
+
+Milestones are divided into their respective scenarios.
+
+Milestone shapes build on each other, indicated by arrows between the shapes.
+
+The number of shapes required to complete each milestone, as well as the rewards for completing each milestone vary depending on the Goal Multiplier, the Copy/Paste Cost, and the Platform Limit selected through the [[Difficulty]] setting. The numbers provided in the following sections are for each of these settings at 100%. If Copy/Paste is free and/or the Platform Limit is unlimited, the respective rewards will not be shown or awarded.
+
+{| class="wikitable"
+! Reward Type !! Icon
+|-
+| Research Points || [[File:Research-Icon-100.png|50px]]
+|-
+| Platform Units || [[File:Platform-Units-Icon-100.png|50px]]
+|-
+| [[Blueprint Points]] || [[File:Blueprint-Points-Icon-100.png|50px]]
+|}
+
+{{Auto-Gen-Milestones}}

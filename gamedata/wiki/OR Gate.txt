@@ -1,0 +1,2 @@
+= OR Gate =
+#REDIRECT [[Logic_Gates#OR_Gate]]

@@ -1,0 +1,34 @@
+= Modding =
+== Overview ==
+
+Modifications (mods) are user-created changes to the game.  They can be anything, such as a new quality of life (qol) tool, new items (machines, platforms) to use, or completely new features.
+
+Shapez2 uses Unity game framework (6000.3.19f1).  The game natively supports loading mods, so no external mod loader is needed.  The developers have provided documents and sample code to help modders understand the source code and develop new content.  There is also a modding API available: [https://github.com/tobspr-games/shapez2-shifter ShapezShifter].
+
+Mods are published to the [https://steamcommunity.com/app/2162800/workshop/ Steam Workshop], where they can be browsed by players and automatically downloaded by the game.
+
+== Topics ==
+* [[Mod Development]]
+* [[Development Environment]]
+* [[Debugging]]
+* [[Command Line Arguments]]
+* [[Game Files]]
+* [[Shapez 2 Architecture]]
+* [[Custom Game Modes]]
+* [[Debug Console]]
+
+== Resources ==
+* Documents
+** [https://tobspr-games.notion.site/shapez2-modding-documentation Modding documentation] (tobspr)
+** [https://tobspr-games.notion.site/shapez2-modding-art-guidelines Art and asset guidelines] (tobspr)
+** [https://shapez2.raphdf201.net/ Unofficial modding docs] (raphdf201)
+** [https://monomod.dev/docs/RuntimeDetour/Usage.html MonoMod - Using RuntimeDetour]
+** [https://github.com/BepInEx/HarmonyX/wiki HarmonyX wiki]
+** [[Assembly Reference]]
+** [[Class Reference]]
+* Source code
+** [https://github.com/tobspr-games/shapez2-mod-samples Sample Mods]
+** [https://github.com/tobspr-games/shapez2-shifter Shapez Shifter]
+* Sample Assets
+** [https://github.com/GamerTools/Shapez2Mods/raw/refs/heads/main/Data/Models/HalfDestroyer.blend Half Destroyer - Blender file]
+** [[Media:materialLUT.png | Material map]]

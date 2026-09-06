@@ -1,0 +1,13 @@
+= Sandbox Machines =
+__NOTITLE__
+{{Machines}}
+= {{PAGENAME}} =
+Sandbox machines infinitely produce resources. To unlock them, you have to [[Debug Console#cheats.enable | enable cheats]] and unlock the hidden upgrade for sandbox machines, which can be done with the commands [[Debug Console#research.unlock-all | research.unlock-all]], [[Debug Console#god | god]], or [[Debug Console#research.set | research.set]] with <code>CBSandbox</code>. Note that enabling cheats can have unwanted effects, see all details in [[Debug Console#cheats.enable | cheats.enable]]. This isn't an issue if it's done in a sandbox save (different save from your main save).
+
+{| class="wikitable"
+! Toolbar<br>Slot<br>Number !! Name !! Icons !! Machines
+|-
+| style="text-align:center;" | 1 || [[Item Producer]] || [[File:Item-Producer-Icon-100.png|link=Item Producer|50px]] || [[File:Item-Producer-500.png|link=Item Producer|50px]]
+|-
+| style="text-align:center;" | 2 || [[Fluid Producer]] || [[File:Fluid-Producer-Icon-100.png|link=Fluid Producer|50px]] || [[File:Fluid-Producer-500.png|link=Fluid Producer|50px]]
+|}

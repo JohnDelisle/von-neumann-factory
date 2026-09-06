@@ -1,0 +1,52 @@
+= User Interface =
+== Pre-Game ==
+* Splash screens
+* Title screen
+** Play - list of savegames
+** Settings
+** [[Modding|Mods]]
+** About
+*** [[Changelog]]
+*** Credits
+*** Licenses
+* New Game
+** [[Game Modes|Select Mode]]
+** [[Game Modes#Scenarios|Select Scenario]]
+** [[Game Modes#Additional_Settings|Scenario settings]]
+
+== In Game ==
+* [[Main UI]]
+** Machine View
+** Space View
+** [[Map|Map View]]
+* Gameplay
+** [[Milestones]]
+** [[Jobs]]
+** [[Shop]]
+** [[Trade Stations#Trades|Trades]]
+** [[Operator Level|Operator]]
+* Tools
+** [[Codex]]
+** [[Blueprints|Blueprint Library]]
+** Statistics
+** Shape Viewer
+* Toolbar
+** [[Shape Machines]]
+** [[Fluid Machines]]
+** [[Wire Machines]]
+** [[Sandbox Machines]]
+** [[Space Platforms]]
+** [[Trains]]
+** [[Trade Stations]]
+** [[Blueprints]]
+* Indicators
+** Compass
+** Pinned Shapes
+** Toggle Buttons
+** [[Map#Map_Markers|Location Markers]]
+* Pause screen
+** Settings
+* Context windows
+** Machine Info
+** [[Selections|Selection Info]]
+* [[Debug Console]]

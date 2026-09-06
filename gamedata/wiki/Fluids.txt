@@ -1,0 +1,100 @@
+= Fluids =
+== Overview ==
+
+Fluids are mined from Fluid Asteroids using [[Asteroid Pump]]s.  They are transported with [[Pipe]]s or [[Space Pipe]]s or fluid wagons on [[Trains]].  Machines that use fluids include the [[Painter]] and the [[Crystal Generator]].  The Fluid Asteroids on the map provide only a few fluid colors.  Other colors are obtained by [[Color Mixer|mixing]] two colors together.
+
+== Fluid Colors ==
+
+There are nine fluid colors.
+
+Note that the displayed color depends on the [[Color Modes|Color Mode]].  See the color mode [[Color Modes#Color Comparison | comparison table]] for details.
+
+[[File:Fluid-Colors-1500.png|360px|class=responsive-image]]
+
+Also see: [[Shapes#Colors | Shape Colors]]
+
+== Mixing Tables ==
+
+[[File:Color-Mixing-5000.png|360px|right|class=responsive-image]]
+
+Notes
+* Input 1 and Input 2 are interchangeable.
+* More than one color listed means any one of those colors.
+
+=== Standard Mixing ===
+
+{| class="wikitable"
+! Input 1 !! Input 2 !! Result
+|-
+| Red || Green || Yellow
+|-
+| Green || Blue || Cyan
+|-
+| Blue || Red || Magenta
+|-
+| Red || Magenta<br>Yellow || Red
+|-
+| Green || Cyan<br>Yellow || Green
+|-
+| Blue || Cyan<br>Magenta || Blue
+|-
+| Cyan || Red<br>Magenta<br>Yellow || White
+|-
+| Magenta || Green<br>Cyan<br>Yellow || White
+|-
+| Yellow || Blue<br>Cyan<br>Magenta || White
+|-
+| Any color<br>(except white) || Input 1 color || Input 1 color
+|}
+
+=== Additional Mixing ===
+{| class="wikitable"
+! Input 1 !! Input 2 !! Result
+|-
+| White || White || Black
+|-
+| White || Black || Uncolored
+|-
+| White || Red<br>Green<br>Blue<br>Cyan<br>Magenta<br>Yellow || Input 2 color
+|-
+| Black || Red<br>Green<br>Blue<br>Cyan<br>Magenta<br>Yellow || Input 2 color
+|-
+| Uncolored || Any color || Input 2 color
+|}
+
+=== Full Mixing Table ===
+
+{| class="wikitable" style="text-align: center;
+!
+! R !! G !! B !! C !! M !! Y !! W !! K !! U
+|-
+! R
+| R || Y || M || W || R || R || R || R || R
+|-
+! G
+| Y || G || C || G || W || G || G || G || G
+|-
+! B
+| M || C || B || B || B || W || B || B || B
+|-
+! C
+| W || G || B || C || W || W || C || C || C
+|-
+! M
+| R || W || B || W || M || W || M || M || M
+|-
+! Y
+| R || G || W || W || W || Y || Y || Y || Y
+|-
+! W
+| R || G || B || C || M || Y || K || U || W
+|-
+! K
+| R || G || B || C || M || Y || U || K || K
+|-
+! U
+| R || G || B || C || M || Y || W || K || U
+|}
+
+[[File:Mixer-Colors-1000.webp|360px|left|class=responsive-image]]
+[[File:Color_mix_in_game.png|360px|right|Another in game built guide]]

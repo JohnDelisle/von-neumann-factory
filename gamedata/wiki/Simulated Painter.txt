@@ -1,0 +1,2 @@
+= Simulated Painter =
+#REDIRECT [[Simulated_Machines#Simulated_Painter]]

@@ -1,0 +1,12 @@
+= Space Platforms =
+== Overview ==
+
+The Space Platforms toolbar category includes all platforms which you can build Machines on. This includes [[Machine Platforms]], [[Asteroid Miner]]s and [[Asteroid Pump]]s. Additionally, you can also build on the [[Vortex | Vortex Platform]], although you can't place or move it.
+
+Each chunk in Space View is equal to 20x20 (400) tiles in Machine View, but not all tiles on a chunk are usable for construction. The specific pages linked above have more details on the buildable areas of those platforms.
+
+== Notches ==
+
+Notches are 1x4 buildable areas, 3 levels tall, that stick out of a Space Platform's edge on the center of a space chunk. They are used to transport [[Shapes]], [[Fluids]], or [[Wire]] signals between [[Machine Platforms]], [[Asteroid Miner]]s, [[Asteroid Pump]]s, [[Space Belt]]s, [[Space Pipe]]s, Train [[Trains#Loader | Loaders]], [[Trains#Unloader | Unloaders]] and [[Trade Stations]]. As a result, you can only place [[Belt Launcher]]s, [[Belt Catcher]]s, [[Fluid Launcher]]s, [[Fluid Catcher]]s, [[Wireless Sender]]s or [[Wireless Receiver]]s on them.
+
+Notches can also be used as a [[Glossary#Throughput | throughput]] measurement. When used as a raw throughput, it means 12 fully [[Glossary#Saturated | saturated]] [[Belt]]s for [[Shapes]] or 12 fully saturated [[Fluid Launcher]]s for [[Fluids]], since that's the most a single notch can handle. It can also be used as a ratio, and in this case the number of belts or fluid launchers can vary depending on if the [[3rd Machine Level]] is unlocked. This doesn't matter however, because all platforms will have the same number of levels unlocked, so the ratio always stays the same. For example, a [[Space Belt]] will always be able to handle 4 notches of shapes.

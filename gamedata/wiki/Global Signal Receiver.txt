@@ -1,0 +1,2 @@
+= Global Signal Receiver =
+#REDIRECT [[Signal Transmission#Global Signal Receiver]]

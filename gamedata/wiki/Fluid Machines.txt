@@ -1,0 +1,39 @@
+= Fluid Machines =
+__NOTITLE__
+{{Machines}}
+= {{PAGENAME}} =
+The tools in the Fluids toolbar include [[Pipe]]s and a set of machines that can be used with [[Fluids]].
+
+{| class="wikitable"
+! Toolbar<br>Slot<br>Number !! Name !! Icons !! Machines
+|-
+| style="text-align:center;" | 2
+| [[Pipe]]
+| [[File:Pipe-Icon-100.png|link=Pipe|50px]]
+| [[File:Pipe-Icon-100.png|link=Pipe|50px]] [[File:Fluid-Launcher-Icon-100.png|link=Fluid Launcher|50px]] [[File:Fluid-Catcher-Icon-100.png|link=Fluid Catcher|50px]] <br> [[File:Pipe-500.png|link=Pipe|50px]] [[File:Fluid-Launcher-500.png|link=Fluid Launcher|50px]] [[File:Fluid-Catcher-500.png|link=Fluid Catcher|50px]]
+|-
+| style="text-align:center;" | 3
+| [[Painter]]
+| [[File:Painter-Icon-100.png|link=Painter|50px]]
+| [[File:Painter-500.png|link=Painter|50px]]
+|-
+| style="text-align:center;" | 4
+| [[Color Mixer]]
+| [[File:Color-Mixer-Icon-100.png|link=Color Mixer|50px]]
+| [[File:Color-Mixer-500.png|link=Color Mixer|50px]]
+|-
+| style="text-align:center;" | 5
+| [[Mini Pump]]
+| [[File:Mini-Pump-Icon-100.png|link=Mini Pump|50px]]
+| [[File:Mini-Pump-500.png|link=Mini Pump|50px]]
+|-
+| style="text-align:center;" | 6
+| [[Crystal Generator]]
+| [[File:Crystal-Generator-Icon-100.png|link=Crystal Generator|50px]]
+| [[File:Crystal-Generator-500.png|link=Crystal Generator|50px]]
+|-
+| style="text-align:center;" | 7
+| [[Fluid Tank]]
+| [[File:Fluid-Tank-Icon-100.png|link=Fluid Tank|50px]]
+| [[File:Fluid-Tank-500.png|link=Fluid Tank|50px]]
+|}

@@ -1,0 +1,6 @@
+= Trade Stations =
+== Overview ==
+
+Trade stations are large, platform scale machines that are available in both Classic and Manufacture game modes.  They have input and output ports that can connect to a Space Platform [[Notch]] or a [[Space Belt]] to input and output Shapes.  They are used to exchange shapes, often requiring more than one kind of shape in order to produce one or more different kinds of shapes.  Besides the waste producer found in Manufacture mode, they are the only source of <span class="gl">Refined Shapes</span> (type X and Y).  And they have rockets.
+
+== Trades ==

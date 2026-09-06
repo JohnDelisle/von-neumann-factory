@@ -1,0 +1,268 @@
+= Mod Development =
+== Overview ==
+
+This page covers the basics of creating a mod from scratch.
+
+Shapez 2 is made in [https://unity.com/ Unity], which itself uses [https://learn.microsoft.com/en-us/dotnet/csharp/ C#]. This is not a guide on how to code, and as such it is recommended that you have some experience in C# (or a similar language, such as Java) when getting started with mod development.
+
+== Quick Start Guide ==
+
+When developing a mod, step 1 is to set up your [[Development Environment]]. This includes creating your solution and/or project if you don't have one yet.
+
+=== Assembly References ===
+
+Assemblies are the game files that contain the code of the game. In order to reference and use a specific part of the code, we need to have a reference to the game’s assembly that contains that code. This way, the compiler will not freak out when we refer to a Machine or a ShapeOperation for example.
+
+Adding an assembly reference varies depending on which IDE you are using. If are using Visual Studio, these can be setup by right clicking the Project (not the solution) » <code>Add</code> » <code>Project Reference…</code> » <code>Browse...</code> → Then find the <code>.DLL</code> file for the assembly you are trying to load. 
+
+For Rider, right click the Dependencies (under the project) » <code>Reference...</code> » <code>Add From...</code> → Then find the <code>.DLL</code> file for the assembly you are trying to load.
+
+After adding the reference, the Project File (<code>.csproj</code>) will be changed and should look similar to this:
+
+<pre>
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="Core">
+            <HintPath>..\PATH_TO_LOCAL_SHAPEZ_2\shapez 2_Data\Managed\Core.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+</Project>
+</pre>
+
+Make sure to add a <code><private>False</private></code> tag to any references you add to avoid them being included in the build. A proper reference should look something like this:
+
+<pre>
+<Reference Include="Core">
+    <HintPath>(...)\Core.dll</HintPath>
+    <Private>False</Private>
+</Reference>
+</pre>
+
+A good starting point is adding a reference to the game's most used assemblies:
+
+*<span class="gl">Core</span>: Collection of classes not related to shapez 2, but used by almost all other assemblies
+
+*<span class="gl">UnityEngine.CoreModule</span>: The Core module implements basic classes required for Unity to function.
+
+*<span class="gl">Game.Core</span>: The most fundamental pieces of shapez 2 logic.
+
+*<span class="gl">SPZGameAssembly</span>: This assembly contains a large of game code that has yet to be moved to dedicated assemblies.
+
+*<span class="gl">Game.Orchestration</span>: Top-level assembly that oversees the creation and execution of the entire game. Classes implemented here are responsible for setting everything up for the game to run.
+
+There are many other assemblies that may be useful depending on what you're trying to accomplish. If you're unsure what you need to reference, don't be afraid to add many assembly references. If you reference an assembly but never use the code it provides, the compiler will simply ignore it when building your mod.
+
+=== Environment Variables ===
+
+When running the game on Windows, Shapez 2 offers a [[Command Line Arguments | command line argument]] <code>--set-modding-env-vars</code> that sets mod friendly paths to facilitate mod development:
+
+*<code>SPZ2_PATH</code>: The path to the <code>shapez 2_Data/Managed/</code> folder inside the [[Game Files#Assets Folder | Assets Folder]].
+*<code>SPZ2_PERSISTENT</code>: The path to the [[Game Files#Persistent Data Folder | Persistent Data Folder]].
+
+These should be set automatically when you run shapez 2 with the command line argument. Check your environment variables! If your IDE does not recognize them, you may need to restart your IDE and/or your computer.
+
+These paths are set up for conveniently referring to the game’s install path and data path in a platform-agnostic way and user-agnostic way. Using these, setting up new references is as easy as:
+
+<pre>
+<Project Sdk="Microsoft.NET.Sdk">
+
+    ...
+
+    <ItemGroup>
+        <Reference Include="Game.Core.Modding">
+            <HintPath>$(SPZ2_PATH)\Game.Core.Modding.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+</Project>
+</pre>
+
+=== IMod Interface ===
+
+The implementations of the <span class="gl">IMod</span> interface are the entry points used by the mod loader to start a loaded mod. A simple implementation might look like this:
+
+<pre>
+using ILogger = Core.Logging.ILogger;
+
+public class ExampleMod : IMod
+{
+    public ExampleMod(ILogger logger)
+    {
+        logger.Info?.Log("Hello, shapez 2");
+    }
+
+    public void Dispose()
+    {
+    }
+}
+</pre>
+
+The constructor is automatically called after dependencies have been resolved and all dependency assemblies has been loaded. The constructor may or may not have a parameter <span class="gl">ILogger</span> used for logging information, warnings and errors. We recommend using this injected logger instead of logging directly with Unity’s <code>Debug.Log</code>. Implementing the interface is recommended but not required.
+
+You might have noticed that the <span class="gl">IMod</span> contract also requests an implementation of the <span class="gl">IDisposable</span> interface. This is deliberate because the developers expect each mod to have proper shutdown and cleanup any resources it might allocate.
+
+Note that there should be no more than one implementation of <span class="gl">IMod</span> per mod.
+
+== Building & Loading ==
+
+=== Mod Manifest ===
+
+A mod is a folder containing multiple subfolders and files. Each mod needs to have a manifest definition in its root folder named <code>manifest.json</code>. This manifest can be as simple as:
+
+<pre>
+{
+    "Version": "1.0.0"
+}
+</pre>
+
+The other information are either inferred depending on where the mod is located or can be omitted and assume default values. If you are writing a code mod, do not forget about the assemblies:
+
+<pre>
+{
+    "Version": "1.0.0",
+    "Assemblies": [
+        "MyMod.dll"
+    ]
+}
+</pre>
+
+A more complete version would look like this:
+
+<pre>
+{
+    "Version": "0.0.7",
+    "Description": "Adds a portal sender and a portal receiver to the game",
+    "Author": "tobspr Games",
+    "AffectsSaveGames": true,
+    "DisablesAchievements": true,
+    "SaveGameCompabilityRange": "*",
+    "GameVersionSupportRange": ">=1.0.0",
+    "Replaces": "steam:3738646868",
+    "Assemblies": [
+        "PortalUtils.dll",
+        "Portals.dll"
+    ],
+    "Dependencies": [
+        {
+            "ModId": "steam:3542611357",
+            "Version": "<0.1.0"
+        }
+    ],
+    "Conflicts": []
+}
+</pre>
+
+==== Field Breakdown ====
+
+*<span class="gl">Version</span>: Mod version number defined in compliance with the [https://semver.org/ Semver] specification.
+
+*<span class="gl">AffectsSaveGames</span>: This flag defines whether saving the game while this mod is installed can result in a different save game than if the mod was not installed. Notice that the mod does not need to patch any of the serialization classes to affect a save game. A common example is adding a new building to the game. When loading save games, mods that affect save games are treated differently than the ones that don't. In order to provide the best user experience, please set this to the appropriate value.
+
+*<span class="gl">DisablesAchievements</span>: Defines whether having this mod loaded should disable achievements. This choice should be done by the mod author considering how impactful the modifications are to the game and whether a player would still feel accomplished completing the achievements with the mod enabled. 
+
+*<span class="gl">SaveGameCompatibilityRange</span>: Defines the range that this mod supports loading save games created with different versions of this mod. This value is only relevant when <code><span class="gl">AffectsSaveGames</span> = true</code>. Check [https://devhints.io/semver this cheatsheet].
+
+*<span class="gl">GameVersionSupportRange</span>: Defines the range of shapez 2 game versions that this mod supports working with. It is recommended that you only target game versions that you know your mod will work with. For example, <code>>=1.0.0</code> is a <b>bad</b> target version, as it assumes your mod will stay compatible forever. It's better to be specific with the version your mod targets so users don't need to unsubscribe if a game update breaks it.
+
+*<span class="gl">Replaces</span>: Defines a singular mod that this mod replaces when loaded. The format is the same as it is for the <span class="gl">Dependencies</span> field, supporting both [[#Steam Mod | Steam mods]] and [[#Local Mod | local mods]].
+
+*<span class="gl">Assemblies</span>: The assemblies relative paths that this mod would like to load. Notice that the order matters and if the mod has internal dependencies between assemblies, these should be correctly ordered to avoid type loading exceptions. The assemblies reflect the project name. 
+
+*<span class="gl">Dependencies</span>: The dependencies to other mods referenced using their unique Mod Id. Dependencies can refer to either a [[#Steam Mod | Steam mod]] or a [[#Local Mod | local mod]]. Each dependency must also specify a version range that is checked during load to ensure the referenced mod is compatible.
+
+*<span class="gl">Conflicts</span>: The conflicts are references to other mods that are incompatible with this one.
+
+== Dependencies ==
+
+Two types of dependencies are supported by the mod loader: Internal dependencies & External dependencies.
+
+=== Internal Dependencies ===
+
+Internal dependencies must be respected when specifying the Assemblies loading order. The mod loader guarantees loading assemblies in the order they are specified in the <span class="gl">[[#Mod Manifest | Mod Manifest]]</span>. This allow mods to pack other assemblies and bundle all dependencies with itself. In most cases, this is not recommended because if two mods have shared dependencies, both will be loaded and most likely result in issues (the mod loader assumes such conflicts do not exist in the first place). That is why using external dependencies is recommended
+
+=== External Dependencies ===
+
+When working with mods, many requirements are similar across different mods and sometimes mods are build to work in cooperation with another one. This is supported by the mod loader with the specification of the [[#Field Breakdown | manifest’s <span class="gl">Dependencies</span> field]]. Each dependency contains a <span class="gl">Mod ID</span>. This ID can either refer to a [[#Steam Mod | Steam mod]] or a [[#Local Mod | local mod]]. The source is prefixed before the actual ID (<code>steam:9999999999</code> or <code>local:my-mod</code>). For example:
+
+<pre>
+"Dependencies": [
+    {
+        "ModId": "steam:3542611357",
+        "Version": "<1.0.0"
+    },
+    {
+        "ModId": "local:ShapezUtils",
+        "Version": "<1.0.0"
+    }
+]
+</pre>
+
+==== Steam Mod ====
+
+These mods are workshop items and when published to Steam contain a unique <code>FILE_ID</code> present in their unique URL. E.g., https://steamcommunity.com/sharedfiles/filedetails/?id=3542712030 file id is <code>FILE_ID = [https://steamcommunity.com/sharedfiles/filedetails/?id=3542712030 3542712030]</code>, thus the reference would be <code>steam:3542712030</code>
+
+==== Local Mod ====
+
+Local mods are loaded from the [[Game Files#mods | mods folder]] in the [[Game Files#Persistent Data Folder | Persistent Data Folder]]. The ID is the folder name. They are recommended for quick testing and iterating during development, but not advised for production.
+
+== Writing Your First Code Mod ==
+
+<i>Disclaimer: This is not a tutorial on how to code using C#. For that, see [https://learn.microsoft.com/en-us/dotnet/csharp/ Microsoft's official C# documentation].</i>
+
+For information on how the game works internally, see [[Shapez 2 Architecture]].
+
+=== Content Loading ===
+
+The base game supports natively loading scenarios, scenario presets and translations. That means that you can create a different game scenario without coding a single line.
+
+For custom scenarios and scenario presets, see [[Custom Game Modes]].
+
+==== Translations ====
+
+Translations also have native patching support. To patch a translation, add a <code>translations.json</code> file to your mod's root directory, and make sure it's referenced in the mod's project file (<code>.csproj</code>) and included in the build the same way that your <span class="gl">[[#Mod Manifest | Mod Manifest]]</span> is:
+
+<pre>
+<ItemGroup>
+    <None Update="manifest.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="translations.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+</ItemGroup>
+</pre>
+
+The file is structured like this:
+
+<pre>
+{
+    "en-US": {
+        "building-variant.cutter-diagonal.title": "Diagonal Destroyer",
+        "building-variant.cutter-diagonal.description": "<gl>Destroys</gl> the <gl>Even Parts</gl> of a shape."
+    },
+    "pt-BR": {
+        "building-variant.cutter-diagonal.title": "Eliminadora de diagonais"
+    }
+}
+</pre>
+
+When the mod is loaded, the translations are merged into the existing game translations, overriding any keys that already exist. 
+
+Languages that do not have a translation specified in the mod <b>fall back to the English version</b>. In the example above, there is no Portuguese entry for the description and the game will fallback to its English version. The English version is the base version here, so any key not specified in English is ignored in the other languages. This also applies when the mod overrides a string of the base game, i.e. if the mod changes the name of the stacker in English but does not provide an Italian translation, when setting the language to Italian the stacker would still have the changed English translation.
+
+=== Shapez Shifter ===
+
+<span class="gl">Shapez Shifter</span> is an official library provided by the developers. They recommend using and contributing to it for sharing common mod functionality. It can be downloaded from the [https://steamcommunity.com/sharedfiles/filedetails/?id=3542611357 Steam Workshop], and its source code is available on [https://github.com/tobspr-games/shapez2-shifter GitHub].
+
+The <span class="gl">Shapez Shifter</span> API is responsible for:
+
+* Facilitating method patching
+
+* Offering an API that sits in-between the shapez 2 source code and the mods. This allows supporting a backwards-compatible API where mods have compatibility with the game for longer and source changes do not immediately break existing mods
+
+* Offering meaningful methods for adding extra content to the game

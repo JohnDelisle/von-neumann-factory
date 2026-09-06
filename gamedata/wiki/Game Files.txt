@@ -1,0 +1,140 @@
+= Game Files =
+== Overview ==
+
+This page describes what files can be found and what can be done with them in both places where the game stores files: the [[#Assets Folder | Assets Folder]] and the [[#Persistent Data Folder | Persistent Data Folder]]
+
+== Assets Folder ==
+
+This is the folder that contains the game executable and the asset files. To access it, go in Steam, right click the game, and under 'Manage', click 'Browse local files'. The executable file is one of the two methods that allow using [[Command Line Arguments]].
+
+== Persistent Data Folder ==
+
+Alternatively the Game Data Folder, this is where the game stores data that's persistent across game sessions. This folder can be opened in multiple ways:
+
+* In the main menu, click 'Play' then click 'Show Folder', then go in the parent folder of the one which just opened.
+* Ingame, open the [[Blueprint Library]] then click the 'Open Folder' button in the top right, then go in the parent folder of the one which just opened.
+* Use the [[Debug Console]] commands [[Debug Console#logs.open-folder | logs.open-folder]] (except on MacOS, see [[#Player.log | Player.log]]) or [[Debug Console#savegames.open-folder | savegames.open-folder]].
+* Access it directly with its path:
+** Windows: <code>%USERPROFILE%\AppData\LocalLow\tobspr Games\shapez 2\</code>
+** MacOS: <code>~/Library/Application Support/tobspr Games/shapez 2/</code>
+** Linux: <code>~/.config/unity3d/tobspr Games/shapez 2/</code>
+
+You can find below the description of the different files and folders contained inside.
+
+=== basedata-vXXXX ===
+
+This is the folder where the game data is exported when using the [[Debug Console#debug.export-game-data | debug.export-game-data]] command. <code>XXXX</code> is the game version number in which the command was run. The folder contains the following files and folders:
+
+==== difficulty-presets ====
+
+This folder contains all the ingame [[Difficulties | Difficulty Presets]] (see [[Custom Game Modes#Difficulty Presets | here]] for the file format).
+
+==== json-schemas ====
+
+This folder contains the json schemas for [[Custom Game Modes#Custom Scenarios | scenario files]], [[Custom Game Modes#Custom Scenario Presets | scenario preset files]] and [[Custom Game Modes#Difficulty Presets | difficulty preset files]].
+
+==== scenario-parameter-presets ====
+
+This folder contains all the ingame [[Game Modes#Scenario Presets | Scenario Presets]] (see [[Custom Game Modes#Custom Scenario Presets | here]] for the file format).
+
+==== scenarios ====
+
+This folder contains all the ingame [[Scenario]]s (see [[Custom Game Modes#Custom Scenarios | here]] for the file format).
+
+==== buildings.json ====
+
+This file contains some of the properties of all the ingame buildings. The json data inside is a list of objects with the following keys:
+
+* <code>Id</code> string
+* <code>Removable</code> bool
+* <code>Selectable</code> bool
+* <code>PlayerBuildable</code> bool
+* <code>AutoConnectBelts</code> bool
+* <code>PipetteOverrideVariantId</code> string/null
+* <code>InternalVariants</code> array: Each element is an object with the following keys:
+** <code>Id</code> string
+** <code>MirroredDefinitionId</code> string/null
+** <code>Tiles</code> array: Each element is an object with the following keys:
+*** <code>X</code> number
+*** <code>Y</code> number
+*** <code>Z</code> number
+** <code>BeltInputs</code> array: Each element is an object with the following keys:
+*** <code>Position_L</code> object: It has the following keys:
+**** <code>X</code> number
+**** <code>Y</code> number
+**** <code>Z</code> number
+*** <code>Direction_L</code> number
+** <code>BeltOutputs</code> array: Each element is an object with the following keys:
+*** <code>Position_L</code> object: It has the following keys:
+**** <code>X</code> number
+**** <code>Y</code> number
+**** <code>Z</code> number
+*** <code>Direction_L</code> number
+
+==== identifiers.json ====
+
+This file contains some of the IDs of ingame objects. The json object inside has the keys <code>BuildingVariantIds</code>, <code>BuildingInternalVariantIds</code>, <code>IslandLayoutIds</code>, <code>WikiEntryIds</code>, <code>ImageIds</code>, <code>VideoIds</code> and <code>IconIds</code>. The value of each key is an array of strings corresponding to the IDs in that category.
+
+==== translations-en-US.json ====
+
+This file contains all the ingame English translations. It also shows the translation file format, which is a json object with the following keys:
+
+* <code>LanguageTitle</code> string: The language's name, displayed in the language selection setting ingame.
+* <code>LanguageCode</code> string: The language's code, used for automatic system language detection and selected language storage in settings.
+* <code>Entries</code> object: A dictionary associating each translation key with its translated text.
+
+==== version ====
+
+A (text) file containing the version number of the game version in which the [[Debug Console#debug.export-game-data | debug.export-game-data]] command was run.
+
+=== blueprints ===
+
+The folder containing blueprints saved in the [[Blueprint Library]]. Folders inside the blueprint library are represented by subfolders here with the same name. Blueprints are represented by files with the format <code>blueprint name.spz2bp</code>, with the content inside being a [https://gist.github.com/Loupau38/77907c80c7be3dd9f00a62d416581bb3 Blueprint Code].
+
+The folder also contains a <code>toolbar.json</code> file to store the blueprint toolbar contents. The json object inside has an <code>Entries</code> key, with the value being an array of 9 elements, each represeting a blueprint toolbar slot, each <code>null</code> if the slot is empty or a string with the path to the corresponding blueprint file. The path is relative to the root folder (<code>blueprints</code>).
+
+=== Local ===
+
+The folder which contains settings that won't be synchronized across computers with Steam Cloud. The files inside are <code>Camera.json</code>, <code>Display.json</code>, <code>Graphics.json</code>, <code>Interface.json</code>, <code>Saving.json</code>, <code>Simulation.json</code> and <code>Sound.json</code>.
+
+=== mods ===
+
+The folder to put mods for them to be loaded locally. Each subfolder is a mod. See [[Modding]] for all details.
+
+=== savegames ===
+
+The folder containing all savegames, see all details in [https://gist.github.com/Loupau38/08798aa54c4e666f26dc7069f2d24fa9 this page].
+
+=== Shared ===
+
+The folder which contains settings that will be synchronized across computers with Steam Cloud if enabled. The files inside are <code>Accessibility.json</code>, <code>Dev.json</code>, <code>General.json</code>.
+
+=== achievements.bin ===
+
+The game writes which achievements are locked and unlocked in this file, however it doesn't read from it if it has access to Steam. The content is a json object gzip-compressed, with the following keys:
+
+* <code>SerializationVersion</code> number: Currently <code>1</code>.
+* <code>Entries</code> array: Each element is an object with the following keys:
+** <code>Id</code> string
+** <code>IsUnlocked</code> bool
+** <code>UnlockTime</code> string/null: <code>null</code> when not unlocked, otherwise <code>MM/DD/YYYY HH:MM:SS</code>
+
+=== Player.log ===
+
+If the game is open, contains the logs from the current game session. If the game is closed, contains the logs from the last game session.
+
+On MacOS, this file isn't in the persistent data folder, but instead in <code>~/Library/Logs/tobspr Games/shapez 2/</code>.
+
+=== Player-prev.log ===
+
+If the game is open, contains the logs from the last game session. If the game is closed, contains the logs from the second to last game session.
+
+Same remark as [[#Player.log | Player.log]] on MacOS.
+
+=== settings.json ===
+
+This file contains all settings that aren't in [[#Local | Local]] or [[#Shared | Shared]], like keybindings for example. Before the 1.0 update, the game used to store all settings in that file, thus why you might see a lot of data in there if you have played the game before that update.
+
+=== translations-override.json ===
+
+The file to create if you want to load custom translations into the game. The <code>--custom-translations</code> [[Command Line Arguments | Command Line Argument]] must be set for the game to look for that file. It must have the translation file format (see [[#translations-en-US.json | translations-en-US.json]]), and the <code>LanguageCode</code> needs to be valid. The <code>LanguageTitle</code> is ignored and <code>Custom</code> is used instead, which is what you need to select in the language setting ingame to see the modififed translations. Translation keys that don't have an associated value in this file will use the English translations instead.

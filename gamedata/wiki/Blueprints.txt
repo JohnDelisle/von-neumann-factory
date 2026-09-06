@@ -1,0 +1,78 @@
+= Blueprints =
+== Overview ==
+
+[[#Selections|Selections]] are created when you select one or more machines or platforms.  The game will show information about the current selection such as size and number of each type of budling the selection contains.
+
+[[#Blueprints|Blueprints]] are created from selections and allow you to duplicate parts of your factories, save them for later use, or share them with other players through blueprint codes or files.
+
+== Selections ==
+
+=== Creation ===
+
+To make a selection, hold the 'Select Area' hotkey (default 'Shift') and drag with the 'Base Selection' hotkey (default 'Left Click'). This will create a box from where you started dragging to your current mouse position until you release the 'Base Selection' hotkey. If you are in Machine View, the selection box will start from your camera's current level and either stop at that same level if you have upper levels hidden (default hotkey 'V'), or go up until the maximum level otherwise. You can then repeat that process to add other machines/platforms to the selection.
+
+Additionally, you can hold the 'Deselect Area' hotkey and drag with the 'Base Selection' hotkey to make a similar box but that will remove entries from the selection instead. You can also hold the 'Toggle Selection' hotkey (default 'Ctrl') and click or drag to toggle the state of entries (not selected -> selected, selected -> not selected). Contrary to the others, this last feature will not create a box, but will instead act similar to the delete functionality, where only the entries that were under your mouse cursor will get affected.
+
+You can also use the 'Delete' hotkey (default 'Right Click') instead of 'Base Selection' while holding the 'Select Area' hotkey to make a selection that will instantly delete all its contents as soon as you finish making it.
+
+You can also use the 'Base Selection' hotkey on a single machine without holding any modifiers to create a selection that contains only a single entry. When a selection with only a single entry is made, either through the method described before, or by removing entries from a selection until it contains only one, information about the entry such as what is shown in the placement tooltip as well as current working speed and contents will be displayed. Note that most selection features are still available in this mode.
+
+A selection can also be deselected by using the 'Confirm Placement' hotkey (default 'Left Click') or the 'Cancel Placement' hotkey (default 'Right Click') while not hovering the selection or by pressing the 'Cancel' hotkey (default 'Esc').
+
+=== Features ===
+
+When a selection is made, multiple features are available either through buttons in the tooltip or via hotkeys:
+
+* Clone Selection (default 'Ctrl+C') / Cut Selection (default 'Ctrl+X'): Make a copy of or cut the selected machines and platforms.
+* Clear Contents (default 'I'): Clears all shapes and fluids from all machines and platforms in the selection.
+* Select Connected (default 'O'): Selects all connected machines/platforms to the currently already selected machines/platforms.
+* Destroy (default 'X' / 'Del'): Destroys all machines/platforms in the selection.
+* Save Blueprint (default 'Ctrl+S'): See [[#Blueprints|below]].
+
+Information about the selection is displayed in a context window:
+
+* Dimensions: The dimensions of the selection, either machine scale or platform scale.
+* Machine Count: The number of machines in the selection.
+* Blueprint Cost: The selection's cost in Blueprint Points.
+* Platforms: The number of platforms in the selection.
+* Platform Units: The selection's cost in Platform Units.
+
+If the selection contains machines, icons for each machine type present as well as how many of them there are in the selection will be shown. If the selection is at machine scale, click on an icon to deselect this machine type from the selection. Hold the 'Invert Filter' hotkey (default 'Shift') while clicking to instead only include this type of machine and deselect all others.
+
+== Blueprints ==
+
+=== Creation ===
+
+Blueprints are created from selections. Use the 'Clone Selection' hotkey (default 'Ctrl+C'), the 'Cut Selection' hotkey (default 'Ctrl+X'), or the associated buttons in the selection tooltip to create a blueprint. Using 'Clone' will leave the structure in the world, while using 'Cut' will remove it from the world.
+
+To create or import blueprints, the mechanic must be unlocked first, which is done at [[Milestones#Operator Certification | Milestone 2 (Blueprints)]] in regular [[Scenarios]] and [[Milestones#Factory - Hexagonal | Milestone 0 (Rotate & Cut)]] in the Hexagonal scenario.
+
+=== Features ===
+
+When a blueprint is made, you will then have the blueprint hologram following your cursor, its features are similar to regular machine/platform placement, in that you can use the 'Confirm Placement' hotkey to place it, the 'Cancel Placement' hotkey to remove the blueprint hologram from your cursor, as well as the 'Rotate' ('R'), 'Rotate Inverse' ('Shift+R'), 'Mirror' ('F') and 'Mirror Inverse' ('Shift+F') hotkeys. In case of a machine blueprint, you can additionally use the 'Transform Up' (default 'Shift+E') or 'Transform Down' (default 'Shift+Q') to move the blueprint up or down without changing your camera's current level.
+
+After having deselected a blueprint, it can then be brought back by using the 'Paste Blueprint' hotkey (default 'Ctrl+V').
+
+When having a blueprint selected, if the 'Copy Blueprints to Clipboard' setting is enabled, the blueprint code will be automatically copied to your clipboard, otherwise, you can click the 'Copy to Clipboard' button in the tooltip. That blueprint code can then be used to share blueprints to other players : all they need to do is copy the code to their clipboard, then press the 'Paste Blueprint' hotkey.
+
+=== Blueprint Points ===
+
+Pasting blueprints can cost Blueprint Points. The base cost is calculated by the formula <math>\text{ceil}\left(\left(\text{machine}\_\text{count}-1\right)^{1.3}\right)</math>. The resulting value is then multiplied by the Copy/Paste Cost Multiplier, it being controlled by the [[Difficulty]]. In the Relaxed and Normal Difficulties, this multiplier is set to 0%, making pasting blueprints free. In the Challenge difficulty, it is set to 100%, making blueprints cost the regular price. You get blueprint points by delivering certain shapes to the [[Vortex]] and by fulfilling [[Milestones]] and [[Jobs]]. The shapes you have to deliver to the vortex change depending on the [[Scenario]]: {{Auto-Gen-BP-Shapes}}
+
+=== Blueprint Library ===
+
+When having a blueprint selected, or having made a selection, you can use the 'Save Blueprint' hotkey (default 'Ctrl+S') or button in the tooltip to save that blueprint to your library. The game will prompt you to select a name, icons and folder to save that blueprint to. The name has to be unique as it will be used as the file name when saved to your hard drive. The icons can either be chosen from a set of in-game icons or a shape by either using one of the predefined ones or by entering a custom [[Shape Code]].
+
+In the blueprint library, you can create blueprint folders by using the 'Create Folder' buttons in the bottom right of the main blueprint folder. Folders can also be created inside other folders, with a limit such as a blueprint cannot contain more than 4 folders in its path including the base folder (e.g. 'blueprints/folder1/folder2/folder3/blueprint').
+
+You can Right Click existing blueprints to edit their name, icons, or folder.
+
+You can also drag blueprints or folders to change their location, bind them to the blueprint toolbar by dragging them to a slot at the bottom, or delete them by dragging them to the trash in the bottom right.
+
+The 'Open Folder' button will open a file explorer window in the blueprint library folder on your hard drive, you can access and share blueprint files from there too. The 'Refresh' button will refresh the library from your hard drive in case you manually put a blueprint file in there while the game is open.
+
+Blueprint files use the extension <code>.spz2bp</code>, you can open them like regular <code>.txt</code> files and see that they simply contain a [https://gist.github.com/Loupau38/77907c80c7be3dd9f00a62d416581bb3 Blueprint Code].
+
+=== Sharing ===
+
+The two main places to share these blueprint files or blueprint codes are the [https://community-vortex.shapez2.com/blueprint/search Community Vortex] and the #🛠blueprints channel on the [https://discord.gg/bvq5uGxW8G Discord].

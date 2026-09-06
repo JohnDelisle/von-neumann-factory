@@ -1,0 +1,66 @@
+= Conveyor Belt =
+{{Machine Infobox
+|title=Conveyor Belt
+|image=Conveyor-Belt-500.png
+|footprint=1 x 1 x 1
+|inouts=1 : 1
+|milestone=0
+|researchcost=N/A (Unlocked with milestone)
+|throughput=60 • 90 • 120 • 150 • 180
+}}
+
+{{Shape_Processing}}
+
+== Conveyor Belt  ==
+
+Conveyor belts transport shapes across platforms.
+
+Conveyor belts are placed by dragging while holding the 'Confirm Placement' hotkey (default 'Left Click'). While dragging to place belts, Anchors are used to lock the belt pieces without placing them. Anchors can be added and removed by pressing the 'Place Anchor' hotkey (default 'C').
+
+=== Splitter and Merger ===
+
+Splitters and mergers are created by dragging from a pre-existing belt, by dragging a belt next to machine inputs/outputs, or by placing machines with their input/output facing an adjacent belt. Belts can split from 1 input to 1, 2, or 3 outputs, and 1, 2, or 3 inputs to 1 output. There cannot be 2 inputs and 2 outputs.
+
+[[File:Splitter and Merger.png|200px]]
+
+=== Conveyor Lift ===
+
+Conveyor lifts transport shapes between machine levels. While placing a belt, press the 'Level Up' hotkey (default 'E') to go up a level, or 'Level Down' (default 'Q') to go down a level. Conveyor Lifts are limited to one input and one output. Lift input and output directions may independently be any of the four compass directions, allowing the shapes to turn or reverse direction while passing through the lift, but splitting or merging must be performed on a tile seperate from a lift.
+
+{{Machine Infobox
+|title=Belt Launcher and Catcher
+|image=[[File:Belt-Launcher-Catcher-GIF-500.gif]]
+|footprint=1 x 1 x 1
+|milestone=0
+|researchcost=N/A (Unlocked with milestone)
+|throughput=60 • 90 • 120 • 150 • 180
+|ratio=1
+}}
+
+[[File:conveyor Lift.png|300px]]
+
+== Belt Launcher and Catcher ==
+
+Belt Launchers and Catchers are used to transport shapes between [[Machine Platforms]] and [[Space Belt]]s as well as on Machine Platforms. 
+
+Both the Launchers and Catchers can be dragged and dropped to place one or more sets in pairs. The direction of dragging does not affect their orientation. The distance between the two is limited to 1 to 4 tiles, and a hologram of where the launchers and catchers will be placed can be seen while dragging.
+
+[[file:dragging Belt Launcher and Catcher.png|300px]]
+
+A launcher will try to connect to the furthest catcher in range. If there are multiple launchers trying to connect to a single catcher, the launcher furthest from the catcher will be chosen.
+
+{{Machine Infobox
+|title=Overflow Splitter
+|image=Overflow-Splitter-500.png
+|footprint=1 x 1 x 1
+|inouts=1 : 2
+|milestone=0
+|researchcost=20
+|throughput=60 • 90 • 120 • 150 • 180
+}}
+
+== Overflow Splitter ==
+
+The Overflow Splitter prioritizes outputting shapes to the straight ahead output, and will only output them to the side if it can't output shapes straight ahead.
+
+The Overflow Splitter can be used in a situation where shapes are being split then merged back together to prevent belts from  [[Glossary#Backed-up | backing up]], for example on the two belts between a [[Cutter#Cutter | Cutter]] and a [[Stacker]]. Note : as the [[Swapper]] is similar to two Cutters and two Stackers, you can also consider using it instead, if possible.

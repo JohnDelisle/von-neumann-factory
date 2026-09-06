@@ -1,0 +1,4813 @@
+{
+ "BeltDefaultForwardInternalVariant": {
+  "building": "BeltDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "belts keep up with a full lane",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "BeltDefaultLeftInternalVariant": {
+  "building": "BeltDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "belts keep up with a full lane",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    3
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "BeltDefaultLeftInternalVariantMirrored": {
+  "building": "BeltDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "belts keep up with a full lane",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "BeltFilterDefaultInternalVariant": {
+  "building": "BeltFilterDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "Belt Filter: throughput=60 \u2022 90 \u2022 120 \u2022 150 \u2022 180, ratio=1; inouts=1 : 2; wire in 1",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    3
+   ]
+  ],
+  "per_lane": 1,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Belt Filter"
+ },
+ "BeltFilterDefaultInternalVariantMirrored": {
+  "building": "BeltFilterDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "Belt Filter: throughput=60 \u2022 90 \u2022 120 \u2022 150 \u2022 180, ratio=1; inouts=1 : 2; wire in 1",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Belt Filter"
+ },
+ "BeltPortReceiverInternalVariant": {
+  "building": "BeltPortReceiverVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "platform edge port, one per lane per floor",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Belt Launcher"
+ },
+ "BeltPortSenderInternalVariant": {
+  "building": "BeltPortSenderVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "platform edge port, one per lane per floor",
+  "outputs": [],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Belt Launcher"
+ },
+ "BeltReaderDefaultInternalVariant": {
+  "building": "BeltReaderDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "Belt Reader: throughput=60 \u2022 90 \u2022 120 \u2022 150 \u2022 180, ratio=1. 'displays the rate of shapes per minute moving through it'",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Belt Reader"
+ },
+ "BeltReaderDefaultInternalVariantMirrored": {
+  "building": "BeltReaderDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "Belt Reader: throughput=60 \u2022 90 \u2022 120 \u2022 150 \u2022 180, ratio=1. 'displays the rate of shapes per minute moving through it'",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Belt Reader"
+ },
+ "ButtonDefaultInternalVariant": {
+  "building": "ButtonDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "ConstantSignalDefaultInternalVariant": {
+  "building": "ConstantSignalDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "ControlledSignalReceiverInternalVariant": {
+  "building": "ControlledSignalReceiverVariant",
+  "footprint": "3x3x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    -1,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    -1,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    -1,
+    -1,
+    0
+   ],
+   [
+    1,
+    -1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    -1,
+    0,
+    1
+   ],
+   [
+    1,
+    0,
+    1
+   ],
+   [
+    0,
+    1,
+    1
+   ],
+   [
+    -1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1
+   ],
+   [
+    0,
+    -1,
+    1
+   ],
+   [
+    -1,
+    -1,
+    1
+   ],
+   [
+    1,
+    -1,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ],
+   [
+    -1,
+    0,
+    2
+   ],
+   [
+    1,
+    0,
+    2
+   ],
+   [
+    0,
+    1,
+    2
+   ],
+   [
+    -1,
+    1,
+    2
+   ],
+   [
+    1,
+    1,
+    2
+   ],
+   [
+    0,
+    -1,
+    2
+   ],
+   [
+    -1,
+    -1,
+    2
+   ],
+   [
+    1,
+    -1,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "ControlledSignalReceiverInternalVariantMirrored": {
+  "building": "ControlledSignalReceiverVariant",
+  "footprint": "3x3x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    -1,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    -1,
+    -1,
+    0
+   ],
+   [
+    1,
+    -1,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    -1,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    -1,
+    0,
+    1
+   ],
+   [
+    1,
+    0,
+    1
+   ],
+   [
+    0,
+    -1,
+    1
+   ],
+   [
+    -1,
+    -1,
+    1
+   ],
+   [
+    1,
+    -1,
+    1
+   ],
+   [
+    0,
+    1,
+    1
+   ],
+   [
+    -1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ],
+   [
+    -1,
+    0,
+    2
+   ],
+   [
+    1,
+    0,
+    2
+   ],
+   [
+    0,
+    -1,
+    2
+   ],
+   [
+    -1,
+    -1,
+    2
+   ],
+   [
+    1,
+    -1,
+    2
+   ],
+   [
+    0,
+    1,
+    2
+   ],
+   [
+    -1,
+    1,
+    2
+   ],
+   [
+    1,
+    1,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "ControlledSignalTransmitterInternalVariant": {
+  "building": "ControlledSignalTransmitterVariant",
+  "footprint": "3x3x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    -1,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    -1,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    -1,
+    -1,
+    0
+   ],
+   [
+    1,
+    -1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    -1,
+    0,
+    1
+   ],
+   [
+    1,
+    0,
+    1
+   ],
+   [
+    0,
+    1,
+    1
+   ],
+   [
+    -1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1
+   ],
+   [
+    0,
+    -1,
+    1
+   ],
+   [
+    -1,
+    -1,
+    1
+   ],
+   [
+    1,
+    -1,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ],
+   [
+    -1,
+    0,
+    2
+   ],
+   [
+    1,
+    0,
+    2
+   ],
+   [
+    0,
+    1,
+    2
+   ],
+   [
+    -1,
+    1,
+    2
+   ],
+   [
+    1,
+    1,
+    2
+   ],
+   [
+    0,
+    -1,
+    2
+   ],
+   [
+    -1,
+    -1,
+    2
+   ],
+   [
+    1,
+    -1,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "ControlledSignalTransmitterInternalVariantMirrored": {
+  "building": "ControlledSignalTransmitterVariant",
+  "footprint": "3x3x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    -1,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    -1,
+    -1,
+    0
+   ],
+   [
+    1,
+    -1,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    -1,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    -1,
+    0,
+    1
+   ],
+   [
+    1,
+    0,
+    1
+   ],
+   [
+    0,
+    -1,
+    1
+   ],
+   [
+    -1,
+    -1,
+    1
+   ],
+   [
+    1,
+    -1,
+    1
+   ],
+   [
+    0,
+    1,
+    1
+   ],
+   [
+    -1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ],
+   [
+    -1,
+    0,
+    2
+   ],
+   [
+    1,
+    0,
+    2
+   ],
+   [
+    0,
+    -1,
+    2
+   ],
+   [
+    -1,
+    -1,
+    2
+   ],
+   [
+    1,
+    -1,
+    2
+   ],
+   [
+    0,
+    1,
+    2
+   ],
+   [
+    -1,
+    1,
+    2
+   ],
+   [
+    1,
+    1,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "CrystalGeneratorDefaultInternalVariant": {
+  "building": "CrystalGeneratorDefaultVariant",
+  "footprint": "1x2x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.3333,
+   0.4167,
+   0.5
+  ],
+  "lane_fraction": 0.1667,
+  "note": "Crystal Generator: throughput=20 \u2022 25 \u2022 30; fluidinput=400 \u2022 500 \u2022 600; ratio=6; fluidratio=3. Shop: 20/25/30.",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 6,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    1,
+    0
+   ]
+  ],
+  "wiki_page": "Crystal Generator"
+ },
+ "CrystalGeneratorDefaultInternalVariantMirrored": {
+  "building": "CrystalGeneratorDefaultVariant",
+  "footprint": "1x2x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.3333,
+   0.4167,
+   0.5
+  ],
+  "lane_fraction": 0.1667,
+  "note": "Crystal Generator: throughput=20 \u2022 25 \u2022 30; fluidinput=400 \u2022 500 \u2022 600; ratio=6; fluidratio=3. Shop: 20/25/30.",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 6,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    -1,
+    0
+   ]
+  ],
+  "wiki_page": "Crystal Generator"
+ },
+ "CutterDefaultInternalVariant": {
+  "building": "CutterDefaultVariant",
+  "footprint": "1x2x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "lane_fraction": 0.25,
+  "note": "Cutter: throughput=15 \u2022 22.5 \u2022 30 \u2022 37.5 \u2022 45, ratio=4; inouts=1 : 2. Shop: 30/37.5/45.",
+  "outputs": [
+   [
+    0,
+    -1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 4,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ]
+  ],
+  "wiki_page": "Cutter"
+ },
+ "CutterDefaultInternalVariantMirrored": {
+  "building": "CutterDefaultVariant",
+  "footprint": "1x2x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "lane_fraction": 0.25,
+  "note": "Cutter: throughput=15 \u2022 22.5 \u2022 30 \u2022 37.5 \u2022 45, ratio=4; inouts=1 : 2. Shop: 30/37.5/45.",
+  "outputs": [
+   [
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 4,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ]
+  ],
+  "wiki_page": "Cutter"
+ },
+ "CutterHalfInternalVariant": {
+  "building": "CutterHalfVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.3333,
+   0.5,
+   0.6667,
+   0.8333,
+   1.0
+  ],
+  "lane_fraction": 0.3333333333333333,
+  "note": "VN-20 v1 (2/lane) starved in-game; v2 (3/lane) keeps up with the belt",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 3,
+  "source": "measured",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Half Destroyer"
+ },
+ "Display2x2InternalVariant": {
+  "building": "Display2x2Variant",
+  "footprint": "2x2x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    1,
+    -1,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "Display2x2InternalVariantMirrored": {
+  "building": "Display2x2Variant",
+  "footprint": "2x2x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "Display3x3InternalVariant": {
+  "building": "Display3x3Variant",
+  "footprint": "3x3x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    1,
+    -1,
+    0
+   ],
+   [
+    2,
+    -1,
+    0
+   ],
+   [
+    0,
+    -2,
+    0
+   ],
+   [
+    1,
+    -2,
+    0
+   ],
+   [
+    2,
+    -2,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "Display3x3InternalVariantMirrored": {
+  "building": "Display3x3Variant",
+  "footprint": "3x3x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    0
+   ],
+   [
+    2,
+    1,
+    0
+   ],
+   [
+    0,
+    2,
+    0
+   ],
+   [
+    1,
+    2,
+    0
+   ],
+   [
+    2,
+    2,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "DisplayDefaultInternalVariant": {
+  "building": "DisplayDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "ExtractorDefaultInternalVariant": {
+  "building": "ExtractorDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "lane_fraction": 0.25,
+  "note": "#REDIRECT [[Mini-Miner]]",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 4,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Extractor"
+ },
+ "FluidPortReceiverInternalVariant": {
+  "building": "FluidPortReceiverVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Fluid Launcher"
+ },
+ "FluidPortSenderInternalVariant": {
+  "building": "FluidPortSenderVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Fluid Launcher"
+ },
+ "FluidStorageDefaultInternalVariant": {
+  "building": "FluidStorageDefaultVariant",
+  "footprint": "2x2x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    -1,
+    0,
+    0
+   ],
+   [
+    -1,
+    -1,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ]
+  ],
+  "wiki_page": "Fluid Tank"
+ },
+ "FluidStorageDefaultInternalVariantMirrored": {
+  "building": "FluidStorageDefaultVariant",
+  "footprint": "2x2x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    -1,
+    0,
+    0
+   ],
+   [
+    -1,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ]
+  ],
+  "wiki_page": "Fluid Tank"
+ },
+ "HalvesSwapperDefaultInternalVariant": {
+  "building": "HalvesSwapperDefaultVariant",
+  "footprint": "1x2x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    -1,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "lane_fraction": 0.25,
+  "note": "Swapper: throughput=15 \u2022 22.5 \u2022 30 \u2022 37.5 \u2022 45, ratio=4; inouts=2 : 2",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 4,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Swapper"
+ },
+ "LabelDefaultInternalVariant": {
+  "building": "LabelDefaultVariant",
+  "footprint": "5x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    -1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    -2,
+    0,
+    0
+   ],
+   [
+    2,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Shape Machines"
+ },
+ "Lift1DownBackwardInternalVariant": {
+  "building": "Lift1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    -1,
+    2
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    -1
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift1DownForwardInternalVariant": {
+  "building": "Lift1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    -1,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    -1
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift1DownLeftInternalVariant": {
+  "building": "Lift1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    -1,
+    3
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    -1
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift1DownLeftInternalVariantMirrored": {
+  "building": "Lift1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    -1,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    -1
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift1UpBackwardInternalVariant": {
+  "building": "Lift1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    1,
+    2
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift1UpForwardInternalVariant": {
+  "building": "Lift1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    1,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift1UpLeftInternalVariant": {
+  "building": "Lift1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    1,
+    3
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift1UpLeftInternalVariantMirrored": {
+  "building": "Lift1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    1,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift2DownBackwardInternalVariant": {
+  "building": "Lift2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    -2,
+    2
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    -2
+   ],
+   [
+    0,
+    0,
+    -1
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift2DownForwardInternalVariant": {
+  "building": "Lift2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    -2,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    -2
+   ],
+   [
+    0,
+    0,
+    -1
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift2DownLeftInternalVariant": {
+  "building": "Lift2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    -2,
+    3
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    -2
+   ],
+   [
+    0,
+    0,
+    -1
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift2DownLeftInternalVariantMirrored": {
+  "building": "Lift2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    -2,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    -2
+   ],
+   [
+    0,
+    0,
+    -1
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift2UpBackwardInternalVariant": {
+  "building": "Lift2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    2,
+    2
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift2UpForwardInternalVariant": {
+  "building": "Lift2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    2,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift2UpLeftInternalVariant": {
+  "building": "Lift2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    2,
+    3
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Lift2UpLeftInternalVariantMirrored": {
+  "building": "Lift2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)",
+  "outputs": [
+   [
+    0,
+    0,
+    2,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "LogicGateAndInternalVariant": {
+  "building": "LogicGateAndVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "LogicGateCompareInternalVariant": {
+  "building": "LogicGateCompareVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "LogicGateCompareInternalVariantMirrored": {
+  "building": "LogicGateCompareVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "LogicGateIfInternalVariant": {
+  "building": "LogicGateIfVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "LogicGateIfInternalVariantMirrored": {
+  "building": "LogicGateIfVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "LogicGateNotInternalVariant": {
+  "building": "LogicGateNotVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "LogicGateOrInternalVariant": {
+  "building": "LogicGateOrVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "LogicGateXOrInternalVariant": {
+  "building": "LogicGateXOrVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "Merger2To1LInternalVariant": {
+  "building": "Merger2To1Variant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    0,
+    3
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "mergers keep up with a full lane (John's rule: belts, splitters, mergers, ports = 1)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Merger2To1LInternalVariantMirrored": {
+  "building": "Merger2To1Variant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "mergers keep up with a full lane (John's rule: belts, splitters, mergers, ports = 1)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Merger3To1InternalVariant": {
+  "building": "Merger3To1Variant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    0,
+    3
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "mergers keep up with a full lane (John's rule: belts, splitters, mergers, ports = 1)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "MergerTShapeInternalVariant": {
+  "building": "MergerTShapeVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    3
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "mergers keep up with a full lane (John's rule: belts, splitters, mergers, ports = 1)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "MixerDefaultInternalVariant": {
+  "building": "MixerDefaultVariant",
+  "footprint": "3x2x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    1,
+    -1,
+    0
+   ]
+  ],
+  "wiki_page": "Color Mixer"
+ },
+ "MixerDefaultInternalVariantMirrored": {
+  "building": "MixerDefaultVariant",
+  "footprint": "3x2x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    0
+   ]
+  ],
+  "wiki_page": "Color Mixer"
+ },
+ "PainterDefaultInternalVariant": {
+  "building": "PainterDefaultVariant",
+  "footprint": "1x2x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.5,
+   0.625,
+   0.75
+  ],
+  "lane_fraction": 0.25,
+  "note": "Painter: throughput=30 \u2022 37.5 \u2022 45; fluidinput=300 \u2022 375 \u2022 450; ratio=4; fluidratio=4. Shop: Painter 30/37.5/45.",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 4,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ]
+  ],
+  "wiki_page": "Painter"
+ },
+ "PainterDefaultInternalVariantMirrored": {
+  "building": "PainterDefaultVariant",
+  "footprint": "1x2x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.5,
+   0.625,
+   0.75
+  ],
+  "lane_fraction": 0.25,
+  "note": "Painter: throughput=30 \u2022 37.5 \u2022 45; fluidinput=300 \u2022 375 \u2022 450; ratio=4; fluidratio=4. Shop: Painter 30/37.5/45.",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 4,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ]
+  ],
+  "wiki_page": "Painter"
+ },
+ "PinPusherDefaultInternalVariant": {
+  "building": "PinPusherDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.3333,
+   0.5,
+   0.6667,
+   0.8333,
+   1.0
+  ],
+  "lane_fraction": 0.3333,
+  "note": "Pin Pusher: throughput=20 \u2022 30 \u2022 40 \u2022 50 \u2022 60, ratio=3. Shop: 40/50/60.",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 3,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pin Pusher"
+ },
+ "Pipe2UpBackwardInternalVariant": {
+  "building": "Pipe2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "Pipe2UpForwardInternalVariant": {
+  "building": "Pipe2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "Pipe2UpLeftInternalVariant": {
+  "building": "Pipe2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "Pipe2UpLeftInternalVariantMirrored": {
+  "building": "Pipe2LayerVariant",
+  "footprint": "1x1x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeCrossInternalVariant": {
+  "building": "PipeDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeForwardInternalVariant": {
+  "building": "PipeDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeGateDefaultInternalVariant": {
+  "building": "PipeGateDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "Belt Reader/Filter throughput=60 \u2022 90 \u2022 120 \u2022 150 \u2022 180, ratio=1; Pipe Gate fluidinput/output=1200 \u2022 1500 \u2022 1800, fluidratio=1",
+  "outputs": [],
+  "per_lane": 1,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Flow Control"
+ },
+ "PipeGateDefaultInternalVariantMirrored": {
+  "building": "PipeGateDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "Belt Reader/Filter throughput=60 \u2022 90 \u2022 120 \u2022 150 \u2022 180, ratio=1; Pipe Gate fluidinput/output=1200 \u2022 1500 \u2022 1800, fluidratio=1",
+  "outputs": [],
+  "per_lane": 1,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Flow Control"
+ },
+ "PipeJunctionInternalVariant": {
+  "building": "PipeDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeLeftInternalVariant": {
+  "building": "PipeDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeLeftInternalVariantMirrored": {
+  "building": "PipeDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeLift": {
+  "building": "PipeDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeLiftInverter": {
+  "building": "PipeDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeUp": {
+  "building": "PipeDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeUpBackwardInternalVariant": {
+  "building": "Pipe1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeUpForwardInternalVariant": {
+  "building": "Pipe1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeUpLeftInternalVariant": {
+  "building": "Pipe1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PipeUpLeftInternalVariantMirrored": {
+  "building": "Pipe1LayerVariant",
+  "footprint": "1x1x2",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Pipe"
+ },
+ "PumpDefaultInternalVariant": {
+  "building": "PumpDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Pump"
+ },
+ "RotatorHalfInternalVariant": {
+  "building": "RotatorHalfVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.5,
+   0.75,
+   1.0,
+   1.25,
+   1.5
+  ],
+  "lane_fraction": 0.5,
+  "note": "180\u00b0 Rotator: throughput=30 \u2022 45 \u2022 60 \u2022 75 \u2022 90, ratio=2",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 2,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "180\u00b0 Rotator"
+ },
+ "RotatorOneQuadCCWInternalVariant": {
+  "building": "RotatorOneQuadCCWVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.5,
+   0.75,
+   1.0,
+   1.25,
+   1.5
+  ],
+  "lane_fraction": 0.5,
+  "note": "John's Clockwise platform uses 2 per lane; VN-20 v2 at 3/lane keeps up",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 2,
+  "source": "measured",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Reverse Rotator"
+ },
+ "RotatorOneQuadInternalVariant": {
+  "building": "RotatorOneQuadVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.5,
+   0.75,
+   1.0,
+   1.25,
+   1.5
+  ],
+  "lane_fraction": 0.5,
+  "note": "John's Clockwise platform uses 2 per lane; VN-20 v2 at 3/lane keeps up",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 2,
+  "source": "measured",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Rotator"
+ },
+ "SandboxFluidProducerDefaultInternalVariant": {
+  "building": "SandboxFluidProducerDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Fluid Producer"
+ },
+ "SandboxItemProducerDefaultInternalVariant": {
+  "building": "SandboxItemProducerDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "Item Producer: throughput=60 \u2022 90 \u2022 120 \u2022 150 \u2022 180, ratio=1. 'produces a full belt of any shape'",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 1,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Item Producer"
+ },
+ "Splitter1To2LInternalVariant": {
+  "building": "Splitter1To2Variant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "splitters keep up with a full lane (John's rule)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    3
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Splitter1To2LInternalVariantMirrored": {
+  "building": "Splitter1To2Variant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "splitters keep up with a full lane (John's rule)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "Splitter1To3InternalVariant": {
+  "building": "Splitter1To3Variant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "splitters keep up with a full lane (John's rule)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    3
+   ],
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "SplitterOverflowLInternalVariant": {
+  "building": "SplitterOverflowVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "splitters keep up with a full lane (John's rule)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    3
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Overflow Splitter"
+ },
+ "SplitterOverflowLInternalVariantMirrored": {
+  "building": "SplitterOverflowVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "splitters keep up with a full lane (John's rule)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Overflow Splitter"
+ },
+ "SplitterTShapeInternalVariant": {
+  "building": "SplitterTShapeVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ]
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "note": "splitters keep up with a full lane (John's rule)",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    3
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "per_lane": 1,
+  "source": "john",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Conveyor Belt"
+ },
+ "StackerDefaultInternalVariant": {
+  "building": "StackerDefaultVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    1,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.1667,
+   0.25,
+   0.3333,
+   0.4167,
+   0.5
+  ],
+  "lane_fraction": 0.1667,
+  "note": "Stacker: throughput=10 \u2022 15 \u2022 20 \u2022 25 \u2022 30, ratio=6; footprint 1 x 1 x 2; inouts=2 : 1. Shop: Stacker 20/25/30.",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    3
+   ]
+  ],
+  "per_lane": 6,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Stacker"
+ },
+ "StackerDefaultInternalVariantMirrored": {
+  "building": "StackerDefaultVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    1,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.1667,
+   0.25,
+   0.3333,
+   0.4167,
+   0.5
+  ],
+  "lane_fraction": 0.1667,
+  "note": "Stacker: throughput=10 \u2022 15 \u2022 20 \u2022 25 \u2022 30, ratio=6; footprint 1 x 1 x 2; inouts=2 : 1. Shop: Stacker 20/25/30.",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    1
+   ]
+  ],
+  "per_lane": 6,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Stacker"
+ },
+ "StackerStraightInternalVariant": {
+  "building": "StackerStraightVariant",
+  "footprint": "1x1x2",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    1,
+    2
+   ]
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "lane_fraction": 0.25,
+  "note": "Stacker (Bent): throughput=15 \u2022 22.5 \u2022 30 \u2022 37.5 \u2022 45, ratio=4; researchcost=6. Shop: Bent Stacker 30/37.5/45.",
+  "outputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ]
+  ],
+  "per_lane": 4,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Bent Stacker"
+ },
+ "TrashDefaultInternalVariant": {
+  "building": "TrashDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [
+   [
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    0,
+    2
+   ],
+   [
+    0,
+    0,
+    0,
+    3
+   ]
+  ],
+  "items_per_second": null,
+  "lane_fraction": 1.0,
+  "note": "sink: accepts on all four sides, unlimited rate (wiki Trash page)",
+  "outputs": [],
+  "per_lane": 1,
+  "source": "wiki",
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Trash"
+ },
+ "VirtualAnalyzerDefaultInternalVariant": {
+  "building": "VirtualAnalyzerDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualAnalyzerDefaultInternalVariantMirrored": {
+  "building": "VirtualAnalyzerDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualCrystalGeneratorDefaultInternalVariant": {
+  "building": "VirtualCrystalGeneratorDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualCrystalGeneratorDefaultInternalVariantMirrored": {
+  "building": "VirtualCrystalGeneratorDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualHalfCutterDefaultInternalVariant": {
+  "building": "VirtualHalfCutterDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualHalvesSwapperDefaultInternalVariant": {
+  "building": "VirtualHalvesSwapperDefaultVariant",
+  "footprint": "1x2x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualPainterDefaultInternalVariant": {
+  "building": "VirtualPainterDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualPainterDefaultInternalVariantMirrored": {
+  "building": "VirtualPainterDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualPinPusherDefaultInternalVariant": {
+  "building": "VirtualPinPusherDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualRotatorCCWInternalVariant": {
+  "building": "VirtualRotatorCCWVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualRotatorDefaultInternalVariant": {
+  "building": "VirtualRotatorDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualStackerDefaultInternalVariant": {
+  "building": "VirtualStackerDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualStackerDefaultInternalVariantMirrored": {
+  "building": "VirtualStackerDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualUnstackerDefaultInternalVariant": {
+  "building": "VirtualUnstackerDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "VirtualUnstackerDefaultInternalVariantMirrored": {
+  "building": "VirtualUnstackerDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Simulated Machines"
+ },
+ "WireDefault1UpBackwardInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x2",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefault1UpForwardInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x2",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefault1UpLeftInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x2",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefault1UpLeftInternalVariantMirrored": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x2",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefault2UpBackwardInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefault2UpForwardInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefault2UpLeftInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefault2UpLeftInternalVariantMirrored": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefaultBridgeInternalVariant": {
+  "building": "WireBridgeVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefaultCrossInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefaultForwardInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefaultJunctionInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefaultLeftInternalVariant": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireDefaultLeftInternalVariantMirrored": {
+  "building": "WireDefaultVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireGlobalTransmitterReceiverInternalVariant": {
+  "building": "WireGlobalTransmitterReceiverVariant",
+  "footprint": "3x3x3",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    -1,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ],
+   [
+    -1,
+    1,
+    0
+   ],
+   [
+    1,
+    1,
+    0
+   ],
+   [
+    0,
+    -1,
+    0
+   ],
+   [
+    -1,
+    -1,
+    0
+   ],
+   [
+    1,
+    -1,
+    0
+   ],
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    -1,
+    0,
+    1
+   ],
+   [
+    1,
+    0,
+    1
+   ],
+   [
+    0,
+    1,
+    1
+   ],
+   [
+    -1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1
+   ],
+   [
+    0,
+    -1,
+    1
+   ],
+   [
+    -1,
+    -1,
+    1
+   ],
+   [
+    1,
+    -1,
+    1
+   ],
+   [
+    0,
+    0,
+    2
+   ],
+   [
+    -1,
+    0,
+    2
+   ],
+   [
+    1,
+    0,
+    2
+   ],
+   [
+    0,
+    1,
+    2
+   ],
+   [
+    -1,
+    1,
+    2
+   ],
+   [
+    1,
+    1,
+    2
+   ],
+   [
+    0,
+    -1,
+    2
+   ],
+   [
+    -1,
+    -1,
+    2
+   ],
+   [
+    1,
+    -1,
+    2
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireTransmitterReceiverInternalVariant": {
+  "building": "WireTransmitterReceiverVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ },
+ "WireTransmitterSenderInternalVariant": {
+  "building": "WireTransmitterSenderVariant",
+  "footprint": "1x1x1",
+  "inputs": [],
+  "items_per_second": null,
+  "lane_fraction": null,
+  "note": null,
+  "outputs": [],
+  "per_lane": null,
+  "source": null,
+  "tiles": [
+   [
+    0,
+    0,
+    0
+   ]
+  ],
+  "wiki_page": "Wire Machines"
+ }
+}

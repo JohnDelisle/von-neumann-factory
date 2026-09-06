@@ -1,0 +1,67 @@
+= Map =
+[[File:Map-Overview-Mode.png|450px|right|class=responsive-image]]
+
+== Overview ==
+
+Scroll out (default 'Mouse Scroll Wheel') to enter Map Mode.
+
+; View Modes
+* Machine View
+* Space View
+* Map View
+
+; Grids
+* tiles - machine grid
+* chunks - space grid
+* super chunks
+* quadrants
+* etc.
+
+; Map Visualizations
+* Grid
+* Shape Asteroids
+* Coordinates
+* Conflicts
+
+; Useful commands
+* Press 'Jump To Vortex' (default 'H') to move the camera position to the [[Vortex]] and set the View Mode to Machine View.
+* Press 'Switch Mode' (default 'Space') to toggle view between Space View and Machine View.
+
+== Resource Patches ==
+
+There are two types of resource patches on the map, Shape Asteroids and Fluid Asteroids (also called Fluid Deposits). 
+
+=== Fluid Asteroids ===
+
+'''Standard Generation'''
+
+The standard generation for Fluid Asteroids includes the primary colors for the selected [[Color Modes|Color Mode]]. (Default: Red, Green, Blue)
+
+'''Custom Generation'''
+
+Via the [[Game_Modes#Map Generation|Map Generation]] options, secondary colors (Default: Yellow, Magenta, Cyan) and tertiary colors (Default: White) may also spawn.
+
+=== Shape Asteroids ===
+'''Standard Generation'''
+
+The standard generation for Shape Asteroids includes 4 types of shape generation, along with four types of color generation. Each pairing has a default percent likelihood and minimum distance from the vortex.
+
+<u>Shapes:</u>
+* Pure Shapes: A shape with all the same [[Shapes#Part Types|shape parts]], and no missing parts.
+* Full Shapes: A shape with random shape parts, and no missing parts.
+* Partial Shapes: A shape with random shape parts, and some missing parts (1 part missing in regular scenarios, 2 parts missing in the hexagonal scenario).
+* Half Shapes: A shape with random shape parts, and some missing parts (2 parts missing in regular scenarios, 4 parts missing in the hexagonal scenario).
+
+<u>Colors:</u>
+* Uncolored: All shape parts are uncolored
+* Primary Color: Some or all shape parts are colored in the primary colors for the selected [[Color Modes|Color Mode]]. (Default: Red, Green, Blue)
+* Secondary Color: Some or all shape parts are colored in the secondary colors. (Default: Yellow, Magenta, Cyan)
+* Tertiary Color: Some or all shape parts are colored in the tertiary color. (Default: White)
+
+'''Custom Generation'''
+
+Via the [[Game_Modes#Map Generation|Map Generation]] options, the percent likelihood of each of the type of shape generation and the minimum distance from the vortex of generation may be modified. 
+
+== Map Markers ==
+
+The player can create Map Markers by pressing the 'Create Map Marker' button or keybind (default 'L').  The player is prompted to enter an optional name and choose between a set of default shape codes or enter a custom one.  Map markers can be edited by pressing 'Edit Marker' (default 'Right Click') while hovering one, opening a screen allowing to edit the name and shape code as well as deleting the marker.

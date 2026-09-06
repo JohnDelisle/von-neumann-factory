@@ -1,0 +1,6 @@
+= Supporter Edition =
+The Supporter Edition DLC of Shapez 2 adds the purely cosmetic [[Trains#Cosmetic Rails|Rail Twister, Rail Loop, Long Rail Up, and Long Rail Down]], doubles the amount of soundtrack that can play in the background in-game, and allows to access the full soundtrack on Steam.
+
+; Steam links
+* [https://store.steampowered.com/app/2162800/shapez_2/ Base Game]
+* [https://store.steampowered.com/app/3075620/shapez_2_Supporter_Edition_Upgrade/ Supporter Edition DLC]

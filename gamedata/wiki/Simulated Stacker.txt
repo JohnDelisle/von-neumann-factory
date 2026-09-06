@@ -1,0 +1,2 @@
+= Simulated Stacker =
+#REDIRECT [[Simulated_Machines#Simulated_Stacker]]

@@ -1,0 +1,14 @@
+= Asteroid Miner =
+== Overview ==
+
+Asteroid Miners are unlocked with [[Milestones | Milestone]] 0 (except in the Certification [[Scenario]] where it's the Space Platoforms Milestone) and must be placed above [[Map#Shape Asteroids | Shape Asteroids]], on the bottom platform level. Each Asteroid Miner costs 2 <span class="gl">Platform Capacity</span>. By default, Asteroid Miners provide 4 extraction points for [[Shapes]], with additional extraction points being unlocked by connecting [[#Miner Booster | Miner Boosters]].
+
+Asteroid Miners provide a modest amount of building space. Three borders are solid and 4 tiles wide, while the front edge has a [[Notch]] available with the normal 3 tile gap to the edge. Its available building space is 12x13 (156 tiles) with 16 of the first machine level tiles available as spots to place [[Mini-Miner]]s, although any Machine can be placed on those spots.
+
+== Miner Booster ==
+
+Miner Boosters must be placed on a [[Map#Shape Asteroids | Shape Asteroid]], and point to a Asteroid Miner or another Miner Booster. Up to 3 Miner Booster platforms may be connected to an Asteroid Miner or chained to connect to an Asteroid Miner. Each additional booster provides 4 additional [[Mini-Miner]] locations, up to a total of 16. Each Miner Booster costs 1 <span class="gl">Platform Capacity</span>.
+
+[[File:Shape-Miner-Extension-Example.png|400px|class=responsive-image]]
+
+''Some examples of how Miner Boosters may be connected to an Asteroid Miner.''

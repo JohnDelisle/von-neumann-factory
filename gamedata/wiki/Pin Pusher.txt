@@ -1,0 +1,27 @@
+= Pin Pusher =
+{{Machine Infobox
+|title=Pin Pusher
+|image=Pin-Pusher-500.png
+|footprint=1 x 1 x 1
+|inouts=1 : 1
+|milestone=6
+|researchcost=N/A (Unlocked with milestone)
+|throughput=20 • 30 • 40 • 50 • 60
+|ratio=3
+}}
+
+{{Shape Processing}}
+
+== Overview ==
+
+The Pin Pusher pushes [[Pins]] under shapes received as input and outputs the result.
+
+== Specific Process ==
+
+Firstly, pins are created under every non-empty shape part of the shape's bottom layer.
+
+Spoiler warning : the next step is a solution for how to get pins without anything on top of them in a shape, you might prefer figuring out the solution by yourself first.
+
+{{spoiler|Then, any layers above the limit (5 if insane [[Scenario]], 4 otherwise) get discarded. For [[Crystals]] in the layer that gets discarded, any that was directly above another crystal will make it shatter along with all other connected crystals.}}
+
+Finally, the [[Shape Gravity Rules]] are applied to the resulting shape.

@@ -1,0 +1,21 @@
+= Fluid Producer =
+{{Machine Infobox
+|title=Fluid Producer
+|image=Fluid-Producer-500.png
+|footprint=1 x 1 x 1
+|fluidinouts=0 : 1
+|fluidoutput=28800
+|fluidratio=24 • 19.2 • 16
+}}
+
+{{Sandbox}}
+
+== Overview ==
+
+The Fluid Producer produces the throughput of 24/19.2/16 [[Fluid Launcher]]s of any fluid color.
+
+== Specifics ==
+
+The Fluid Producer is unlocked with cheat commands, see [[Sandbox]].
+
+After placing the Fluid Producer, select it and select the desired color from the dropdown menu.

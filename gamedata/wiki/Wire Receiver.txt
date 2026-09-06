@@ -1,0 +1,2 @@
+= Wire Receiver =
+#REDIRECT [[Wire#Wireless Sender and Receiver]]

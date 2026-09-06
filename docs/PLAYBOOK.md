@@ -52,6 +52,15 @@ Claude's build effort is best spent on new logic and on replication/parameterisa
 - **Assemble a layer only from DISJOINT single-quadrant pieces** (distinct
   positions) — rigid-body stacking merges disjoint, stacks overlapping onto a new layer.
 
+## Building rates live in `gamedata/rates.json`, not in prose (2026-09-06)
+
+`python tools/rates.py` rebuilds it: geometry from the game's `buildings.json`,
+`lane_fraction`/`per_lane` from `gamedata/rates_measured.json` (John, in-game) else
+from the wiki mirror in `gamedata/wiki/` (`tools/wiki_slurp.py`). Before laying out a
+module, read `per_lane` for every building it uses (DIRECTIVE rule 6) -- the compiler
+does this itself. A new measurement is a row in `rates_measured.json`, never a
+sentence here. `rates.py --full` prints the batched question list for John.
+
 ## Build & verify checklist (run before declaring a blueprint done)
 - Regenerate: `python3 tools/build_modules.py blueprints`.
 - **Round-trip**: decode the generated file; confirm building count + layout.

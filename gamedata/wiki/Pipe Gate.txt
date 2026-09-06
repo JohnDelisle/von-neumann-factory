@@ -1,0 +1,2 @@
+= Pipe Gate =
+#REDIRECT [[Flow Control#Pipe Gate]]

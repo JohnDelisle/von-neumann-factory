@@ -1,0 +1,61 @@
+= Color Modes =
+== Overview == 
+
+Shapez 2 has 4 <span class="gl">Color Modes</span>:
+
+* RGB: This is the default color mode. The basic colors are red, green and blue. For information on mixing these colors, see [https://en.wikipedia.org/wiki/RGB_color_model RGB color model in Wikipedia].
+* RYB: The basic colors are red, yellow and blue. For information on mixing these colors, see [https://en.wikipedia.org/wiki/RYB_color_model RYB color model in Wikipedia].
+* CMYK: The basic colors are Cyan, Magenta, Yellow. For information on mixing these colors, see [https://en.wikipedia.org/wiki/CMYK_color_model CMYK color model in Wikipedia].
+* RGB (Colorblind): Increases contrast of the default RGB colors and adds patterns.
+
+The color mode can be selected in the general settings and controls how colors are displayed on [[Shapes]] and Fluids. It is worth noting that the change is only visual and doesn't affect what the colors actually are internally, this can be seen with [[Shape Codes]], fluid signals in [[Signal Producer]]s, or [[Fluid Producer]]s.
+
+== Color Comparison ==
+
+{| class="wikitable" style="text-align: center;"
+! Color Mode !! Uncolored !! colspan="3"|Primary Colors !! colspan="3"|Secondary Colors !! colspan="2"|Tertiary Colors
+|-
+| RGB
+| [[File:Shape-Circle-500.png|50px]]
+| [[File:Shape-Color-R-RGB-500.png|50px]]
+| [[File:Shape-Color-G-RGB-500.png|50px]]
+| [[File:Shape-Color-B-RGB-500.png|50px]]
+| [[File:Shape-Color-C-RGB-500.png|50px]]
+| [[File:Shape-Color-M-RGB-500.png|50px]]
+| [[File:Shape-Color-Y-RGB-500.png|50px]]
+| [[File:Shape-Color-W-RGB-500.png|50px]]
+| [[File:Shape-Color-K-RGB-K-CB-500.png|50px]]
+|-
+| RYB
+| [[File:Shape-Color-U-RYB-U-CMYK-500.png|50px]]
+| [[File:Shape-Color-R-RYB-C-CMYK-500.png|50px]]
+| [[File:Shape-Color-G-RYB-500.png|50px]]
+| [[File:Shape-Color-B-RYB-Y-CMYK-500.png|50px]]
+| [[File:Shape-Color-C-RYB-M-CMYK-500.png|50px]]
+| [[File:Shape-Color-M-RYB-500.png|50px]]
+| [[File:Shape-Color-Y-RYB-500.png|50px]]
+| [[File:Shape-Color-W-RYB-W-CMYK-500.png|50px]]
+| [[File:Shape-Color-K-RYB-K-CMYK-500.png|50px]]
+|-
+| CMYK
+| [[File:Shape-Color-U-RYB-U-CMYK-500.png|50px]]
+| [[File:Shape-Color-R-CMYK-500.png|50px]]
+| [[File:Shape-Color-G-CMYK-500.png|50px]]
+| [[File:Shape-Color-B-CMYK-500.png|50px]]
+| [[File:Shape-Color-R-RYB-C-CMYK-500.png|50px]]
+| [[File:Shape-Color-C-RYB-M-CMYK-500.png|50px]]
+| [[File:Shape-Color-B-RYB-Y-CMYK-500.png|50px]]
+| [[File:Shape-Color-W-RYB-W-CMYK-500.png|50px]]
+| [[File:Shape-Color-K-RYB-K-CMYK-500.png|50px]]
+|-
+| RGB (Colorblind)
+| [[File:Shape-Circle-500.png|50px]]
+| [[File:Shape-Color-R-CB-500.png|50px]]
+| [[File:Shape-Color-G-CB-500.png|50px]]
+| [[File:Shape-Color-B-CB-500.png|50px]]
+| [[File:Shape-Color-C-CB-500.png|50px]]
+| [[File:Shape-Color-M-CB-500.png|50px]]
+| [[File:Shape-Color-Y-CB-500.png|50px]]
+| [[File:Shape-Color-W-CB-500.png|50px]]
+| [[File:Shape-Color-K-RGB-K-CB-500.png|50px]]
+|}

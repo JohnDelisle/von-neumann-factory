@@ -1,0 +1,164 @@
+= Shapes =
+== Overview ==
+
+Shapes are the core element of Shapez 2. They can be extracted, cut, painted, etc.
+
+Each Shape is composed of layers, each layer is composed of parts and each part has a type and a color. In most [[Scenarios]], layers contain 4 parts except in the Hexagonal scenario, where they contain 6. In the Insane scenario, shapes can have between 1 and 5 layers, and between 1 and 4 in other scenarios.
+
+== Part Types ==
+
+{| class="wikitable" style="text-align: center;" 
+! Visual !! Name !! Code !! Can have color !! Map<br>Generation<br>Rarity<ref>The map generation rarity refers to which rarity group the shape type is in for the [[Game Modes#Map Generation | Map Generation]] settings.</ref>
+|-
+! colspan="5" | [[#Shapes Configurations | Quad Configuration]]
+|-
+| [[File:Shape-Circle-500.png|100px]] || Circle || C || Yes || Common
+|-
+| [[File:Shape-Square-500.png|100px]] || Square || R || Yes || Common
+|-
+| [[File:Shape-Star-500.png|100px]] || Star || S || Yes || Rare
+|-
+| [[File:Shape-Diamond-500.png|100px]] || Diamond || W<ref>In the early stages of the game, the 4th shape type used to be the Windmill like in [[Shapez 1]], thus why its shape code was <code>W</code>. In game version <code>0.0.0-alpha17</code>, its appearance was changed to the current look, and in <code>0.0.0-alpha22.3</code>, its name was changed to 'Diamond'. The shape code wasn't changed in either of these versions however.</ref> || Yes || Very Rare
+|-
+| [[File:Shape-X-500.png|100px]] || Refined Shape X<ref name="refined-shapes">The Refined Shapes have no special name in the [[Game Modes | Classic Game Mode]], while they have a different name for each color in the [[Game Modes | Manufacture Game Mode]] </ref> || X || Yes || N/A
+|-
+| [[File:Shape-Y-500.png|100px]] || Refined Shape Y<ref name="refined-shapes" /> || Y || Yes || N/A
+|-
+! colspan="5" | [[#Shapes Configurations | Hex Configuration]]
+|-
+| [[File:Shape-Hexagon-500.png|100px]] || Hexagon || H || Yes || Common
+|-
+| [[File:Shape-Flower-500.png|100px]] || Flower || F || Yes || Very Rare
+|-
+| [[File:Shape-Gear-500.png|100px]] || Gear || G || Yes || Rare
+|-
+! colspan="5" | [[#Shapes Configurations | Quad and Hex Configurations]]
+|-
+| [[File:Shape-Pin-500.png|100px]] || Pin || P || No || N/A
+|-
+| [[File:Shape-Crystal-500.png|100px]] || Crystal || c || Yes || N/A
+|-
+| [[File:Shape-Empty-500.png|100px]] || Empty || - || No || N/A
+|}
+
+<references/>
+
+== Shapes Configurations ==
+
+A Shapes Configuration determines what [[#Part Types | Part Types]] are available in a [[Scenario]] and how many parts are in each layer of a shape. There are three Shapes Configurations in the game:
+
+* Quad : The default configuration with 4 parts per layer.
+* Certification : The configuration used in the Certification [[Scenario]]. Same as the Quad configuration but without the <code>Y</code> [[#Refined Shapes | Refined Shape]]. This configuration is almost always implicitly included when the Quad configuration is mentioned.
+* Hex : The configuration used in the Hexagonal [[Scenario]] with 6 parts per layer.
+
+== Colors ==
+
+{| class="wikitable" style="text-align: center;"
+! Visual !! Name !! Code
+|-
+| [[File:Shape-Circle-500.png|100px]] || Uncolored || u
+|-
+| [[File:Shape-Color-R-RGB-500.png|100px]] || Red || r
+|-
+| [[File:Shape-Color-G-RGB-500.png|100px]] || Green || g
+|-
+| [[File:Shape-Color-B-RGB-500.png|100px]] || Blue || b
+|-
+| [[File:Shape-Color-C-RGB-500.png|100px]] || Cyan || c
+|-
+| [[File:Shape-Color-M-RGB-500.png|100px]] || Magenta || m
+|-
+| [[File:Shape-Color-Y-RGB-500.png|100px]] || Yellow || y
+|-
+| [[File:Shape-Color-W-RGB-500.png|100px]] || White || w
+|-
+| [[File:Shape-Color-K-RGB-K-CB-500.png|100px]]|| Black || k
+|}
+
+Note: How colors appear in game depends on the current [[Color Modes|Color Mode]] setting.
+
+Also see: [[Fluids#Fluid Colors | Fluid Colors]]
+
+== Shape Codes ==
+
+Shapes can be represented by Shape Codes. They are strings of characters, making them easily transferable, it being from one place to another ingame, or outside of the game.
+
+Each layer is listed from bottom to top and separated by colons (<code>:</code>) and each part in the layer is composed of two characters, the first being the shape type and the second the color. All parts in a layer are then put next to each other starting from the top right part then going clockwise without a separation character.
+
+The character codes for shape types and colors can be found in the 'Code' column in the above tables. For shape types that are marked as 'can have color', the color character will be one of the color character in the above table, otherwise it will be <code>-</code>.
+
+== Shape Inspector ==
+
+The Shape Inspector can be accessed by clicking a shape anywhere in the UI. It allows you to view shapes in 3D and to change the view angle, as well as multiple options for spacing out quadrants and/or layers. It will also show the amount of the current shape stored and its delivery statistics. Additionally, there are buttons to navigate in the viewed shapes history and a panel in the bottom left listing all the available [[#Part Types | Part Types]] and [[#Colors | Colors]] in the current [[Scenario]].
+
+== Shape Validity Rules ==
+
+The game has two rulesets to define what shapes are considered valid, for example to validate a [[Shape Code]] input.
+
+=== Strict Ruleset ===
+
+This is the most common ruleset. With it, shapes can only contain parts from the current [[#Shapes Configurations | Shapes Configuration]] and also must have the matching number of parts per layer. This is used for [[Signal Producer]]s and [[Item Producer]]s.
+
+=== Flexible Ruleset ===
+
+In this ruleset, shapes can contain parts from any existing [[#Shapes Configurations | Shapes Configuration]] and can have any number of parts per layer. All layers must have the same number of parts however. This is used in the [[Shape Inspector]], [[Map#Map Markers|Map Markers]]' shape and [[Blueprint Library | shape blueprint icons]].
+
+=== Common to Both ===
+
+Shapes can have more layers than the maximum allowed by the current [[Scenario]] when created from a [[Shape Code]]. The extra layers will still be deleted when passed through a machine that applies [[Shape Gravity Rules]] however.
+
+== Shape Gravity Rules ==
+
+Shapes have gravity rules. Contrary to [[Shapez 1]], floating layers/pieces can't exist in Shapez 2.
+
+These rules are applied after any operation that could generate floating pieces.
+
+=== Definitions ===
+
+Shape parts are considered connected horizontally if they are directly next to each other (diagonals/corners don't count) and if both of them aren't a pin.
+
+A shape part is considered supported if:
+* it's on the bottom layer of the shape
+* or it's directly above a supported part
+* or it's connected horizontally with a supported part
+* or it's a crystal and it's directly under a supported crystal
+
+=== Process ===
+
+For each layer starting from the bottom and going up, the layer is split into groups of horizontally connected parts. Then for each group, if no parts are supported vertically, the group begins falling and all crystals inside the group are destroyed. If crystals were the only thing connecting regular parts, the group gets split into multiple groups. The groups then fall until at least one of their parts is directly above another part.
+
+== Pins ==
+
+Pins behave similarly to regular shape types, with a few differences. They are generally considered supports in place of gaps, to allow making some shapes that would otherwise have floating pieces. As such, shapes that have pins replacing empty parts that aren't the topmost shape part in their column will be accepted by the [[Vortex]]. Conversely, the Vortex will accept shapes that have empty parts replacing pins that aren't the topmost shape part in their column.
+
+Pins are also generated in a special way, via the [[Pin Pusher]].
+
+Pins also don't connect horizontally with shape parts, this means they won't support shape parts horizontally adjacent to them, and will let them fall if they aren't supported by anything else. They will still support shape parts directly above them, however. See also [[#Shape Gravity Rules | Shape Gravity Rules]].
+
+Similarly to empty parts, pins will get replaced by [[#Crystals | Crystals]] in the [[Crystal Generator]].
+
+Additionally, pins don't have a color. They will be unchanged when going through a [[Painter]].
+
+== Crystals ==
+
+Crystals behave differently from regular shape types, making them a new challenge when unlocking them. Their rules can be summarized by the fact that crystals are fragile.
+
+They are generated in a special way, via the [[Crystal Generator]].
+
+As a general rule, when a crystal shatters, it shatters all connected crystals as well. Crystals are considered connected when they are either directly adjacent on the same layer (corners/diagonals don't count), or when they are directly above/below each other. Differently colored crystals and/or crystals not created at the same time will still be considered connected if they match the previously stated rules.
+
+A crystal will shatter if it falls. This can happen if it is in the top shape of a [[Stacker]], or if it falls due to [[#Shape Gravity Rules | gravity]] in another operation, like in a [[Cutter#Cutter | Cutter]] for example. Other shape parts can safely fall onto crystals, however.
+
+A crystal will also shatter if it is separated from another connected crystal part. This can happen in a [[Cutter#Cutter | Cutter]] or [[Half Destroyer]] for example.
+
+Spoiler warning : the next example is a solution for how to get pins without anything on top of them in a shape, you might prefer figuring out the solution by yourself first.
+
+{{spoiler|This can also happen in a [[Pin Pusher]] if a crystal part gets discarded due to the layer limit and it was connected to another crystal part below.}}
+
+A crystal part can be safely separated from a connected non-crystal shape part, however.
+
+Additionally, crystals can't change color once created. They can still pass through [[Painter]]s and [[Crystal Generator]]s, but they will leave unchanged.
+
+== Refined Shapes ==
+
+Refined shapes, or exotics, are special shapes that cannot be found around the map, except for a small patch next to the [[Vortex]] when a save is started in the Certification [[Scenario]]. They behave similarly to regular shape types, with the key difference being that exotics do not change color when passed through [[Painter]]s. Instead, the only way to obtain different colors of exotics is through [[Trade Stations]].

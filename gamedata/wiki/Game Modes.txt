@@ -1,0 +1,90 @@
+= Game Modes =
+[[File:New-Game-Mode-Selection.png|360px|right|class=responsive-image]]
+
+== Overview ==
+
+When starting a <span class="gl">New Game</span> via the button in the <span class="gl">Play</span> menu, the game prompts the player choose a game Mode.  Choosing <span class="gl">Certification</span> will immediately start a new game with a tutorial.  Choosing either <span class="gl">Classic</span> or <span class="gl">Manufacture</span> will prompt the player to choose a Scenario.
+
+== Scenarios ==
+
+Scenarios affect everything in the research screens, the starting location (already placed platforms, camera position, guaranteed shape/fluid patches, etc.) and a few more settings, like the configuration of shapes (quad, hex) or the maximum number of layers on shapes.
+
+In the first menu, the game will show all the default Scenarios:
+
+{| class="wikitable"
+! Mode !! Name !! Description
+|-
+| Certification || Certification || Teaches the basic mechanics of the game.
+|-
+| Classic || Regular || This factory needs you - shape demand is at an all-time high. A standard simulation, recommended for first-time operators.
+|-
+| Classic || Hard || Looking for a challenge? This simulation is tougher than the standard one - more complex shapes and tighter requirements. Definitely doable for experienced operators.
+|-
+| Classic || Insane || WARNING: This simulation has been unstable. Absurdly complex shapes, unforgiving targets - only the most experienced operators will survive. Last chance to step back. ''It is highly recommended to play the easier scenarios first.''
+|-
+| Classic || Hexagonal || The last simulation collapsed, so we had an intern put together a replacement. Somehow the shapes ended up with 6 sides. It's all the same... right? ''It is highly recommended to play the easier scenarios first.''
+|-
+| Manufacture || Regular || Your <span class="gl">Vortex</span> imploded and your clearance has been suspended. Polish dimensional waste, trade it for refined shapes, and rebuild your platform at the <span class="gl">Vortex Grand-Assembler</span>.
+|-
+| Manufacture || Hard || The <span class="gl">Vortex Grand-Assembler</span> demands perfection. Tighter quotas, more complex conversions - only seasoned operators need apply.
+|}
+
+Additionally, any [[Custom Game Modes#Custom Scenarios | Custom Scenarios]] imported will also show up in that list.
+
+== Scenario Presets ==
+
+Scenario Presets are collections of values for different settings affecting a new game. They contain a [[#Scenarios | Scenario]], [[#Map Generation | Map Generation settings]], and active [[#Challenges|Challenges]]. Scenario Presets aren't shown to the player, but by default, the game has one for each default scenario, whith each one having the same default map generation settings, and no active Challenges, except for <span class="gl">Insane</span> which has the <span class="gl">No Straight Stacker</span> Challenge enabled. Additionally, any [[Custom Game Modes#Custom Scenario Presets | Custom Scenario Presets]] imported will be added to that internal list.
+
+Upon selecting a Scenario, the first Scenario Preset in the internal list that points to said Scenario will be selected, and all its values will be applied as the defaults on the next screen.
+
+== Additional Settings ==
+
+[[File:New-Game-Additional-Settings.png|360px|right|class=responsive-image]]
+
+After having selected a [[#Scenarios | Scenario]], a new dialog opens which allows to modify other settings for the savegame.
+
+The first tab "General" has a field to set the name for the savegame, as well as a difficulty selection. These are the only settings that will be modifiable after having created the savegame.  This can be done by selecting the gear icon on the savegame in the savegames list.
+
+=== Difficulty ===
+
+{| class="wikitable" style="text-align: center;"
+! Name !! Copy/Paste Cost !! Platform Capacity !! Goal Multiplier
+|-
+| Relaxed || Free || Unlimited || 60%
+|-
+| Normal || Free || 100% || 100%
+|-
+| Challenge || 100% || 80% || 150%
+|}
+
+A "Custom" difficulty is also available which lets you choose values between 0% and 1,000% for each multiplier.
+
+=== Map Generation ===
+
+The second tab allows to customize Map Generation settings, this can go from general settings like shape/fluid patch likeliness, size, etc., to more advanced ones like controlling the likeliness of individual shape patch types for all combinations of pure, full, partial, half and tertiary color, secondary color, primary color, uncolored.
+
+You can also choose a Seed for the generation and a preview of what the map will look like is available on the right. The Seed is an integer value that, together with the Map Generation settings, determines the positions and contents of all the resource patches on the map. The Seed can be shared with other players and used to generate an identical map (assuming the map generation settings are the same). The seed additionally determines what each shape will be for each level of the [[Operator Level]] random goal lines.
+
+See also: [[Map]]
+
+=== Challenges ===
+
+The third tab "Challenges" lets you choose to enable some modifications to the gameplay:
+
+{| class="wikitable"
+! Name !! Description
+|-
+| No Alternate Rotators || The counter-clockwise and 180° rotators are disabled.
+|-
+| No Cutter || The Cutter is disabled.
+|-
+| No Splitters || Splitting conveyor belts is disabled.  Merging space belt splitters remains available.
+|-
+| No Straight Stacker || Replaces the straight stacker with the bent stacker.
+|-
+| No Trash || Trash buildings are disabled.
+|-
+| Only 1x1 Machine Platforms || You can only build 1x1 machine platforms.
+|-
+| Trains Derail || Trains are destroyed when they reach the end of the track instead of returning on the lower rail.
+|}

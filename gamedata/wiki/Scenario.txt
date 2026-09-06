@@ -1,0 +1,2 @@
+= Scenario =
+#REDIRECT [[Game Modes#Scenarios]]

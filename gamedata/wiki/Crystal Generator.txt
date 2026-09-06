@@ -1,0 +1,22 @@
+= Crystal Generator =
+{{Machine Infobox
+|title=Crystal Generator
+|image=Crystal-Generator-500.png
+|footprint=1 x 2 x 2
+|inouts=1 : 1
+|fluidinouts=1 : 0
+|milestone=8
+|researchcost=N/A (Unlocked with milestone)
+|throughput=20 • 25 • 30
+|fluidinput=400 • 500 • 600
+|ratio=6
+|fluidratio=3
+}}
+
+{{Fluid Machines}}
+
+== Overview ==
+
+The Crystal Generator generates [[Crystals]] of the provided color in all of the shape part gaps and pins up to the highest used layer in the provided shape. This means that a two layer shape with pins and/or gaps will only have crystals generated on the bottom two layers and not on layers 3, 4, etc. Already existing crystals in the input shape will go through the Crystal Generator unchanged.
+
+[[File:Crystal-Generator-Example.PNG|500px|class=responsive-image]]

@@ -1,0 +1,16 @@
+= Command Line Arguments =
+You can use command line arguments when launching the [[Game Files#Assets Folder|game executable]] from the command line, or directly in Steam by right clicking the game, then clicking 'Properties...', then entering the arguments in the text input box under 'Selected Launch Option'. In both cases the arguments must be separated by spaces. On top of the arguments listed below, [https://docs.unity3d.com/2022.3/Documentation/Manual/PlayerCommandLineArguments.html Unity Player Command Line Arguments] can be used.
+
+* <code>--custom-translations</code> : Makes the game check for the [[Game Files#translations-override.json|translations-override.json]] file.
+* <code>--danger-bypass-modded-savegame-checks</code> : Disables the warning popup asking for confirmation when you're about to play a savegame with different mods than the ones currently installed.
+* <code>--ignore-hw-checks</code> : Stops the game from checking if the system has sufficient hardware (RAM size, OS version, ...).
+* <code>--ignore-mods</code> : Makes the game not load mods.
+* <code>--no-dynamic-content</code> : Disables fetching content from the web. Currently only affects the news on the main menu.
+* <code>--safe-mode</code> : Intended for debugging or launching the game on low-end setups. Sets the window resolution to 1280x720, moves the window to the primary display, sets the window mode to windowed, applies the 'minimal' graphics settings preset, makes the main menu use an empty savegame, disables loading mods.
+* <code>--set-modding-env-vars</code> : Sets the <code>SPZ2_PATH</code> and <code>SPZ2_PERSISTENT</code> environment variables. Only works on Windows. See [[Mod Development#Environment Variables|Environment Variables]] for more details.
+
+''The arguments below are "encrypted" as to not be easily readable from automated systems.''
+
+<!--<nowiki> tags are here just so the editor syntax highlighting doesn't break-->
+* <code><nowiki>--{1}-{2}-{3}</nowiki></code> : Makes the game not look for Steam on startup. This is only intended to be used as a last resort if the game fails to detect Steam properly. This will disable achievements, the [[Supporter Edition]] DLC, and loading mods from Steam Workshop. If you run the game from the executable file and not Steam, this will also disable the Steam Overlay and won't increment the play time counter. <code>{1}</code> is the inverse of 'enable', <code>{2}</code> is where you go to by supplies, <code>{3}</code> is the acronym of 'Software Development Kit'.
+* <code><nowiki>--{1}{2}</nowiki></code> : Allows using the [[Debug Console#cheats.disable|cheats.disable]] command. <code>{1}</code> is letter 17 and <code>{2}</code> is letter 1.

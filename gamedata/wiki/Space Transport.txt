@@ -1,0 +1,32 @@
+= Space Transport =
+== Space Belts ==
+
+Space Belts transport [[Shapes]] quickly over large distances. 
+
+Space belts are made up of 12 individual lanes, split into 3 groups of 4. When inputting shapes from a [[Notch]], which group of 4 lanes the shape ends up on depends on which machine level the [[Belt Launcher]] was placed on, and which lane in the group depends on which horizontal position the launcher is in. Each lane is independent, meaning that shapes must be extracted from the same spot(s) on the output notch as the spot(s) they were launched from in the input notch. While placing space belts, they can be split and merged in the same way as regular [[Belt]]s, and each lane will split and merge shapes independently like a regular belt.
+
+Each lane has a maximum [[Glossary#Throughput | throughput]] equal to the throughput of 4 belts. This means that a space belt level (a group of 4 lanes) has the throughput of 16 belts, which is equal to 4 [[Miner Booster | fully boosted]] [[Asteroid Miner]]s outputting on one level. It also means that a full space belt has a throughput of 48 belts, which is equal to 4 [[Notch]]es, also equal to 12 fully boosted Asteroid Miners outtputing equally on all 3 machine levels.
+
+Each Space Belt tile uses 0.5 <span class="gl">Platform Units</span>.
+
+== Space Belt Lifts ==
+
+Space Belt lifts are placed just like regular [[Belt]] Lifts, by pressing the 'Level Up' (default 'E') or 'Level Down' (default 'Q') hotkey while placing a Space Belt.
+
+Each Space Belt Lift uses 0.5 <span class="gl">Platform Units</span>.
+
+== Space Pipes ==
+
+Space Pipes transport [[Fluids]] quickly over large distances. Unlike [[Pipe]]s, fluid in Space Pipes travel in only one direction.
+
+Space pipes are made up of 12 individual lanes, split into 3 groups of 4. When inputting fluids from a [[Notch]], which group of 4 lanes the fluid ends up on depends on which machine level the [[Fluid Launcher]] was placed on, and which lane in the group depends on which horizontal position the launcher is in. Each lane is independent, meaning that fluids must be extracted from the same spot(s) on the output notch as the spot(s) they were launched from in the input notch. While placing space pipes, they can be split and merged in the same way as machine level [[Belt]]s, and each lane will split and merge fluids independently like a regular belt.
+
+Each lane has a maximum [[Glossary#Throughput | throughput]] equal to the throughput of 24 fluid launchers. This means that a space pipe level (a group of 4 lanes) has the throughput of 96 fluid launchers, which is equal to 24 [[Pump Booster | fully boosted]] [[Asteroid Pump]]s outputting on one level. It also means that a full space pipe has a throughput of 288 fluid launchers, which is equal to 24 [[Notch]]es, also equal to 72 fully boosted Asteroid Pumps outtputing equally on all 3 machine levels.
+
+Each Space Pipe tile uses 0.5 <span class="gl">Platform Units</span>.
+
+== Space Pipe Lifts ==
+
+Space Pipe lifts are placed just like regular Vertical [[Pipe]]s, by pressing the 'Level Up' (default 'E') or 'Level Down' (default 'Q') hotkey while placing a Space Pipe.
+
+Each Space Pipe Lift uses 0.5 <span class="gl">Platform Units</span>.

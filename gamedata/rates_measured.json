@@ -1,0 +1,74 @@
+{
+ "_doc": "Lane fractions measured in-game or stated by John. Key = internal-variant id prefix (matches every variant whose Id starts with it). lane_fraction = share of ONE belt lane a single building keeps up with; per_lane = ceil(1/lane_fraction). Anything not listed here and not derivable from the wiki is an open question for John (tools/rates.py --full lists them).",
+ "rows": [
+  {
+   "prefix": "BeltDefault",
+   "lane_fraction": 1.0,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "belts keep up with a full lane"
+  },
+  {
+   "prefix": "BeltPortReceiver",
+   "lane_fraction": 1.0,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "platform edge port, one per lane per floor"
+  },
+  {
+   "prefix": "BeltPortSender",
+   "lane_fraction": 1.0,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "platform edge port, one per lane per floor"
+  },
+  {
+   "prefix": "CutterHalf",
+   "lane_fraction": 0.3333333333333333,
+   "source": "measured",
+   "date": "2026-09-06",
+   "note": "VN-20 v1 (2/lane) starved in-game; v2 (3/lane) keeps up with the belt"
+  },
+  {
+   "prefix": "RotatorOneQuad",
+   "lane_fraction": 0.5,
+   "source": "measured",
+   "date": "2026-09-06",
+   "note": "John's Clockwise platform uses 2 per lane; VN-20 v2 at 3/lane keeps up"
+  },
+  {
+   "prefix": "Merger",
+   "lane_fraction": 1.0,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "mergers keep up with a full lane (John's rule: belts, splitters, mergers, ports = 1)"
+  },
+  {
+   "prefix": "Splitter",
+   "lane_fraction": 1.0,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "splitters keep up with a full lane (John's rule)"
+  },
+  {
+   "prefix": "Lift",
+   "lane_fraction": 1.0,
+   "source": "john",
+   "date": "2026-09-06",
+   "note": "lifts are belt tiles; belt family = 1 lane (John's rule; not individually measured)"
+  },
+  {
+   "prefix": "TrashDefault",
+   "lane_fraction": 1.0,
+   "source": "wiki",
+   "date": "2026-09-06",
+   "note": "sink: accepts on all four sides, unlimited rate (wiki Trash page)"
+  }
+ ],
+ "questions": [
+  "Stacker id mapping: wiki 'Stacker' (milestone, ratio 6/lane) vs 'Stacker (Bent)' (researched, ratio 4/lane). buildings.json has StackerDefaultVariant (output to the SIDE, local dir 3) and StackerStraightVariant (output FRONT). Which id is the 6-per-lane one? rates.json currently follows the wiki mapping Default=6, Straight=4 -- unverified.",
+  "Lifts (Lift1Layer/Lift2Layer): assumed belt family = 1 lane; never measured. Confirm or correct.",
+  "Painter / Crystal Generator: wiki lists levels 3-5 only (ratio 4 and 6 per lane); is the sandbox at max upgrade level, i.e. are ratios what we should design to?",
+  "Space belt lane = 4 belts (wiki). Our bus rule is 12 belt lanes per platform notch = one space-belt input. Confirm one space belt = 12 lanes x 4 = 48 belt-lanes at full, i.e. the 4x scale factor."
+ ]
+}

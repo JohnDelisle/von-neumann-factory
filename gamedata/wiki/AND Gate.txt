@@ -1,0 +1,2 @@
+= AND Gate =
+#REDIRECT [[Logic_Gates#AND_Gate]]

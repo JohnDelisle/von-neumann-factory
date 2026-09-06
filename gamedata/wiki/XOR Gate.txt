@@ -1,0 +1,2 @@
+= XOR Gate =
+#REDIRECT [[Logic_Gates#XOR_Gate]]

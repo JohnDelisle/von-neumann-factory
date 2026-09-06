@@ -1,0 +1,18 @@
+= Display =
+{{Machine Infobox
+|title=Display
+|image=Display-1x1-500.png
+|footprint=1 x 1 x 1
+|wireinouts=1 : 0
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Wire Basics]]
+|researchcost=15
+}}
+
+{{Wires}}
+
+== Overview ==
+
+The Display shows a graphical representation of the signal provided on the [[Wire]] input.
+
+[[File:Wire-Display-Demonstration.png|500px|Display examples|class=responsive-image]]

@@ -1,0 +1,115 @@
+= Glossary =
+<!-- to copy paste for adding terms : <span class="gl"></span> -->
+== A ==
+
+* <span class="gl" id="ACE">ACE</span> : An acronym for All Challenges Enabled. [[Game Modes#Challenges | Challenges]] such as "No Splitters" can be enabled when starting a new game.
+* <span class="gl" id="Alpha Mixer">Alpha (Type) (Smart) Mixer</span> : A type of [[#Smart Mixer | Smart Mixer]] that has 3 mixers for each fluid launcher of output.  It uses 1 unit of each primary color to produce 1 unit of any color, thus an input to output ratio of 3:1. Uses the inputs directly to make primaries and standard mixing recipes to make secondaries and white.
+
+== B ==
+
+* <span class="gl" id="Backed-up">Backed-up</span> : If contents on a belt/pipe stall and accumulate faster than they flow.
+* <span class="gl" id="Balanced">Balanced</span> : A factory component where the splitters are set up so that each machine receives the same throughput of shapes directly when placed. As opposed to [[#Manifold | Manifold]], is harder and bigger to set up but will be faster to get up to full efficiency.
+* <span class="gl">Balancer</span> : A device that takes a certain amount of input belts and equally ditributes the shapes to a certain amount of output belts.
+* <span class="gl" id="Beta Mixer">Beta (Type) (Smart) Mixer</span> [EA only] : A type of [[#Smart Mixer | Smart Mixer]] that has 4 mixers for each fluid launcher of output.  It uses 1 unit of each primary color to produce 2 units of any color, thus an input to output ratio of 3:2. To make primaries, makes the two secondaries that contain the wanted primary color then mixes them together. Uses the standard mixing recipes to make secondaries and white.
+* <span class="gl">Bottleneck</span> : The cause for a [[#Backed-up | backed up]] belt/pipe during processing, often insufficient machines that lead to contents being constrained.
+* <span class="gl">Braiding</span> : See [[#Weaving | Weaving]].
+* <span class="gl">Buffer</span> : A machine/component where content can be stored to be processed later, e.g. a [[Fluid_Tank | Fluid Tank]].
+* <span class="gl">Bypass</span> : Usually found in [[#MAM | MAMs]], the action of diverting shapes away from the input of a [[#module | module]] or a part of a factory to then merge them back at the output of said module/factory part so they aren't affected by it.
+
+== C ==
+
+* <span class="gl">Collision</span> : The feature of launched shapes/fluid colliding with machines if crossed with their trajectory. It used to be implemented in older versions then was removed because it didn't work properly. It was originally planned to be reimplemented but is now unlikely to come back.
+* <span class="gl">Conflict</span> : Occurs if a [[Wire]] is assigned more than one value. It appears red and acts as a 'null' signal.
+* <span class="gl" id="CROS">CROS / Crystal Random Operator Shape</span> : The [[#ROS | ROS]] goal line that contains [[Crystals]]. Alternatively "ROS #1" or "ROS1".
+
+== D ==
+
+* <span class="gl">Daisy Chain</span> : See [[#Manifold | Manifold]].
+* <span class="gl" id="Delta Mixer">Delta (Type) (Smart) Mixer</span> [EA only] : A type of [[#Smart Mixer | Smart Mixer]] that has 5 mixers for each fluid launcher of output.  It uses 1 unit of each primary color and 1 unit of white to produce 4 units of any color, thus an input to output ratio of 1:1. To make primaries, uses white to duplicate the wanted primary color then uses the same steps as [[#Beta Mixer | Beta Mixers]]. To make secondaries, first mixes it regularly, then uses one half and white to duplicate it, and the other half with the remaining primary to make white, then uses both outputs to duplicate it again. To make white, uses white to duplicate one of the primaries then uses the standard mixing recipes.
+
+== F ==
+
+* <span class="gl">Falsy</span> : For [[Wires]], when boolean or non-boolean values are coerced into 0 (false).
+* <span class="gl">Floating Layer/Quadrant/Piece</span> : Shape parts that aren't supported in a shape. In [[Shapez 1]], they would be possible to create in some conditions, but they aren't possible in Shapez 2. See also: [[Shape Gravity Rules]].
+
+== G ==
+
+* <span class="gl">Gap</span> : [[Shapes | Shape]] empty part.
+
+== H ==
+
+* <span class="gl" id="Heterogeneous Notch">Heterogeneous Notch</span> : A [[Notch]] transferring different shapes/fluids.
+* <span class="gl">Homogeneous Notch</span> : A [[Notch]] transferring only identical shapes/fluids.
+
+== M ==
+
+* <span class="gl" id="MAM">MAM / Make Anything Machine</span> : A machine/factory that can create any shape. Usually done by receiving a shape signal on a [[Wire]], then decomposing it using [[Wire Machines]], and reconstructing it with regular machines. Other MAM based acronyms exist:
+** <span class="gl" id="CMAM">CMAM</span> : 
+*** <span class="gl">Corner MAM</span> : Same as [[#SMAM | SMAM]]. SMAM is preferred since CMAM can be confused with Crystal MAM.
+*** <span class="gl">Crystal MAM</span> : A MAM that can handle [[Crystals]].
+** <span class="gl" id="Hex-MAM">Hex-MAM</span> : A MAM for the Hexagonal [[Scenario]].
+** <span class="gl" id="MMAM">MMAM / Manual MAM</span> : A MAM that has some or all of the [[#Routing | Routing]] done manually as opposed to using [[Wires]].
+** <span class="gl" id="PMAM">PMAM</span> : A MAM for the [[#ROS | ROS]] that pin pushes layers instead of using [[Shape Patterns#Standalone Pins | standalone pins]], similar to how the game generates the random shapes.
+** <span class="gl" id="ROSMAM">ROS-MAM / CROS-MAM / XROS-MAM</span> : A MAM that can make any shape that can appear in one of the [[#ROS | ROSs]].
+** <span class="gl" id="SMAM">SMAM / Swap MAM</span> : A MAM that builds shapes column by column and assembles them using [[Swapper]]s.
+** <span class="gl" id="TMAM">TMAM / True MAM</span> : A MAM that can make any shape possible, contrary to other types of MAM which are limited to a subset of possible shapes.
+: Note : The definition of what types of shapes each type of MAM can make can vary from person to person, it can thus be preferred to define a MAM as what [[Shape Patterns]] it is able to make instead.
+* <span class="gl" id="Manifold">Manifold</span> : A factory component where the splitters are set up so that the first machine receives half of the input, the second a quarter, the third an eighth, etc. If the correct number of machines is used, it will balance itself out and produce at full capacity. As opposed to [[#Balanced | Balanced]], will take longer to get up to full efficiency but is easier and smaller to set up.
+* <span class="gl" id="MEM">MEM / Make Everything Machine</span> : Similar to a [[#MAM | MAM]], but instead of making one requested shape, it makes all possible shapes (or a specific subset) either sequentially or all at the same time.
+* <span class="gl">Mixed Notch</span> : See [[#Heterogeneous Notch | Heterogeneous Notch]].
+* <span class="gl">Modular</span> : Easily repeatable and expandable, using multiple [[#Module | modules]] to accommodate more [[#Throughput | throughput]].
+* <span class="gl" id="Module">Module</span> : A unit consisting of input, output and one or more machines chained together. Often used in combination with a [[#Manifold | manifold]].
+
+== N ==
+
+* <span class="gl" id="Notch">Notch</span> : See [[Notch]].
+
+== O ==
+
+* <span class="gl" id="Omni-shape">Omni-shape</span> : In non-hexagonal [[Scenarios]], an omni-shape is defined as a one layered shape containing each of the four available shape types. Useful when supplying [[#MAM | MAMs]].
+** <span class="gl">Omni-Maker</span> : Produces [[#Omni-shape | Omni-shapes]] using [[#pure_shape | pure shapes]] as input.
+** <span class="gl">Omni-Miner</span> : Produces [[#pure_shape | pure shapes]] of available shape types from mined shape asteroids.
+* <span class="gl">Overflow</span> : A state in which a belt/pipe/machine is fed more content than it can process, resulting in a bottleneck.
+* <span class="gl" id="Overflow Splitter">Overflow Splitter</span> : A device that takes a belt of shapes as input, and outputs them onto an output, unless it can't accept more shapes, in which case the overflow will be outputted onto a second output. This can be done using [[Belt Reader]]s and [[Belt Filter]]s.
+** Pseudo Overflow Splitters can be made without [[Wires]] using a series of [[Belt]] splitters and mergers, but they occasionally let through shapes on the overflow output while the main output isn't stalled.
+** Since version 0.1.0, [[Overflow Splitter]]s are now available as a single machine.
+* <span class="gl">Overhang</span> : A [[Shapes | shape part]] or group of shape parts that are above empty parts but still supported. See also: [[Shape Gravity Rules]].
+
+== P ==
+
+* <span class="gl">Parallel</span> : See [[#Balanced | Balanced]]
+* <span class="gl">Priority Splitter</span> : See [[#Overflow Splitter | Overflow Splitter]].
+* <span class="gl"id="pure_shape">Pure Shape</span> : A full, one layered shape only containing identical shape types. Also see [[Shapes]].
+
+== R ==
+
+* <span class="gl">Ratio</span> : The ideal ratio describes the amount of machines required to process a full belt/pipe. In Shapez 2, it's always a whole number if the upgrades are at equal levels, e.g. 2 [[Rotator]]s per belt guarantee a constant [[#Throughput | throughput]].
+* <span class="gl" id="ROS">ROS / Random Operator Shape</span> : It has two meanings depending on context:
+** The [[Operator Level#Goal Lines | Operator Level Goal Lines]] that have randomly generated shapes. [[Game Modes | Classic]] [[Scenarios]] have two, and [[Game Modes | Manufacture]] scenarios add a third one as well. They can be numbered from 0 to 2 like in the [[Operator Signal Receiver]], but also have name acronyms: ROS (see below), [[#CROS | CROS]], and [[#XROS | XROS]].
+** The first random goal line that contains no [[Crystals]] and no [[Refined Shapes]]. Alternatively "ROS #0" or "ROS0".
+: Also see [[Operator Level#ROS]].
+* <span class="gl" id="Routing">Routing</span> : The action of taking shapes in input and directing them to one of multiple outputs. Can be done with [[Wires]] or manually.
+
+== S ==
+
+* <span class="gl">S1 / S2</span> : Abbreviations of [[Shapez 1]] / Shapez 2. <span class="gl">SPZ2</span> can also be seen in some places in the game, like on most holograms, or in the file extension of savegame files and [[Blueprint Library | Blueprint Files]].
+* <span class="gl" id="Saturated">Saturated Machine</span> : A machine working at its maximum capacity.
+* <span class="gl">Seed</span> : A number determining the position and size of shape and fluid asteroids on the map. See also: [[Game Modes]], [[Map]].
+* <span class="gl">Serial</span> : See [[#Manifold | Manifold]].
+* <span class="gl" id="Smart Mixer">Smart Mixer</span> : A design that uses [[Pipe Gate]]s before [[Color Mixer]] inputs to make the same mixers be able to produce different colors. Typically used in [[#MAM | MAMs]] to be more compact and use less resources than producing each color at the same time and selecting the one required. Some common designs have been given names, see [[#Alpha Mixer | Alpha Mixer]], [[#Beta Mixer | Beta Mixer]], [[#Delta Mixer | Delta Mixer]].
+* <span class="gl">Spaghetti</span> : Jokingly referencing a chaotic and tangled building style that doesn't follow clean or efficient patterns.
+* <span class="gl">Stackable</span> : A [[Blueprints | Blueprint]] or [[#Module | module]] is stackable if it can be built on all machine levels without changing their platform coordinates.
+* <span class="gl">Sushi Belt</span> : A belt containing multiple types of shapes, as opposed to only a single type.
+
+== T ==
+
+* <span class="gl" id="Throughput">Throughput</span> : Refers to the amount of shapes/fluid travelling through a belt/pipe/machine/module in a certain amount of time. Usually quantified in shapes/litres per minute.
+* <span class="gl">Truthy</span> : For [[Wires]], when boolean or non-boolean values are coerced into 1 (true).
+
+== W ==
+
+* <span class="gl" id="Weaving">Weaving</span> : The space-saving technique of interlaying two or more [[Conveyor Belt#Belt Launcher and Catcher | Belt Launchers and Catchers]] and/or [[Wire#Wire Transmitter and Receiver | Wire Transmitters and Receivers]] in a straight line on the same machine level. Up to three belts of contents can be transferred within a one wide space.
+
+== X ==
+
+* <span class="gl" id="XROS">XROS / eXotic Random Operator Shape</span> : The [[#ROS | ROS]] goal line that contains [[Refined Shapes]] (but not [[Crystals]]), exclusive to [[Game Modes | Manufacture Mode]]. Alternatively "ROS #2" or "ROS2".

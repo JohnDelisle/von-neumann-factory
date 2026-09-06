@@ -1,0 +1,8 @@
+= Shapez 1 =
+'''Shapez''', previously known as '''shapez.io''', is the first game in the Shapez franchise. For clarity, this wiki (and other Shapez 2 community spaces as well) refers to it as '''Shapez 1''', to differentiate it from '''Shapez 2'''.
+
+If Shapez 1 is owned on Steam, its soundtrack will play in the background in-game, if enabled in the audio settings.
+
+* Website : https://shapez.io
+* Steam Page : https://store.steampowered.com/app/1318690/shapez/
+* Official Wiki : https://shapezio.fandom.com/wiki/Shapez_Wiki

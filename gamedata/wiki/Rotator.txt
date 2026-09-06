@@ -1,0 +1,55 @@
+= Rotator =
+{{Machine Infobox
+|title=Rotator
+|image=Rotator-500.png
+|footprint=1 x 1 x 1
+|inouts=1 : 1
+|milestone=0
+|researchcost=N/A (Unlocked with milestone)
+|throughput=30 • 45 • 60 • 75 • 90
+|ratio=2
+}}
+
+{{Shape Processing}}
+
+== Rotator ==
+
+The Rotator rotates shapes it receives one shape part clockwise and outputs the result. In regular [[Scenarios]], this results in a 90 degrees rotation and in a 60 degrees rotation for the hexagonal scenario.
+
+{{Machine Infobox
+|title=Reverse Rotator
+|image=Reverse-Rotator-500.png
+|footprint=1 x 1 x 1
+|inouts=1 : 1
+|milestone=1
+|researchcost=4
+|throughput=30 • 45 • 60 • 75 • 90
+|ratio=2
+}}
+
+== Reverse Rotator ==
+
+The Reverse Rotator rotates shapes it receives one shape part counterclockwise and outputs the result. In regular [[Scenarios]], this results in a 90 degrees rotation and in a 60 degrees rotation for the hexagonal scenario.
+
+{{Machine Infobox
+|title=180° Rotator
+|image=180-Rotator-500.png
+|footprint=1 x 1 x 1
+|inouts=1 : 1
+|milestone=1
+|researchcost=6
+|throughput=30 • 45 • 60 • 75 • 90
+|ratio=2
+}}
+
+== 180° Rotator ==
+
+The 180° Rotator rotates shapes it receives 180 degrees and outputs the result.
+
+== Additional Notes ==
+
+The rotation of a shape does not matter for the [[Vortex]].
+
+Different rotations will result in different results from other machines such as the [[Half Destroyer]], [[Cutter#Cutter | Cutter]], [[Swapper]], [[Stacker]]s, and wire machines including the [[Flow Control]] machines and the [[Shape Analyzer]].
+
+The 'No Alternate Rotators' [[Game Modes#Challenges|challenge]] limits the rotators available to only the Rotator.

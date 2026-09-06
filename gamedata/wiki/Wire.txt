@@ -1,0 +1,55 @@
+= Wire =
+{{Machine Infobox
+|title=Wires
+|image=Wires-GIF.gif
+|footprint=1 x 1 x 1
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Wire Basics]]
+|researchcost=15
+}}
+
+{{Wires}}
+
+== Overview ==
+
+The Wire, Wire Bridge, Wireless Sender, and Receiver are machines that propagate signals. Wires can connect to [[Signal Producer]]s, [[Toggle Button]]s, [[Display]]s, [[Belt Reader]]s, [[Belt Filter]]s, [[Logic Gates]], and [[Simulated Machines]].
+
+== Wire ==
+
+The Wire can split, merge, and change layers much like [[Belt]]s and [[Pipe]]s. All inputs of a Wire can act as outputs, with the Wire's signal propagating to any connected wires in all directions.
+
+{| class="wikitable"
+|+ Wire Variations
+|-
+| [[File:Wire-Straight-400.png|75px|center]] || [[File:Wire-Bent-400.png|75px|center]] || [[File:Wire-T-400.png|75px|center]] || [[File:Wire-Cross-400.png|75px|center]]
+|}
+
+A Wire will appear dark green when it has a <code>null</code> signal, a lighter green when it has a signal of <code>0</code>, bright green when it has a shape or color code signal, as well as an integer value different from <code>0</code>.
+
+For cases where a Wire receives two different signals, the Wire will <code>conflict</code>, and glow bright red. The '''''only''''' exception is if one signal is <code>null</code>, in which the <code>null</code> signal is overwritten by the other signal.
+
+{| class="wikitable"
+! Wire Signal !! Color !! Image
+|-
+| Null || style="text-align:center" | Darker Green || [[File:Null-Signal-200.png|75px|center]]
+|-
+| Integer = 0|| style="text-align:center" | Dark Green|| [[File:NonTruthy-Signal-200.png|75px|center]]
+|-
+| Integer ≠ 0 || style="text-align:center" rowspan="3" | Green || [[File:Truthy-Signal-200.png|75px|center]]
+|-
+| Shape || [[File:Truthy-Signal-200.png|75px|center]]
+|-
+| Color || [[File:Truthy-Signal-200.png|75px|center]]
+|-
+| Conflict || style="text-align:center" | Red || [[File:Conflict-Signal-200.png|75px|center]]
+|}
+
+When hovering over a wire with the cursor, a tooltip displaying the current signal going through that wire will be shown.
+
+== Wire Bridge ==
+
+The Wire Bridge allows for two signals to cross within the same space, without causing a <code>conflict</code>. A signal inputted is always outputted on the opposing side.
+
+== Wireless Sender and Receiver ==
+
+Much like [[Conveyor Belt#Belt Launcher and Catcher | Belt Launchers and Catchers]], Wireless Senders and Receivers must be placed by starting to drag on the wanted position of the sender, then dragging until the wanted position of the receiver, with the limitation that the receiver can only have 1 to 4 empty tiles of distance with the sender. A sender will try to connect to the furthest receiver in range. If there are multiple senders trying to connect to a single receiver, the sender furthest from the receiver will be chosen. The sender takes an input signal, and outputs the signal from the receiver it is connected to, drawing a beam between them as well. The Sender and Receiver can be used to transfer a signal through other machines, where a Wire might not be possible.

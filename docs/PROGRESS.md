@@ -1,6 +1,6 @@
 # Project status & session handoff
 
-_Last updated: **2026-09-05** (evening). This file is the **current state only** —
+_Last updated: **2026-09-06** (afternoon). This file is the **current state only** —
 everything superseded now lives in `docs/history/`. Read this, then `docs/PLAYBOOK.md`
 (method, patterns, gotchas). `docs/architecture.md` and `docs/conventions.md` are
 **references: grep them for the thing you need, do not read them front to back**._
@@ -28,17 +28,44 @@ hand you an `IMapModel` for the wrong map.
 
 ---
 
-# >>> START HERE (2026-09-06): DIRECTIVE step 1 — wiki slurp + `gamedata/rates.json` <<<
+# >>> START HERE (2026-09-06, afternoon): DIRECTIVE step 2 — the layout compiler <<<
 
-`docs/DIRECTIVE.md` is standing instruction. The next session does step 1 ONLY:
-- Subagent: pull every page of https://shapez2.wiki.gg/ via the MediaWiki API
-  (`allpages`, then `parse&prop=wikitext`) into `gamedata/wiki/<title>.txt`; commit.
-  If fetching is blocked, stop and ask John to mirror the site.
-- Produce `gamedata/rates.json` (building -> lane fraction / items per s, footprint,
-  faces, floor rules) from wiki + `buildings.json`; known rows: CutterHalf 1/3 lane,
-  RotatorOneQuad 1/2, belts/splitters/mergers/ports 1. Unknowns go to John as ONE list.
-- Verdict: `python tools/rates.py` prints `PASS n buildings, m from wiki, k from John`.
-Then steps 2 (compiler reproducing VN-20 v2) and 3 (`experiment.py`), one per session.
+**Step 1 is DONE (2026-09-06):** `gamedata/wiki/` mirrors all 153 wiki articles
+(`python tools/wiki_slurp.py`, 429-aware); `gamedata/rates.json` is the one table of
+building facts, keyed by internal-variant id (tiles, footprint, in/out faces from
+`buildings.json`; `lane_fraction` + `per_lane` from `gamedata/rates_measured.json`
+(John / measured) else from the wiki mirror via `gamedata/wiki_rates_draft.json`).
+
+    python tools/rates.py          # PASS 131 variants (53 move items): 3 measured, 31 from John, 21 from wiki, 0 open, 4 questions for John
+    python tools/rates.py --full   # every row + the batched question list
+
+**The wiki agrees with every measured rate**: Half Destroyer 1/3 lane (3/lane),
+one-quad Rotator 1/2 (2/lane), belts/splitters/mergers/ports 1. New from the wiki:
+Cutter 1/4 (4/lane), 180 Rotator 1/2, Swapper 1/4, Pin Pusher 1/3, Painter 1/4,
+Crystal Generator 1/6, Extractor 1/4, Stacker 1/6 or 1/4 (see question 1), Trash unlimited.
+Ratios are level-invariant (Glossary: whole numbers at equal upgrade level).
+
+**Four questions for John (also printed by `rates.py --full`)** — answer once, they
+go into `rates_measured.json`:
+1. Stacker id mapping: wiki `Stacker` (milestone, 6/lane) vs `Stacker (Bent)`
+   (researched, 4/lane). `StackerDefaultVariant` outputs to the SIDE, `StackerStraight`
+   to the FRONT. Which is 6/lane? rates.json follows the wiki order (Default=6,
+   Straight=4) — unverified.
+2. Lifts: assumed belt family (1 lane), never measured.
+3. Painter / Crystal Generator ratios are for upgrade levels 3-5 only. Is the sandbox
+   at max level, i.e. design to the ratio column?
+4. One space belt = 12 lanes x 4 belts = 48 belt-lanes (wiki). Confirm that is the
+   4x scale factor we already use.
+
+**Next session does step 2 ONLY**: the layout compiler. Spec of <=10 lines ->
+`vn20_ne_quadrant_full_belt()` compiled from `rates.json` (`per_lane` drives the
+1->N->1 fan-out), routed with the butterfly read out of John's `Clockwise` / `Quaded
+Filter` shell, no coordinate transforms in module code, `validate_layout` +
+`trace_lanes` PASS `(48, 576)`. Then VN-02 and VN-03 from the same compiler.
+Step 3 (`experiment.py`) the session after. DIRECTIVE §3's last bullet (turn
+`conventions.md` prose into rows + checks) is still open; do it as the compiler needs
+each rule, not as a separate pass.
+
 The stage C material below is superseded by this order; keep it for the WHY.
 
 ## (superseded 2026-09-06) BUILD STAGE C — TASKS 1 AND 2 ARE DONE

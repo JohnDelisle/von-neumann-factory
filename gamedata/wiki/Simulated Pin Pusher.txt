@@ -1,0 +1,2 @@
+= Simulated Pin Pusher =
+#REDIRECT [[Simulated Machines#Simulated Pin Pusher]]

@@ -1,0 +1,106 @@
+= Logic Gates =
+{{Machine Infobox
+|title=Logic Gates
+|image=Gates-All-400.gif
+|footprint=1 x 1 x 1
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Logic Gates]]
+|researchcost=10
+}}
+
+{{Wires}}
+
+== Overview ==
+
+Logic Gates output a signal dependent on whether their inputs are <code>truthy</code> or not. All Logic Gates, aside from the [[Transistor Gate]] will always output either a <code>1</code> or a <code>0</code>.
+
+{| class="wikitable" 
+|+ Signal Types Truth Table
+! Signal Type !! Truthy
+|-
+| Null || style="color:red" rowspan="3" | No
+|-
+| Conflict
+|-
+| Integer = 0
+|-
+| Integer ≠ 0 || style="color:lime" rowspan="3" | Yes
+|-
+| Shape
+|-
+| Color
+|}
+
+== AND Gate ==
+
+The AND Gate's output is <code>1</code> only when both inputs are <code>truthy</code>, else the output is <code>0</code>.
+
+{| class="wikitable" style="text-align: center;"
+! Input A !! Input B !! Output
+|-
+| style="background-color:#3E2F32;color:red" | 0 || style="background-color:#3E2F32;color:red" | 0 || style="background-color:#3E2F32;color:red" | 0
+|-
+| style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#3E2F32;color:red" | 0 || style="background-color:#3E2F32;color:red" | 0
+|-
+| style="background-color:#3E2F32;color:red" | 0 || style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#3E2F32;color:red" | 0
+|- 
+| style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#2F3E33;color:lime" | 1
+|}
+
+== OR Gate ==
+
+The OR Gate's output is <code>1</code> when at least one input is <code>truthy</code>. If no input is truthy, the output is <code>0</code>.
+
+{| class="wikitable" style="text-align: center;"
+! Input A !! Input B !! Output
+|-
+| style="background-color:#3E2F32;color:red" | 0 || style="background-color:#3E2F32;color:red" | 0 || style="background-color:#3E2F32;color:red" | 0
+|-
+| style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#3E2F32;color:red" | 0 || style="background-color:#2F3E33;color:lime" | 1
+|-
+| style="background-color:#3E2F32;color:red" | 0 || style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#2F3E33;color:lime" | 1
+|- 
+| style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#2F3E33;color:lime" | 1
+|}
+
+== NOT Gate ==
+
+The NOT Gate's output is <code>1</code> when the input is not <code>truthy</code>. If the input is <code>truthy</code>, the output is <code>0</code>.
+
+{| class="wikitable" style="text-align: center;"
+! Input !! Output
+|-
+| style="background-color:#3E2F32;color:red" | 0 || style="background-color:#2F3E33;color:lime" | 1
+|-
+| style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#3E2F32;color:red" | 0
+|}
+
+== XOR Gate ==
+
+The XOR Gate's output is <code>1</code> when '''''only''''' one input is <code>truthy</code>. If both or no input is <code>truthy</code>, the output is <code>0</code>.
+
+{| class="wikitable" style="text-align: center;"
+! Input A !! Input B !! Output
+|-
+| style="background-color:#3E2F32;color:red" | 0 || style="background-color:#3E2F32;color:red" | 0 || style="background-color:#3E2F32;color:red" | 0
+|-
+| style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#3E2F32;color:red" | 0 || style="background-color:#2F3E33;color:lime" | 1
+|-
+| style="background-color:#3E2F32;color:red" | 0 || style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#2F3E33;color:lime" | 1
+|- 
+| style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#2F3E33;color:lime" | 1 || style="background-color:#3E2F32;color:red" | 0
+|}
+
+== Comparison Gate ==
+
+The Comparison Gate compares the signals from its inputs according to the configured compare mode. It can be configured in the tooltip to compare by <code>Equal</code>, <code>Greater</code>, <code>GreaterEqual</code>, <code>Less</code>, <code>LessEqual</code>, or <code>NotEqual</code>.
+
+For <code>Equal</code> and <code>NotEqual</code>, it will work on all signal types, compare if they are strictly equal / not equal, and output <code>0</code> or <code>1</code> accordingly. For the other modes, if any of the signals are not integers, it will always output <code>0</code>, otherwise it will compare according to the selected mode and output <code>0</code> or <code>1</code>.
+
+== Transistor Gate ==
+
+The Transistor Gate, passes any signal that is received from the rear <u>'''if'''</u> the input from the side is <code>truthy</code>. The Transistor Gate is unique in that it is the only logic gate capable of outputting any type of signal, not just <code>0</code> or <code>1</code>.
+
+When the Transistor Gate's side input is not <code>truthy</code>, the output is <code>null</code> and not <code>0</code> like other logic gates.
+
+See also: [[Wire]]

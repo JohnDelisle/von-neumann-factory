@@ -1,0 +1,2 @@
+= Shape Viewer =
+#REDIRECT [[Shapes#Shape Inspector]]

@@ -1,0 +1,418 @@
+= Debug Console =
+<div style="float: right; margin: 5px;">__TOC__</div>
+== Overview ==
+
+The Debug Console allows you to enter commands to interact with the game in a more advanced way. As the name suggests, this is a debug feature and is not meant to be used as part of the regular progression, and you shouldn't expect the game to work as expected after using any command.
+
+While in a savegame, press the 'Open Console' hotkey (default 'F1', which is 'FN+F1' if the function keys are inverted like on most laptops) to open the console. Once opened, you will see all the available commands, which is also the result of using the [[#help | help]] command. Type commands in the text input box at the bottom and execute them by pressing the 'Confirm' hotkey (default 'Enter'). While the input text box is active, press the 'Select Previous Command' (default 'Up') or 'Select Next Command' (default 'Down') hotkeys to browse your commands history. After having started typing, you can press the 'Console Auto-Complete' hotkey (default 'Tab'), which will have three possible effects :
+* If what you have typed corresponds to the start of a single command, the rest of the command will be filled in.
+* If it corresponds to the start of multiple commands :
+** If the commands still have starting characters in common, those will be filled in.
+** If they don't, the list of all matching commands will be displayed.
+Auto-Complete only works on command names and not on command parameters.
+
+Commands are composed of a name and sometimes parameters, all separated by spaces. Parameters can be strings, integers, floats, or booleans. By default integers can be between <code>-2,147,483,648</code> and <code>2,147,483,647</code>. Booleans accept <code>0</code>, <code>1</code>, <code>false</code>, and <code>true</code>. If a parameter needs to have one or more spaces inside it, to prevent it from being interpreted as multiple parameters, surround it by quotation marks (<code>"</code>).
+
+There is a distinction between regular commands and cheat commands. Regular commands tend to have no severe impact and can be used at any time, while cheat commands break the intended gameplay and can only be used when cheats are enabled in the savegame. See [[#cheats.enable | cheats.enable]] for all details.
+
+Additionally, [https://docs.unity3d.com/Packages/com.unity.textmeshpro@3.2/manual/RichTextSupportedTags.html Unity Text Mesh Pro Rich Text Tags] can be used in the console to add text styles. Initially not intended but tuned into an easter egg [https://discord.com/channels/1000343719314198548/1112319996761219113/1140330219710980096], using opening tags without matching closing tags allows you to add styles to all texts shown in the console.
+
+You can find below a description of all available console commands.
+
+== achievement.info ==
+
+Displays whether achievements are currently activated or not.
+
+== achievement.list ==
+
+Displays the list of all available achievements, with their IDs, whether they are unlocked, and whether they are "hooked" (special logic when an achievement is unlocked as a result of a specific game event).
+
+== blueprints.info-stats ==
+
+Displays the total amount of [[Blueprint Points]] spent in the current save so far.
+
+== blueprints.set-currency ==
+
+{{Console-Command-Cheat}}
+
+* <code>amount</code> : integer, min:0, max:9223372036854775807
+
+Sets the amount of [[Blueprint Points]] currently owned.
+
+== calc ==
+
+* <code>expression</code> : string
+
+Calculates the result of a mathematical expression. All the supported syntax can be found in [https://learn.microsoft.com/en-us/dotnet/fundamentals/runtime-libraries/system-data-datacolumn-expression this page], but most features described can't be used since the <code>DataTable</code> object used internally is empty.
+
+== camera.disable-restrictions-danger ==
+
+Sets the minimum camera angle to 5° (while it's by default 30°) and the minimum zoom level to 0.1 (by default 4). This allows you to take screenshots or recordings of factories at angles otherwise not possible, but with the downside of lower performance since more objects have to be rendered on screen. Applies until the game is restarted.
+
+== camera.info ==
+
+Displays the position and rotation of the camera in two coordinate systems (actual position and targeted tile + zoom).
+
+== camera.move-to ==
+
+* <code>x</code> : integer
+* <code>y</code> : integer
+
+Move the camera to a specific position, coordinates are in number of machine tiles from the world center.
+
+== camera.set-auto-rotation-speed ==
+
+* <code>speed</code> : float, min:-360, max:360
+
+When used with a value different from <code>0</code>, will start rotating the camera with the speed given in degrees per second. Positive values are clockwise and negative anticlockwise.
+
+== camera.set-movement-smoothing ==
+
+* <code>factor</code> : float, min:0.0001, max:100
+
+Sets how long the camera takes to accelerate/decelerate, default is <code>1</code>, higher means longer time, lower means shorter time.
+
+== camera.set-pan-speed ==
+
+* <code>speed</code> : float, min:0, max:100
+
+Sets the camera's speed when it's moved with the keyboard, default is <code>0.7</code>.
+
+== camera.snap-to-chunk ==
+
+Sets both the camera's X and Y coordinates to the beginning of the half-island-tile interval they are in. Since island tiles are 20 machine tiles wide, this can also be seen as setting the coordinates to the nearest multiple of 10 down.
+
+== cheats.actually-enable ==
+
+* <code>token</code> : string
+
+Enables cheats in the current savegame, if the correct token is provided. See [[#cheats.enable | cheats.enable]].
+
+== cheats.disable ==
+
+Disables cheats in the current savegame, and unmarks it as having used cheats. This command is only available if the appropriate [[Command Line Arguments | command line argument]] is used.
+
+== cheats.enable ==
+
+Displays the following message in the console :
+
+ Enabling cheats on this savegame will:
+ - Permanently tag this savegame as 'cheats used'.
+ - Not award the final badge upon completion.
+ - No longer unlock any achievements while playing this savegame.
+ - Display a 'Cheats Used' next to your player level in the operator level screen.
+ - Potentially ruin the fun of the game for you.
+ 
+ If you are certain about this, run 'cheats.actually-enable danger' to enable cheats on this savegame.
+
+Cheats should only be used inside sandbox saves, i.e. saves that are only made for testing features and designing [[Blueprints]]. They aren't meant to be used in a regular playthrough. The paragraph above says what needs to be given to the [[#cheats.actually-enable | cheats.actually-enable]] command to enable cheats. For context if you come across old guides or discussions, this command used to enable cheats directly before the 1.0 update.
+
+== console.bind-hotkey ==
+
+* <code>command</code> : string
+
+Sets which command should be executed when the 'Execute Saved Command' hotkey (default 'F3') is pressed. As an alternative to quotation marks (see [[#Overview]]), you can use <code>%20</code> to specify spaces in the command.
+
+== console.bind-last-hotkey ==
+
+Same as [[#console.bind-hotkey | console.bind-hotkey]], except that the last command run in the console is used instead.
+
+== console.clear ==
+
+Removes all text currently displayed in the console.
+
+== debug.export-game-data ==
+
+Exports some of the game data to a folder in the [[Game Files#basedata-vXXXX | persistent data folder]].
+
+== debug.performance-chart ==
+
+Toggles the display of a live graph of how long each part of the rendering loop takes to run.
+
+== debug.performance-chart-category-selection ==
+
+* <code>selection</code> : string
+
+The selection must be a list of comma-separated integers between 0 and 9 corresponding to which categories should be rendered on the graph. Type something invalid to reset the selection.
+
+== debug.performance-chart-const-max ==
+
+* <code>value</code> : float, min:10, max:3.4028235E+38
+
+Sets the maximum value in milliseconds on the vertical axis.
+
+== debug.performance-chart-dynamic-max ==
+
+Sets the maximum value on the vertical axis to dynamically adjust based on what is currently displayed.
+
+== debug.performance-chart-legend-format ==
+
+* <code>format</code> : string
+
+Specifies the format to use for the legend. When found inside the string, the following substrings will be replaced with their corresponding values : <code>{index}</code>, <code>{i}</code>, <code>{name}</code>, <code>{q0}</code>, <code>{q1}</code>, <code>{q2}</code>, <code>{q3}</code>, <code>{q4}</code>, <code>{min}</code>, <code>{max}</code>, <code>{avg}</code>. The default legend format is <code>{name}</code>.
+
+== debug.performance-chart-legend-position ==
+
+* <code>position</code> : integer, min:0, max:6
+
+Specifies where the legend should be relative to the graph :
+
+{| class="wikitable"
+! Number !! Position
+|-
+| 0 || No Legend
+|-
+| 1 || Top Left
+|-
+| 2 || Top Center
+|-
+| 3 || Top Right
+|-
+| 4 || Right Top
+|-
+| 5 || Right Center
+|-
+| 6 || Right Bottom
+|}
+
+The default value is Right Top.
+
+== debug.performance-chart-type ==
+
+* <code>type</code> : integer, min:0, max:5
+
+Sets the type of graph :
+
+{| class="wikitable"
+! Number !! Type
+|-
+| 0 || Lines
+|-
+| 1 || Stacked Bars Absolute
+|-
+| 2 || Stacked Bars Relative
+|-
+| 3 || Stacked Area Absolute
+|-
+| 4 || Stacked Area Relative
+|-
+| 5 || Box Plot
+|}
+
+The default value is Stacked Area Absolute.
+
+== debug.print-build-args ==
+
+Displays some information about the current build.
+
+== debug.show-charts ==
+
+Toggles the display of a live FPS and RAM usage graph.
+
+== debug.statistics ==
+
+Displays the current platform and machine count.
+
+== debug.sysinfo ==
+
+Displays a bunch of information about the device the game is running on.
+
+== debug.toggle-debug-stats ==
+
+Toggles the on-screen display of the camera's postion and rotation.
+
+== fps.reset ==
+
+TBD
+
+==<span id="g0d"></span>god ==
+
+{{Console-Command-Cheat}}
+
+Unlocks all [[Milestones]], [[Jobs]], and [[Upgrades]]. Adds 99,999 research points and 99,999,999 [[Blueprint Points]] to the current counts, however the process of unlocking all research elements both consumes and awards research and blueprint points, so the counts after running the command won't match those values.
+
+== help ==
+
+Displays the list of all available commands. This command is automatically ran every time you load a save.
+
+== hub.add ==
+
+{{Console-Command-Cheat}}
+
+* <code>shape</code> : string
+* <code>amount</code> : integer, min:0
+
+Adds the specified amount of the specified [[Shape]] to the [[Vortex]]. The shape given must be a valid [[Shape Code]].
+
+== hub.clear ==
+
+{{Console-Command-Cheat}}
+
+For every [[Shape]] stored in the [[Vortex]], sets its stored amount to 0.
+
+== hub.list ==
+
+Displays all [[Shapes]] currently stored in the [[Vortex]] and how many there are of each. Due to a current game issue, only the internal shape IDs are shown and not the [[Shape Code]]s.
+
+== hub.set ==
+
+{{Console-Command-Cheat}}
+
+* <code>shape</code> : string
+* <code>amount</code> : integer, min:0
+
+Sets the amount of the specified [[Shape]] stored in the [[Vortex]]. The shape given must be a valid [[Shape Code]].
+
+== linear-upgrades.list ==
+
+For each [[Upgrades#Linear Upgrades | Linear Upgrade]] available in the current [[Scenario]], display its ID, its current unlocked level, the associated value with that level, and the maximum level.
+
+== linear-upgrades.max-out ==
+
+{{Console-Command-Cheat}}
+
+Sets every [[Upgrades#Linear Upgrades | Linear Upgrade]] available in the current [[Scenario]] to its maximum level.
+
+== linear-upgrades.set ==
+
+{{Console-Command-Cheat}}
+
+* <code>upgrade</code> : string
+* <code>level</code> : integer, min:0, max:100
+
+Sets the [[Upgrades#Linear Upgrades | Linear Upgrade]] specified by its ID to the given level. The level can't be higher than the maximum for that upgrade.
+
+== linear-upgrades.set-all ==
+
+{{Console-Command-Cheat}}
+
+* <code>level</code> : integer, min:0, max:100
+
+For each [[Upgrades#Linear Upgrades | Linear Upgrade]] available in the current [[Scenario]], set it to the given level, or its maximum level if the given level is higher.
+
+== logs.open-folder ==
+
+Opens the folder containing the log files, which is the [[Game Files#Persistent Data Folder | Persistent Data Folder]] except on MacOS. See [[Game Files#Player.log | Player.log]] for all details.
+
+== player-level.set ==
+
+{{Console-Command-Cheat}}
+
+* <code>level</code> : integer, min:0, max:99999
+
+Sets the [[Operator Level]] of the current save.
+
+== player-level-goals.list ==
+
+For each [[Operator Level#Goal Lines | Operator Level Goal Line]] available in the current [[Scenario]], display its ID, its level, and whether its locked.
+
+== player-level-goals.reset ==
+
+{{Console-Command-Cheat}}
+
+Sets the level of every [[Operator Level#Goal Lines | Operator Level Goal Line]] available in the current [[Scenario]] to 0.
+
+== player-level-goals.set ==
+
+{{Console-Command-Cheat}}
+
+* <code>goal</code> : string
+* <code>level</code> : integer, min:0, max:99999
+
+Sets the [[Operator Level#Goal Lines | Operator Level Goal Line]] specified by its ID to the given level. The ID can be any string, but using anything that isn't an existing goal line ID won't have any effect.
+
+== quit ==
+
+Quits the game without asking for confirmation, even if you haven't saved recently.
+
+== research.info-stats ==
+
+Displays the total amount of research points spent in the current save so far.
+
+== research.list ==
+
+Displays the IDs of all [[Milestones]], [[Upgrades]] and [[Jobs]], categorized by unlocked manually, unlocked from a milestone, and locked.
+
+== research.lock-all ==
+
+{{Console-Command-Cheat}}
+
+Locks all [[Milestones]], [[Jobs]] and [[Upgrades]], except the ones which are initially unlocked when starting a save.
+
+== research.set ==
+
+{{Console-Command-Cheat}}
+
+* <code>name</code> : string
+* <code>unlocked</code> : boolean
+
+Sets whether the [[Milestone]], [[Jobs|Job]] or [[Upgrade]] specified by its ID is locked or unlocked.
+
+== research.set-points ==
+
+{{Console-Command-Cheat}}
+
+* <code>amount</code> : integer, min:0, max:1000000000
+
+Sets the amount of research points currently owned.
+
+== research.unlock-all ==
+
+{{Console-Command-Cheat}}
+
+Unlocks all [[Milestones]], [[Jobs]] and [[Upgrades]].
+
+== research.unlock-all-levels ==
+
+{{Console-Command-Cheat}}
+
+Unlocks all [[Milestones]].
+
+== savegames.info ==
+
+Displays information about the currently opened savegame.
+
+== savegames.list ==
+
+For each savegame available, displays its UID, and the index, time, and file path of the latest backup.
+
+== savegames.open-folder ==
+
+Opens the folder containing the savegames folder, which is the [[Game Files#Persistent Data Folder | Persistent Data Folder]].
+
+== screen.move-to-display ==
+
+* <code>index</code> : integer, min:0, max:32
+
+Moves the game window to the display specified by the index.
+
+== screen.set-resolution ==
+
+* <code>width</code> : integer, min:512, max:8192
+* <code>height</code> : integer, min:512, max:8192
+
+Sets the window resolution.
+
+== time.global-setspeed ==
+
+{{Console-Command-Cheat}}
+
+* <code>speed</code> : float, min:0, max:25
+
+Sets the global speed multiplier. Affects factories and most in-world and UI animations. Setting it to <code>0</code> will make some features with animations not accessible. The default value is <code>1</code>.
+
+== time.setspeed ==
+
+{{Console-Command-Cheat}}
+
+* <code>speed</code> : float, min:0, max:25
+
+Sets the simulation speed multiplier. Only affects factories. Setting it to <code>0</code>, <code>0.1</code>, <code>1</code>, <code>10</code> or <code>25</code> will have the same effect as pressing the 'Pause/Resume' (default 'P'), 'Speed - Slow' (default 'F7'), 'Speed - Normal' (default 'F8'), 'Speed - Fast' (default 'F9') or 'Speed - Ultra' (default 'F10') hotkeys respectively. The first three hotkeys listed previously don't require cheats to be used.
+
+== translations.reload ==
+
+Reloads the translations from both the internal assets and the [[Game Files#translations-override.json | custom translations file]] if available.
+
+== tutorial.info ==
+
+Displays information about the current tutorial completion state.

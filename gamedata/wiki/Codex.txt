@@ -1,0 +1,96 @@
+= Codex =
+== Overview ==
+
+The Codex provides information about Shapez 2 gameplay, machines, and goals.
+
+The Codex is accessed with the 'Codex' hotkey (default 'G') or by clicking on the question mark in the upper right hand corner.
+
+The Codex has a list of topics. Each topic has several pages.  There is a search input field and forward and back buttons for navigation.
+
+All of the hotkeys listed in the Codex are automatically updated based on the hotkeys set in the game settings.
+
+== Topics ==
+
+{| class="wikitable"
+! Page Name !! Overview !! Relevant Wiki Page(s)
+|-
+| style="font-weight: bold;"| Camera Navigation || How to navigate in the game ||
+|-
+| style="font-weight: bold;"| Conveyer Belts & Lifts || Moving shapes || [[Belt]]s
+|-
+| style="font-weight: bold;"| Placement & Selection || Machine placement and manipulation ||
+|-
+| style="font-weight: bold;"| Blueprints || Creating and using blueprints || [[Blueprints]]
+|-
+| style="font-weight: bold;"| Shapes || Basic shapes overview || [[Shapes]]
+|-
+| style="font-weight: bold;"| Machines || Various machine information ||
+|-
+| style="font-weight: bold;"| Research || Research goals and rewards || [[Milestones]], [[Jobs]], [[Upgrades]]
+|-
+| style="font-weight: bold;"| Space Platforms || Platform use and connection information || [[Space Belt]]s, [[Space Pipe]]s, [[Space Platforms]], [[Asteroid Miner]]s
+|-
+| style="font-weight: bold;"| Fluids & Painting || Fluid behavior, transport, and use || [[Asteroid Pump]]s, [[Space Pipe]]s, [[Pipe]]s, [[Painter]], [[Color Modes]]
+|-
+| style="font-weight: bold;"| Trains || Train components and usage information || [[Trains]]
+|-
+| style="font-weight: bold;"| Trade Station || Trade station information || [[Trade Stations]]
+|-
+| style="font-weight: bold;"| Wires || Logic signals and wire machine overview || [[Wires]]
+|-
+| style="font-weight: bold;"| Vortex LTD || Vortex Employee handbook and other correspondence ||
+|-
+| style="font-weight: bold;"| Other || Miscellaneous game information ||
+|}
+
+== Pages ==
+
+This is a select list of pages in the Codex.
+
+{| class="wikitable"
+! style="font-weight: bold;"| Page Name !! Overview !! Relevant Wiki Page(s)
+|-
+| style="font-weight: bold;"| Cutting Shapes || Cutting behavior || [[Cutter]]
+|-
+| style="font-weight: bold;"| Rotating Shapes || Rotator behavior|| [[Rotator]]
+|-
+| style="font-weight: bold;"| Stacking Shapes || Stacker behavior || [[Stacker]]
+|-
+| style="font-weight: bold;"| Scaling Up || Modular building and utilizing blueprints || [[Blueprints]] 
+|-
+| style="font-weight: bold;"| Operator Level || Operator Level overview || [[Operator Level]]
+|-
+| style="font-weight: bold;"| Pin Pusher || Pin Pusher behavior || [[Pin Pusher]]
+|-
+| style="font-weight: bold;"| Color Mixing || Color Mixing behavior || [[Color Mixer]]
+|-
+| style="font-weight: bold;"| Crystals || Crystal Generator and Crystal behavior || [[Crystal Generator]], [[Crystals]]
+|-
+| style="font-weight: bold;"| Area Deletion || Deleting an area of machines ('Select Area' hotkey + 'Delete' hotkey, default 'Shift + Right Click') || [[Selections]]
+|-
+| style="font-weight: bold;"| Blueprint Toolbar || Assigning blueprints to the blueprint toolbar || [[Blueprint Library]]
+|-
+| style="font-weight: bold;"| Clear Contents || Clearing shapes and fluid from selected machines or platforms ('Clear Contents' hotkey, default 'I') || 
+|-
+| style="font-weight: bold;"| Level Visibility || Hiding upper levels ('Toggle Level Visibility' hotkey, default 'V') || 
+|-
+| style="font-weight: bold;"| Mirroring || Mirroring machines ('Mirror' hotkey, default 'F') || 
+|-
+| style="font-weight: bold;"| More Vortex Inputs || Shape delivery on multiple levels and unlocking more inputs || [[Upgrades#Vortex Inputs|Vortex Inputs Upgrade]] 
+|-
+| style="font-weight: bold;"| Paste Last Blueprint || Pasting blueprints ('Paste Blueprint' hotkey, default 'Ctrl + V') || [[Blueprints]]
+|-
+| style="font-weight: bold;"| Pipette/Clone || Selecting a machine by hovering over it ('Pipette' hotkey, default 'C') || 
+|-
+| style="font-weight: bold;"| Shape Previews || Indicator for the shape output will be || 
+|-
+| style="font-weight: bold;"| Select Connected || Selecting all belts, pipes, and machines connected to the current selection ('Select Connected' hotkey, default 'O') || 
+|-
+| style="font-weight: bold;"| Shape Viewer || Select any shape to open the Shape Viewer || [[Shape Viewer]], [[Shape Codes]]
+|-
+| style="font-weight: bold;"| Cycling Variants || Switching between machine variants ('Next Variant' hotkey, default 'Tab') || 
+|-
+| style="font-weight: bold;"| Visualizations || Changing visual map indicators || [[Map#Overview|Visualizations]]
+|-
+| style="font-weight: bold;"| Delivery Indicators || Meaning of indicators for shapes delivered to the Vortex || [[Vortex#Delivery Indicators|Delivery Indicators]]
+|}

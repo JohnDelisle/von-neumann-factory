@@ -1,0 +1,34 @@
+= Signal Producer =
+{{Machine Infobox
+|title=Signal Producer
+|image=Signal-Producer-500.png
+|footprint=1 x 1 x 1
+|wireinouts=0 : 1
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Wire Basics]]
+|researchcost=15
+}}
+
+{{Wires}}
+
+== Overview ==
+
+The Signal Producer outputs a predefined logical signal. The configuration window can be opened by selecting the Signal Producer and clicking the 'Configure' button in the tooltip. The window contains a text box allowing to define what signal will be produced.
+
+== Signal Types ==
+
+{| class="wikitable"
+! Signal Type !! Example Value<br>Entered !! Image
+|-
+| Null || <code>null</code> || [[File:Null-Code-200.png|center|75px]]
+|-
+| Conflict || <code>conflict</code> || [[File:Conflict-Code-200.png|center|75px]]
+|-
+| Integer || <code>1</code>, <code>2</code>, <code>3</code>, <code>-1</code> || [[File:Code-200.png|center|75px]]
+|-
+| Shape || <code>CuCuCuCu</code> || [[File:Shape-Code-200.png|75px|center]]
+|-
+| Color || <code>color-r</code> || [[File:Color-Code-200.png|75px|center]]
+|}
+
+See also: [[Wire]], [[Shape Codes]]

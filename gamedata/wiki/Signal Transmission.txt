@@ -1,0 +1,85 @@
+= Signal Transmission =
+{{Machine Infobox
+|title=Global Signal Transmitters
+|image=Global-Transmitter-GIF.gif
+|footprint=3 x 3 x 3
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Global Wire Transmission]]
+|researchcost=10
+}}
+
+{{Machine Infobox
+|title=Operator Signal Receiver
+|image=Operator-Signal-Receiver-500.png
+|footprint=3 x 3 x 3
+|wireinouts=0 : 1
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Operator Signal Receiver]]
+|researchcost=8
+}}
+
+{{Wires}}
+
+== Overview ==
+
+The Global Transmitter and Operator Signal Receiver are logical machines that can transmit and receive signals without wires.
+
+== Global Signal Transmitter and Receiver==
+
+The Global Signal Transmitters and Global Signal Receivers are machines that are unlockable once [[Upgrades#Unlockable Upgrades| Wire Basics]] and the [[Shop#Machines|3rd Machine Level]] have been unlocked, and allow the transfer of wire signals across great distances.
+
+=== Global Signal Transmitter ===
+
+The Global Signal Transmitter requires a wire signal that's not <code>null</code> or <code>conflict</code> as its Channel Input (<code>#</code>), and any wire signal as its Signal Input (<code>⚡</code>). If the signal on its Signal Input is not <code>null</code>, it will transmit the signal to all Global Signal Receivers with the same signal on their Channel Input.
+
+The Global Signal Transmitter will be:
+* Red if the Channel Input is <code>null</code>.
+* Yellow if the Channel Input receives a wire signal but the Signal Input is <code>null</code>.
+* Green if the Channel Input and the Signal Input receive a signal.
+
+{| class="wikitable"
+|+ Global Signal Transmitter Example
+|-
+! Channel Input (#)
+| style="text-align:center" | <code>Null</code> || style="text-align:center" | <code>CuCuCuCu</code> || style="text-align:center" | <code>CuCuCuCu</code>
+|-
+! Signal Input (⚡)
+| style="text-align:center" | <code>Null</code> || style="text-align:center" | <code>Null</code> || style="text-align:center" | <code>color-g</code>
+|-
+! Transmitter Color
+| style="text-align:center;color:red;" | Red || style="text-align:center;color:yellow" | Yellow || style="text-align:center;color:green" | Green
+|-
+! Image
+|[[File:Global-Transmitter-Red.png|100px|center]] || [[File:Global-Transmitter-Yellow.png|100px|center]] || [[File:Global-Transmitter-Green.png|100px|center]] 
+|}
+
+=== Global Signal Receiver ===
+
+The Global Signal Receiver requires a wire signal that's not <code>null</code> or <code>conflict</code> as its Channel Input (<code>#</code>), and outputs a signal through the Signal Output (<code>⚡</code>) if the proper criteria is met.
+
+The Global Signal Receiver will be:
+* Red if the Channel Input is <code>null</code> or is a wire signal that has not been used in any Global Signal Transmitter at any point.
+* Yellow if the Channel Input is a wire signal that has been, or is currently being used with any Global Signal Transmitter.
+* Green if the Channel Input is a wire signal that is also the Channel Input of any Global Signal Transmitter with a Signal Input other than <code>null</code>, in which case the Global Signal Receiver's Signal Output will be the same signal.
+
+{| class="wikitable"
+|+ Global Signal Receiver Example
+|-
+! Channel Input (#)
+| style="text-align:center" | <code>Null</code> || style="text-align:center" | <code>CuCuCuCu</code> || style="text-align:center" | <code>CuCuCuCu</code>
+|-
+! Signal Output (⚡)
+| style="text-align:center" | <code>Null</code> || style="text-align:center" | <code>Null</code> || style="text-align:center" | <code>color-g</code>
+|-
+! Receiver Color
+| style="text-align:center;color:red;" | Red || style="text-align:center;color:yellow" | Yellow || style="text-align:center;color:green" | Green
+|-
+! Image
+|[[File:Global-Receiver-Red.png|100px|center]] || [[File:Global-Receiver-Yellow.png|100px|center]] || [[File:Global-Receiver-Green.png|100px|center]] 
+|}
+
+<small>Note: This example assumes there is a Global Signal Transmitter with a Channel input of <code>CuCuCuCu</code> already present.</small>
+
+== Operator Signal Receiver ==
+
+The Operator Signal Receiver outputs the shape signal of either one of the [[Operator Level#ROS | Random Operator Shapes]], configured in its tooltip when selected.

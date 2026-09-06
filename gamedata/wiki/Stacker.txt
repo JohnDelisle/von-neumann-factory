@@ -1,0 +1,44 @@
+= Stacker =
+{{Machine Infobox
+|title=Stacker
+|image=Stacker-500.png
+|footprint=1 x 1 x 2
+|inouts=2 : 1
+|milestone=1
+|researchcost=N/A (Unlocked with milestone)
+|throughput=10 • 15 • 20 • 25 • 30
+|ratio=6
+}}
+
+{{Machine Infobox
+|title=Stacker (Bent)
+|image=Stacker-Bent-500.png
+|footprint=1 x 1 x 2
+|inouts=2 : 1
+|milestone=1
+|researchcost=6
+|throughput=15 • 22.5 • 30 • 37.5 • 45
+|ratio=4
+}}
+
+{{Shape Processing}}
+
+== Overview ==
+
+The Stacker stacks the shapes it receives in the top input on top of the shapes in the bottom input and outputs the result.
+
+== Stacking process summary ==
+
+The top shape will fall as far down as possible, this means that two full shapes will end up on each other ({{ShapeRender|RuRuRuRu|24}} + {{ShapeRender|CuCuCuCu|24}} = {{ShapeRender|RuRuRuRu:CuCuCuCu|24}}) but two opposite halves will combine into a single full layer ({{ShapeRender|RuRu----|24}} + {{ShapeRender|----CuCu|24}} = {{ShapeRender|RuRuCuCu|24}}).
+
+Additionally, any [[Crystal]] that falls will shatter.
+
+== Specifics ==
+
+Firstly, the top shape is put above the bottom shape with one empty layer in between them.
+
+Then, the [[Shape Gravity Rules]] are applied to the resulting shape.
+
+Spoiler warning : the next step is a solution for how to get pins without anything on top of them in a shape, you might prefer figuring out the solution by yourself first.
+
+{{spoiler|Finally, any layers above the limit (5 if insane scenario, 4 otherwise) get discarded.}}

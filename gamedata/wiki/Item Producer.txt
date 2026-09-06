@@ -1,0 +1,21 @@
+= Item Producer =
+{{Machine Infobox
+|title=Item Producer
+|image=Item-Producer-500.png
+|footprint=1 x 1 x 1
+|inouts=0 : 1
+|throughput=60 • 90 • 120 • 150 • 180
+|ratio=1
+}}
+
+{{Sandbox}}
+
+== Overview ==
+
+The Item Producer produces a full belt of any shape.
+
+== Specifics ==
+
+The Item Producer is unlocked with cheat commands, see [[Sandbox]].
+
+After placing the Item Producer, select it and select the <span class="gl">Configure</span> button to enter the desired [[Shape Code]]. The shape code can have [[Shapes#Different Numbers of Parts per Layer and More Layers | any number of parts per layer and any number of layers]].

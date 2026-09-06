@@ -1,0 +1,164 @@
+= Trains =
+== Overview ==
+
+Trains enable high-speed transport of a large number of shapes or volume of fluids.
+
+Trains are unlocked at [[Milestone]] 2 in the Classic – Regular [[Scenario]]. This unlocks the Rail, Train Launcher, red Rail Configurator, the Shape Loader and Shape Unloader, the Immediate Stop, Shape Wagons, and the red Train Locomotive. Additional train components, along with increased [[Upgrades#Train Speed|Train Speed]] and [[Upgrades#Train Capacity|Train Capacity]] are available as [[Upgrades]].
+
+== Rails ==
+
+=== Standard Rails ===
+
+Train rails can be placed while in Space mode.  Each rail takes one space grid (chunk) of space and is free to use (costs zero Platform Units).  They can be split and merged similarly to Belts.  Each rail can carry one or more trains, of one or more colors.  Each train color on a rail has a designated path (see [[#Rail Configurator|Rail Configurator]]).  Rails can form loops or simply terminate, in which case the train will return along its path on the underside of the rail.
+
+Rails can also be used to move trains between machine levels by pressing the 'Level Up' (default 'E') or 'Level Down' (default 'Q') hotkey while placing rails.
+
+=== Train Launcher ===
+
+[[File:Train-Track-Launchers-1000.png|320px]]
+
+Train Launchers attach to Rails and launch trains across train components, [[Space Belt]]s, [[Space Pipe]]s, [[Space Platforms]], or [[Trains#Vortex Delivery|into the Vortex]].
+
+Train Launchers must be placed by starting to drag on the wanted position of the launcher, then dragging until the wanted position of the catcher, with the limitation that the catcher can only have 1 to 4 empty tiles of distance with the launcher. A launcher will try to connect to the furthest catcher in range. If there are multiple launchers trying to connect to a single catcher, the launcher furthest from the catcher will be chosen.
+
+=== Rail Configurator ===
+
+When trains are unlocked, only the Red Rail Configurator is available. The other Primary, Secondary, and Tertiary Color Configurators are unlocked through [[Upgrades#Unlockable Upgrades|Train Unlockable Upgrades]].
+
+Placing rail configurators behaves the same as placing regular rails, with the difference that when creating a split or dragging over an existing split, this will set the splitter's branch that was dragged over to only let through trains of the configurator's color. A split also cannot have multiple branches with the same color, but there can be multiple different colors per branch. When a branch has colors set, holographic colored arrows will hover over that branch, with the exception that if a branch is straight ahead from the split's input, the arrows won't be displayed. The game will also always make sure that all train colors have a branch to go to by selecting a default one for non specified colors.
+
+When a train arrives at a splitter, it will take the branch of its color. This allows to make train routes, where each color is a route, and where there are rail segments that share multiple colors, and some that only allow one color.
+
+=== Cosmetic Rails ===
+
+The [[Supporter Edition]] DLC of Shapez 2 adds the Rail Twister, Rail Loop, Long Rail Up, and Long Rail Down. These are purely cosmetic.
+
+They are all unlocked with the [[Upgrades#Unlockable Upgrades | Roller Coaster Upgrade]] for 0 <span class="gl">Research Points</span>.
+
+== Stations ==
+
+Train stations consists of a Train Stop and one or more Train [[#Loader | Loaders]] or [[#Unloader | Unloaders]]. They must be continuous: in order for a Loader/Unloader to function, it must be directly connected to the station. The [[#Station Spacer | Station Spacer]] can be used to extend a station and connect station platforms.
+
+[[File:Station Spacer.png|400px]]
+
+''Left: example setups that don't work. Right: example alternatives. Note: Station Spacers can be replaced by loaders without an input connected or Unloaders with a mismatching type compared to the wagon that goes there or with all 3 levels disabled in its configuration interface. These alternatives will cost more Platform Capacity however.''
+
+=== Immediate Stop ===
+
+Immediate Stops allow packages from Shape and Fluid Loaders to be moved onto Train Wagons, or packages to be removed from Wagons to Shape and Fluid Unloaders.
+
+All trains on the top side of a rail will stop at an immediate stop if there are packages that can be immediately loaded or unloaded. If a train catches up to a stopped train, it will stop behind it until the train in front has moved. Trains stop for approximately 4 seconds at an immediate stop.
+
+=== Wait Stop ===
+
+Wait Stops allow packages from Shape and Fluid Loaders to be moved onto Train Wagons, or packages to be removed from Wagons to Shape and Fluid Unloaders.
+
+All trains on the top side of a rail will stop at a wait stop for a set amount of time if there are packages that can be immediately loaded or unloaded. A train will also stop for a set amount of time if there are any Shape or Fluid Loaders that have partially filled packages. If a set amount of time passes without a train picking up any packages, the train will continue along its route. 
+
+=== Loader ===
+
+Shape Loaders and Fluid Loaders take shapes and fluid respectively either through [[Space Belt]]s/[[Space Pipe]]s, or from a launcher on a Space Platform [[notch]], and fill packages. Packages are of a fixed size and move to the end of the loader once full. A full package can be picked up by a train with the appropriate type of wagon. A loader can hold up to 39 packages worth of items awaiting pickup at a time: 12 per machine level and virtually 1 more package per level if the progress bar is full.
+
+A package on a loader level will only accept items when it is empty or already contains some of the same item.  Attempting to load a shape or color that is different than the item already stored on that loader level will delete that item and multiple items stored in the package (different rotations of the same shape are still considered different shapes). This continues until the package is completely empty.
+
+=== Unloader ===
+
+Shape and Fluid Unloaders take shape and fluid packages respectively from the appropriate Train Wagons and unload them onto [[Space Belt]]s/[[Space Pipe]]s or to a receiver on a Space Platform [[notch]]. An unloader can hold up to 39 packages worth of items awaiting unpacking at a time: 12 per level and virtually 1 more package per level if the progress bar is full. If a Train Wagon cannot unload its package, it will remain on the Train Wagon.
+
+Unloaders will output shapes and fluids to all connected output ports (up to four per level).  There is no relation between the ports used at the loader station and the ports at the unloader station. For example if a package is filled using only 2 of the 4 input ports, and the unloader has 4 connected ports, the parts will unload to all 4 ports.
+
+Fluid Unloaders (along with Fluid Loaders and Fluid Wagons) are unlocked for 2,600 <span class="gl">Research Points</span>.
+
+=== Transfer Stations ===
+
+Transfer Stations take shape and fluid packages respectively from the appropriate Train Wagons and transfer them to another train. A Transfer Station can hold up to 21 packages awaiting pickup at a time, 7 per machine level.
+
+Transfer Stations are unlocked for 4,200 <span class="gl">Research Points</span>.
+
+=== Station Spacer ===
+
+Station Spacers are used to space apart sections of a train station. They act as gaps between platforms whilst keeping everything connected.
+
+Station Spacers are unlocked for 400 <span class="gl">Research Points</span>.
+
+== Train Cars ==
+
+{| class="wikitable"
+! Car Type !! Research<br>Cost !! Platform<br>Cost
+|-
+| Red Locomotive
+| N/A
+| [[File:Platform-Units-Icon-100.png|20px]] 5
+|-
+| Green Locomotive
+| [[File:Research-Icon-100.png|20px]] 2,400
+| [[File:Platform-Units-Icon-100.png|20px]] 5
+|-
+| Blue Locomotive
+| [[File:Research-Icon-100.png|20px]] 2,400
+| [[File:Platform-Units-Icon-100.png|20px]] 5
+|-
+| Cyan Locomotive
+| [[File:Research-Icon-100.png|20px]] 3,200
+| [[File:Platform-Units-Icon-100.png|20px]] 5
+|-
+| Magenta Locomotive
+| [[File:Research-Icon-100.png|20px]] 3,200
+| [[File:Platform-Units-Icon-100.png|20px]] 5
+|-
+| Yellow Locomotive
+| [[File:Research-Icon-100.png|20px]] 3,200
+| [[File:Platform-Units-Icon-100.png|20px]] 5
+|-
+| White Locomotive
+| [[File:Research-Icon-100.png|20px]] 4,800
+| [[File:Platform-Units-Icon-100.png|20px]] 5
+|-
+| Shape Wagon
+| N/A
+| [[File:Platform-Units-Icon-100.png|20px]] 3
+|-
+| Fluid Wagon
+| [[File:Research-Icon-100.png|20px]] 2,600
+| [[File:Platform-Units-Icon-100.png|20px]] 3
+|-
+| Spacer Wagon
+| [[File:Research-Icon-100.png|20px]] 1,200
+| [[File:Platform-Units-Icon-100.png|20px]] 1
+|}
+
+=== Locomotive ===
+
+A Train Locomotive is the beginning of a train, all Train Wagons must be placed behind a locomotive. When a train is newly placed, launched into the [[Vortex]], reaches the end of the line and derails (with the 'Trains Derail' [[Game_Modes#Challenges|Challenge]] ), or the 'respawn' button is pressed after selecting the Train Locomotive, the train will spawn from the Locomotive location. The train spawned will have the same color as the locomotive, this being used for [[#Rail Configurator | rail routing]].
+
+When trains are unlocked, only the red locomotive is available. Primary, secondary, and tertiary locomotive colors are unlocked through [[Upgrades#Unlockable Upgrades|Train Unlockable Upgrades]].
+
+=== Wagons ===
+
+Wagons are added to [[Trains#Train Locomotive|Train Locmotives]]. There is no limit to the number of wagons, but they must be connected in a straight line behind the Locomotive.
+
+==== Shape Wagon ====
+
+Shape Wagons hold up to three shape packages at a time (one per level). The amount of packages a Shape Wagon can hold is upgradeable through the [[Upgrades#Train Capacity|Train Capacity Upgrade]]. They are loaded from Shape Loaders, and unloaded at Shape Unloaders.
+
+==== Fluid Wagon ====
+
+Fluid Wagons hold up to three fluid packages at a time (one per level). The amount of packages a Fluid Wagon can hold is upgradeable through the [[Upgrades#Train Capacity|Train Capacity Upgrade]]. They are loaded from Fluid Loaders, and unloaded at Fluid Unloaders.
+
+==== Spacer Wagon ====
+
+Spacer Wagons are wagons that cannot hold any shape or fluid packages. They are used to fill gaps between or space apart the other types of wagons.
+
+== Train Capacity ==
+
+The value of the train capacity upgrades is the number of packages a wagon can carry on each level. For example, at level 1, each wagon can carry up to 3 packages, 1 per level. This capacity should be taken into consideration when calculating the number of required wagons or trains to carry the required number of produced items.
+
+For example, if you are at train capacity level 1 (3 packages per wagon) and you are feeding the shape loader using 4 fully saturated 90 items/min belts per level, then it will take 60 seconds to fill one 360-item package per level. This means that the maximum round trip delay for one train must be less than 60 seconds in that case. If the round trip delay is any longer, then the train network will become a bottleneck, i.e. items will start piling up at the shape loader station, leading to production repeatedly halting and resuming (production hiccup), and the destination will starve.
+
+To alleviate this situation, either share the load across multiple wagons, add multiple trains to that same track, or unlock a higher train capacity. Also, if not all the input levels are used (for example, only feeding one or two belt levels), then you can also share the load across the unused input levels.
+
+== Vortex Delivery ==
+
+If unlocked, using a [[Trains#Train Launcher|Train Launcher]] to launch a train into the [[Vortex]] delivers all the shapes on the train to the Vortex, and counts them to [[Milestones]], [[Jobs]], and [[Operator Level]]s.
+
+Train Vortex Delivery is unlocked at Milestone 7 in the Classic – Regular Scenario.

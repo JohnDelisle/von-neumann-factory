@@ -1,0 +1,2 @@
+= Simulated Unstacker =
+#REDIRECT [[Simulated_Machines#Simulated_Unstacker]]

@@ -1,0 +1,1510 @@
+{
+ "_units": "items_per_second = wiki per-minute value / 60. Wiki infobox lists 5 belt levels 60/90/120/150/180 per minute; 3-value lists are infobox levels 3-5.",
+ "_measured": {
+  "_source": "measured in-game (given by the caller)",
+  "Half Destroyer": {
+   "lane_fraction": 0.3333,
+   "per_lane": 3,
+   "wiki_ratio": 3,
+   "wiki_lane_fraction": 0.3333,
+   "agrees": true
+  },
+  "Rotator (one-quadrant CW or CCW)": {
+   "lane_fraction": 0.5,
+   "per_lane": 2,
+   "wiki_ratio": 2,
+   "wiki_lane_fraction": 0.5,
+   "agrees": true
+  },
+  "Belt / splitter / merger / platform port (launcher-catcher)": {
+   "lane_fraction": 1.0,
+   "per_lane": 1,
+   "wiki_ratio": 1,
+   "wiki_lane_fraction": 1.0,
+   "agrees": true
+  },
+  "note": "All three measured facts match the wiki 'ratio' field exactly; the wiki adds that ratios hold at every upgrade level because all rates scale together."
+ },
+ "Conveyor Belt": {
+  "buildings_json_ids": [
+   "BeltDefaultVariant",
+   "Splitter1To2Variant",
+   "Splitter1To3Variant",
+   "SplitterTShapeVariant",
+   "Merger2To1Variant",
+   "Merger3To1Variant",
+   "MergerTShapeVariant",
+   "Lift1LayerVariant",
+   "Lift2LayerVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "items_per_minute_wiki": [
+   60,
+   90,
+   120,
+   150,
+   180
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "throughput=60 • 90 • 120 • 150 • 180 (infobox; Belt Reader page says 'rate of shapes per minute'). Shop table: Conveyer Belt 120/150/180 at Speed Multiplier 100/125/150%.",
+  "belt_items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 (rear); splitters 1->1/2/3, mergers 1/2/3->1; lift 1 in",
+  "outputs": "1; no 2-in-2-out",
+  "mechanic": "A belt tile carries one lane; splitters/mergers are belt tiles (ratio 1); lifts take exactly 1 input and 1 output and cannot split/merge.",
+  "wiki_file": "Conveyor Belt.txt"
+ },
+ "Belt": {
+  "redirect": "Conveyor Belt",
+  "wiki_file": "Belt.txt",
+  "buildings_json_ids": [
+   "BeltDefaultVariant",
+   "Splitter1To2Variant",
+   "Splitter1To3Variant",
+   "SplitterTShapeVariant",
+   "Merger2To1Variant",
+   "Merger3To1Variant",
+   "MergerTShapeVariant",
+   "Lift1LayerVariant",
+   "Lift2LayerVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "belt_items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "lane_fraction": 1.0,
+  "rate_text": "#REDIRECT [[Conveyor Belt]]",
+  "footprint": "1 x 1 x 1",
+  "inputs": "1",
+  "outputs": "1",
+  "mechanic": "see Conveyor Belt",
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)"
+ },
+ "Belt Launcher": {
+  "buildings_json_ids": [
+   "BeltPortSenderVariant",
+   "BeltPortReceiverVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "items_per_minute_wiki": [
+   60,
+   90,
+   120,
+   150,
+   180
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Belt Launcher and Catcher: throughput=60 • 90 • 120 • 150 • 180, ratio=1. Shop: Belt Launcher 120/150/180.",
+  "belt_items_per_second": null,
+  "lane_fraction": 1.0,
+  "footprint": "1 x 1 x 1 each",
+  "inputs": "launcher: 1 belt in",
+  "outputs": "catcher: 1 belt out",
+  "mechanic": "Placed in pairs 1-4 empty tiles apart, same axis; launcher targets the furthest catcher in range; full-belt rate (ratio 1). On notches they feed Space Belt lanes.",
+  "wiki_file": "Conveyor Belt.txt"
+ },
+ "Belt Catcher": {
+  "buildings_json_ids": [
+   "BeltPortSenderVariant",
+   "BeltPortReceiverVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "items_per_minute_wiki": [
+   60,
+   90,
+   120,
+   150,
+   180
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "#REDIRECT [[Conveyor Belt#Belt Launcher and Catcher]]",
+  "belt_items_per_second": null,
+  "lane_fraction": 1.0,
+  "footprint": "1 x 1 x 1 each",
+  "inputs": "launcher: 1 belt in",
+  "outputs": "catcher: 1 belt out",
+  "mechanic": "Placed in pairs 1-4 empty tiles apart, same axis; launcher targets the furthest catcher in range; full-belt rate (ratio 1). On notches they feed Space Belt lanes.",
+  "wiki_file": "Belt Catcher.txt"
+ },
+ "Overflow Splitter": {
+  "buildings_json_ids": [
+   "SplitterOverflowVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "items_per_minute_wiki": [
+   60,
+   90,
+   120,
+   150,
+   180
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Overflow Splitter: throughput=60 • 90 • 120 • 150 • 180; inouts=1 : 2",
+  "belt_items_per_second": null,
+  "lane_fraction": 1.0,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 (rear)",
+  "outputs": "2: straight-ahead priority, side only when straight is blocked",
+  "mechanic": "Prioritises the straight output; side output only receives when straight cannot accept (used to prevent back-up between Cutter and Stacker).",
+  "wiki_file": "Conveyor Belt.txt"
+ },
+ "Half Destroyer": {
+  "buildings_json_ids": [
+   "CutterHalfVariant"
+  ],
+  "items_per_second": [
+   0.3333,
+   0.5,
+   0.6667,
+   0.8333,
+   1.0
+  ],
+  "items_per_minute_wiki": [
+   20,
+   30,
+   40,
+   50,
+   60
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Half Destroyer: throughput=20 • 30 • 40 • 50 • 60, ratio=3. Shop: 40/50/60. 'it is the fastest one and does not produce extra outputs'",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.3333,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 (rear)",
+  "outputs": "1 (front)",
+  "mechanic": "Destroys the WEST half regardless of machine rotation; single output, nothing discarded to a side belt; 3 per belt.",
+  "wiki_file": "Cutter.txt"
+ },
+ "Cutter": {
+  "buildings_json_ids": [
+   "CutterDefaultVariant"
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "items_per_minute_wiki": [
+   15,
+   22.5,
+   30,
+   37.5,
+   45
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Cutter: throughput=15 • 22.5 • 30 • 37.5 • 45, ratio=4; inouts=1 : 2. Shop: 30/37.5/45.",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.25,
+  "footprint": "1 x 2 x 1",
+  "inputs": "1 (rear, on the main tile)",
+  "outputs": "2 front outputs: east half on main output, west half on secondary (adjacent tile)",
+  "mechanic": "Cuts vertically into east/west halves independent of rotation; 4 per belt; both halves leave on parallel front belts (mirrored variant swaps sides).",
+  "wiki_file": "Cutter.txt"
+ },
+ "Swapper": {
+  "buildings_json_ids": [
+   "HalvesSwapperDefaultVariant"
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "items_per_minute_wiki": [
+   15,
+   22.5,
+   30,
+   37.5,
+   45
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Swapper: throughput=15 • 22.5 • 30 • 37.5 • 45, ratio=4; inouts=2 : 2",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.25,
+  "footprint": "1 x 2 x 1",
+  "inputs": "2 (rear, one per tile)",
+  "outputs": "2 (front, one per tile)",
+  "mechanic": "Swaps the west halves of the two input shapes; halves are placed side by side (not dropped) so crystals do not shatter; 4 per belt pair.",
+  "wiki_file": "Cutter.txt"
+ },
+ "Rotator": {
+  "buildings_json_ids": [
+   "RotatorOneQuadVariant"
+  ],
+  "items_per_second": [
+   0.5,
+   0.75,
+   1.0,
+   1.25,
+   1.5
+  ],
+  "items_per_minute_wiki": [
+   30,
+   45,
+   60,
+   75,
+   90
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Rotator: throughput=30 • 45 • 60 • 75 • 90, ratio=2. Shop: Rotators 60/75/90.",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.5,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 (rear)",
+  "outputs": "1 (front)",
+  "mechanic": "Rotates one part clockwise (90 deg in 4-part scenarios); 2 per belt; rotation does not matter to the Vortex.",
+  "wiki_file": "Rotator.txt"
+ },
+ "Reverse Rotator": {
+  "buildings_json_ids": [
+   "RotatorOneQuadCCWVariant"
+  ],
+  "items_per_second": [
+   0.5,
+   0.75,
+   1.0,
+   1.25,
+   1.5
+  ],
+  "items_per_minute_wiki": [
+   30,
+   45,
+   60,
+   75,
+   90
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Reverse Rotator: throughput=30 • 45 • 60 • 75 • 90, ratio=2",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.5,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 (rear)",
+  "outputs": "1 (front)",
+  "mechanic": "Rotates one part counter-clockwise; 2 per belt.",
+  "wiki_file": "Rotator.txt"
+ },
+ "180° Rotator": {
+  "buildings_json_ids": [
+   "RotatorHalfVariant"
+  ],
+  "items_per_second": [
+   0.5,
+   0.75,
+   1.0,
+   1.25,
+   1.5
+  ],
+  "items_per_minute_wiki": [
+   30,
+   45,
+   60,
+   75,
+   90
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "180° Rotator: throughput=30 • 45 • 60 • 75 • 90, ratio=2",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.5,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 (rear)",
+  "outputs": "1 (front)",
+  "mechanic": "Rotates 180 degrees; 2 per belt.",
+  "wiki_file": "Rotator.txt"
+ },
+ "Stacker": {
+  "buildings_json_ids": [
+   "StackerDefaultVariant"
+  ],
+  "items_per_second": [
+   0.1667,
+   0.25,
+   0.3333,
+   0.4167,
+   0.5
+  ],
+  "items_per_minute_wiki": [
+   10,
+   15,
+   20,
+   25,
+   30
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Stacker: throughput=10 • 15 • 20 • 25 • 30, ratio=6; footprint 1 x 1 x 2; inouts=2 : 1. Shop: Stacker 20/25/30.",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.1667,
+  "footprint": "1 x 1 x 2 (two floors)",
+  "inputs": "2: bottom-shape input on floor 0 rear, top-shape input on floor 1 rear (buildings.json: both Direction 2)",
+  "outputs": "1 on floor 0; buildings.json StackerDefaultVariant outputs to the SIDE (Direction 3)",
+  "mechanic": "Top input falls onto bottom input; halves merge into one layer, full shapes stack; layers above 4 are discarded; falling crystals shatter. 6 per belt (slowest shape machine). NOTE: buildings.json id mapping to wiki 'Stacker' vs 'Stacker (Bent)' is best-effort: Default = side output, Straight = front output.",
+  "wiki_file": "Stacker.txt"
+ },
+ "Bent Stacker": {
+  "buildings_json_ids": [
+   "StackerStraightVariant"
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "items_per_minute_wiki": [
+   15,
+   22.5,
+   30,
+   37.5,
+   45
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Stacker (Bent): throughput=15 • 22.5 • 30 • 37.5 • 45, ratio=4; researchcost=6. Shop: Bent Stacker 30/37.5/45.",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.25,
+  "footprint": "1 x 1 x 2 (two floors)",
+  "inputs": "2 (rear, floor 0 and floor 1)",
+  "outputs": "1 (buildings.json StackerStraightVariant: front, Direction 0)",
+  "mechanic": "Researched variant, 1.5x the plain Stacker: 4 per belt. Same stacking rules. Id mapping best-effort (see Stacker).",
+  "wiki_file": "Stacker.txt"
+ },
+ "Painter": {
+  "buildings_json_ids": [
+   "PainterDefaultVariant"
+  ],
+  "items_per_second": [
+   0.5,
+   0.625,
+   0.75
+  ],
+  "items_per_minute_wiki": [
+   30,
+   37.5,
+   45
+  ],
+  "levels_note": "3 values = infobox levels 3-5 (Shop Speed Multiplier 100/125/150%); machine unlocks after belt levels 1-2",
+  "rate_text": "Painter: throughput=30 • 37.5 • 45; fluidinput=300 • 375 • 450; ratio=4; fluidratio=4. Shop: Painter 30/37.5/45.",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.25,
+  "footprint": "1 x 2 x 1",
+  "inputs": "1 belt (rear of main tile) + 3 bidirectional pipe ports",
+  "outputs": "1 belt (front)",
+  "mechanic": "Paints only the TOP layer; refined parts, pins, crystals pass unchanged; pipe ports pass fluid through to neighbours; 4 per belt and 4 per pump (300 L/min each).",
+  "wiki_file": "Painter.txt",
+  "fluid_l_per_min": [
+   300,
+   375,
+   450
+  ]
+ },
+ "Color Mixer": {
+  "buildings_json_ids": [
+   "MixerDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": "3 values = infobox levels 3-5 (Shop Speed Multiplier 100/125/150%); machine unlocks after belt levels 1-2",
+  "rate_text": "fluidinput=300 • 375 • 450; fluidoutput=600 • 750 • 900; fluidratio=2. '60L of each input color results in 120L of the output color.'",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "3 x 2 x 1",
+  "inputs": "2 fluid inputs (both must be supplied; consumed equally)",
+  "outputs": "1 fluid output (sum of inputs)",
+  "mechanic": "Volume is conserved; 2 mixers per fluid-launcher pipe. No shape throughput.",
+  "wiki_file": "Color Mixer.txt",
+  "fluid_l_per_min_in": [
+   300,
+   375,
+   450
+  ],
+  "fluid_l_per_min_out": [
+   600,
+   750,
+   900
+  ]
+ },
+ "Pin Pusher": {
+  "buildings_json_ids": [
+   "PinPusherDefaultVariant"
+  ],
+  "items_per_second": [
+   0.3333,
+   0.5,
+   0.6667,
+   0.8333,
+   1.0
+  ],
+  "items_per_minute_wiki": [
+   20,
+   30,
+   40,
+   50,
+   60
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Pin Pusher: throughput=20 • 30 • 40 • 50 • 60, ratio=3. Shop: 40/50/60.",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.3333,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 (rear)",
+  "outputs": "1 (front)",
+  "mechanic": "Adds pins under every non-empty bottom-layer part, then discards layers above 4; 3 per belt.",
+  "wiki_file": "Pin Pusher.txt"
+ },
+ "Crystal Generator": {
+  "buildings_json_ids": [
+   "CrystalGeneratorDefaultVariant"
+  ],
+  "items_per_second": [
+   0.3333,
+   0.4167,
+   0.5
+  ],
+  "items_per_minute_wiki": [
+   20,
+   25,
+   30
+  ],
+  "levels_note": "3 values = infobox levels 3-5 (Shop Speed Multiplier 100/125/150%); machine unlocks after belt levels 1-2",
+  "rate_text": "Crystal Generator: throughput=20 • 25 • 30; fluidinput=400 • 500 • 600; ratio=6; fluidratio=3. Shop: 20/25/30.",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.1667,
+  "footprint": "1 x 2 x 2 (two floors)",
+  "inputs": "1 belt (rear) + 1 fluid input",
+  "outputs": "1 belt (front)",
+  "mechanic": "Fills every gap and pin up to the highest used layer with crystal of the fluid colour; 6 per belt, 3 per pump-equivalent (400 L/min each).",
+  "wiki_file": "Crystal Generator.txt",
+  "fluid_l_per_min": [
+   400,
+   500,
+   600
+  ]
+ },
+ "Polisher": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Manufacturer-mode only: turns half-blocks of unrefined waste into polished waste. No numbers on the wiki.",
+  "wiki_file": "Polisher.txt"
+ },
+ "Trash": {
+  "buildings_json_ids": [
+   "TrashDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "'there is no limit on how many shapes can be trashed'",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "belts on all 4 sides",
+  "outputs": "0",
+  "mechanic": "Accepts from all four sides, unlimited rate; floor 1 only.",
+  "wiki_file": "Trash.txt"
+ },
+ "Belt Filter": {
+  "buildings_json_ids": [
+   "BeltFilterDefaultVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "items_per_minute_wiki": [
+   60,
+   90,
+   120,
+   150,
+   180
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Belt Filter: throughput=60 • 90 • 120 • 150 • 180, ratio=1; inouts=1 : 2; wire in 1",
+  "belt_items_per_second": null,
+  "lane_fraction": 1.0,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 belt (rear) + 1 wire",
+  "outputs": "2: straight (match/true) and side (non-match/false)",
+  "mechanic": "Full belt rate; shape signal -> matching shapes straight, others to side; null/conflict blocks; int 0 -> side, int !=0 -> straight.",
+  "wiki_file": "Flow Control.txt"
+ },
+ "Belt Reader": {
+  "buildings_json_ids": [
+   "BeltReaderDefaultVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "items_per_minute_wiki": [
+   60,
+   90,
+   120,
+   150,
+   180
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Belt Reader: throughput=60 • 90 • 120 • 150 • 180, ratio=1. 'displays the rate of shapes per minute moving through it'",
+  "belt_items_per_second": null,
+  "lane_fraction": 1.0,
+  "footprint": "1 x 1 x 1",
+  "inputs": "1 belt",
+  "outputs": "1 belt + 1 wire (shape signal)",
+  "mechanic": "Pass-through at full belt rate; confirms wiki throughput units are shapes per minute.",
+  "wiki_file": "Flow Control.txt"
+ },
+ "Flow Control": {
+  "buildings_json_ids": [
+   "BeltReaderDefaultVariant",
+   "BeltFilterDefaultVariant",
+   "PipeGateDefaultVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "items_per_minute_wiki": [
+   60,
+   90,
+   120,
+   150,
+   180
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Belt Reader/Filter throughput=60 • 90 • 120 • 150 • 180, ratio=1; Pipe Gate fluidinput/output=1200 • 1500 • 1800, fluidratio=1",
+  "belt_items_per_second": null,
+  "lane_fraction": 1.0,
+  "footprint": "1 x 1 x 1 each",
+  "inputs": "see Belt Filter / Belt Reader / Pipe Gate",
+  "outputs": "see Belt Filter / Belt Reader / Pipe Gate",
+  "mechanic": "Wire-controlled routing at full belt / full pipe-launcher rate.",
+  "wiki_file": "Flow Control.txt",
+  "pipe_gate_l_per_min": [
+   1200,
+   1500,
+   1800
+  ]
+ },
+ "Extractor": {
+  "buildings_json_ids": [
+   "ExtractorDefaultVariant"
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "items_per_minute_wiki": [
+   15,
+   22.5,
+   30,
+   37.5,
+   45
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "#REDIRECT [[Mini-Miner]]",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.25,
+  "footprint": "1 x 1 x 1",
+  "inputs": "0",
+  "outputs": "1",
+  "mechanic": "see Mini-Miner",
+  "wiki_file": "Extractor.txt"
+ },
+ "Mini-Miner": {
+  "buildings_json_ids": [
+   "ExtractorDefaultVariant"
+  ],
+  "items_per_second": [
+   0.25,
+   0.375,
+   0.5,
+   0.625,
+   0.75
+  ],
+  "items_per_minute_wiki": [
+   15,
+   22.5,
+   30,
+   37.5,
+   45
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Mini-Miner: throughput=15 • 22.5 • 30 • 37.5 • 45, ratio=4; inouts=0 : 1. Shop: Mini-Miner 30/37.5/45.",
+  "belt_items_per_second": null,
+  "lane_fraction": 0.25,
+  "footprint": "1 x 1 x 1",
+  "inputs": "0 (sits on an extraction point of an Asteroid Miner)",
+  "outputs": "1 belt",
+  "mechanic": "4 mini-miners saturate one belt; an Asteroid Miner has 4 extraction points, +4 per Miner Booster up to 16 (= 4 belts).",
+  "wiki_file": "Mini-Miner.txt"
+ },
+ "Miner Booster": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "Each additional booster provides 4 additional Mini-Miner locations, up to a total of 16.",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "platform (1 Platform Capacity)",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Up to 3 boosters per Asteroid Miner; 16 mini-miners = 4 full belts per fully boosted miner (Space Transport page).",
+  "wiki_file": "Asteroid Miner.txt"
+ },
+ "Pump": {
+  "buildings_json_ids": [
+   "PumpDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Mini Pump]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "0",
+  "outputs": "1 fluid",
+  "mechanic": "see Mini Pump",
+  "wiki_file": "Pump.txt",
+  "fluid_l_per_min": [
+   300,
+   375,
+   450
+  ]
+ },
+ "Mini Pump": {
+  "buildings_json_ids": [
+   "PumpDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": "3 values = infobox levels 3-5 (Shop Speed Multiplier 100/125/150%); machine unlocks after belt levels 1-2",
+  "rate_text": "Mini Pump: fluidoutput=300 • 375 • 450; fluidratio=4",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "0 (on an Asteroid Pump)",
+  "outputs": "1 fluid",
+  "mechanic": "4 mini pumps saturate one fluid launcher (1200 L/min).",
+  "wiki_file": "Mini Pump.txt",
+  "fluid_l_per_min": [
+   300,
+   375,
+   450
+  ]
+ },
+ "Pump Booster": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Analogous to Miner Booster for Asteroid Pumps (redirect target only).",
+  "wiki_file": "Pump Booster.txt"
+ },
+ "Fluid Launcher": {
+  "buildings_json_ids": [
+   "FluidPortSenderVariant",
+   "FluidPortReceiverVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": "3 values = infobox levels 3-5 (Shop Speed Multiplier 100/125/150%); machine unlocks after belt levels 1-2",
+  "rate_text": "Fluid Launcher and Catcher: fluidinput=1200 • 1500 • 1800; fluidoutput=1200 • 1500 • 1800",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1 each",
+  "inputs": "1 pipe",
+  "outputs": "1 pipe",
+  "mechanic": "Pairs 1-4 tiles apart; 1200 L/min per launcher = the 'full pipe' unit (fluidratio 1).",
+  "wiki_file": "Pipe.txt",
+  "fluid_l_per_min": [
+   1200,
+   1500,
+   1800
+  ]
+ },
+ "Fluid Catcher": {
+  "buildings_json_ids": [
+   "FluidPortSenderVariant",
+   "FluidPortReceiverVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": "3 values = infobox levels 3-5 (Shop Speed Multiplier 100/125/150%); machine unlocks after belt levels 1-2",
+  "rate_text": "#REDIRECT [[Pipe#Fluid Launcher and Catcher]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1 each",
+  "inputs": "1 pipe",
+  "outputs": "1 pipe",
+  "mechanic": "Pairs 1-4 tiles apart; 1200 L/min per launcher = the 'full pipe' unit (fluidratio 1).",
+  "wiki_file": "Fluid Catcher.txt",
+  "fluid_l_per_min": [
+   1200,
+   1500,
+   1800
+  ]
+ },
+ "Fluid Producer": {
+  "buildings_json_ids": [
+   "SandboxFluidProducerDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "fluidoutput=28800; fluidratio=24 • 19.2 • 16. 'produces the throughput of 24/19.2/16 Fluid Launchers'",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "0",
+  "outputs": "1 fluid",
+  "mechanic": "Sandbox: 28,800 L/min = 24 launchers at level 1.",
+  "wiki_file": "Fluid Producer.txt",
+  "fluid_l_per_min": 28800
+ },
+ "Fluid Tank": {
+  "buildings_json_ids": [
+   "FluidStorageDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "fluidinput=1200 • 1500 • 1800; fluidoutput=1200 • 1500 • 1800; fluidratio=1; 'stores up to 2,400 L'",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "2 x 2 x 1",
+  "inputs": "1 fluid",
+  "outputs": "1 fluid",
+  "mechanic": "Buffer of 2,400 L; only fills from excess (consumers have priority).",
+  "wiki_file": "Fluid Tank.txt",
+  "fluid_l_per_min": [
+   1200,
+   1500,
+   1800
+  ]
+ },
+ "Pipe": {
+  "buildings_json_ids": [
+   "PipeDefaultVariant",
+   "Pipe1LayerVariant",
+   "Pipe2LayerVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "'Pipes actually contain no fluid and the transfer rate is unlimited.'",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "2 bidirectional",
+  "outputs": "(bidirectional)",
+  "mechanic": "Omnidirectional, unlimited rate; splits/merges in all 4 directions.",
+  "wiki_file": "Pipe.txt"
+ },
+ "Space Belt": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "Each lane has a maximum throughput equal to the throughput of 4 belts... a space belt level (a group of 4 lanes) has the throughput of 16 belts... a full space belt has a throughput of 48 belts, which is equal to 4 Notches",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "0.5 Platform Units per tile",
+  "inputs": "12 lanes from a notch",
+  "outputs": "12 lanes to a notch",
+  "mechanic": "Space Belt lane = 4 belts. 12 independent lanes in 3 groups of 4 (group = launcher floor, lane = launcher position in the notch); each lane = 4 belts, a floor group = 16 belts, a full space belt = 48 belts = 4 notches.",
+  "wiki_file": "Space Transport.txt",
+  "belts_per_lane": 4,
+  "belts_per_floor_group": 16,
+  "belts_per_space_belt": 48
+ },
+ "Space Transport": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "Each lane has a maximum throughput equal to the throughput of 4 belts... a space belt level (a group of 4 lanes) has the throughput of 16 belts... a full space belt has a throughput of 48 belts, which is equal to 4 Notches",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "0.5 Platform Units per tile",
+  "inputs": "12 lanes from a notch",
+  "outputs": "12 lanes to a notch",
+  "mechanic": "Space Belt lane = 4 belts. 12 independent lanes in 3 groups of 4 (group = launcher floor, lane = launcher position in the notch); each lane = 4 belts, a floor group = 16 belts, a full space belt = 48 belts = 4 notches.",
+  "wiki_file": "Space Transport.txt",
+  "belts_per_lane": 4,
+  "belts_per_floor_group": 16,
+  "belts_per_space_belt": 48
+ },
+ "Space Pipe": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "Each lane has a maximum throughput equal to the throughput of 24 fluid launchers... a space pipe level (a group of 4 lanes) has the throughput of 96 fluid launchers... a full space pipe has a throughput of 288 fluid launchers",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "0.5 Platform Units per tile",
+  "inputs": "12 lanes",
+  "outputs": "12 lanes",
+  "mechanic": "One-directional; lane = 24 fluid launchers (28,800 L/min at level 1).",
+  "wiki_file": "Space Transport.txt",
+  "launchers_per_lane": 24
+ },
+ "Space Platforms": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "Notches... 12 fully saturated Belts for Shapes or 12 fully saturated Fluid Launchers for Fluids, since that's the most a single notch can handle",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "chunk = 20x20 tiles; notch = 1x4 buildable, 3 levels tall",
+  "inputs": "notch: 4 wide x 3 floors = 12 belt positions",
+  "outputs": "same",
+  "mechanic": "A notch carries at most 12 belts (4 positions x 3 floors); only launchers/catchers/wireless go on notches.",
+  "wiki_file": "Space Platforms.txt",
+  "belts_per_notch": 12
+ },
+ "Machine Platforms": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1x1 = 14x14 (196) buildable; 2x1 = 34x14; 2x2 = 34x34 (1,156); 3x3 = 54x54 (2,916); +6 rows/cols per extra chunk",
+  "inputs": "4-tile notch centred on each chunk edge",
+  "outputs": "same",
+  "mechanic": "Edges set back 3 tiles from the chunk border; smallest platform builds 14x14.",
+  "wiki_file": "Machine Platforms.txt"
+ },
+ "Vortex": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "The Vortex Platform has 12 Notches around its outer perimeter, allowing to deliver up to 144 belts of shapes... twelve, 3-level ports on each of the four sides... only 4 ports on each side are available when starting",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "3x3 platform; 54x54 buildable minus central 20x20 = 2,516 tiles",
+  "inputs": "12 notches x 12 belts = 144 belts max; 4 of 12 ports per side at start, more via 3rd Machine Level + Vortex Inputs upgrade",
+  "outputs": "0",
+  "mechanic": "Delivery cap = 144 belts; rotation ignored; pins sometimes ignored.",
+  "wiki_file": "Vortex.txt",
+  "belts_max": 144
+ },
+ "Trains": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "if you are at train capacity level 1 (3 packages per wagon) and you are feeding the shape loader using 4 fully saturated 90 items/min belts per level, then it will take 60 seconds to fill one 360-item package per level",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "platform-scale",
+  "inputs": "loader per level",
+  "outputs": "unloader per level",
+  "mechanic": "Package = 360 items per level; wagon = 3 packages at capacity level 1; round-trip must beat fill time or the loader backs up.",
+  "wiki_file": "Trains.txt",
+  "items_per_package": 360
+ },
+ "Train": {
+  "redirect": "Trains",
+  "wiki_file": "Train.txt",
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "see Trains"
+ },
+ "Trade Stations": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "platform scale",
+  "inputs": "notch or space belt",
+  "outputs": "notch or space belt",
+  "mechanic": "Exchange shapes; only source of refined X/Y parts. No rates given.",
+  "wiki_file": "Trade Stations.txt"
+ },
+ "Item Producer": {
+  "buildings_json_ids": [
+   "SandboxItemProducerDefaultVariant"
+  ],
+  "items_per_second": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   3.0
+  ],
+  "items_per_minute_wiki": [
+   60,
+   90,
+   120,
+   150,
+   180
+  ],
+  "levels_note": "levels 1-5 of the wiki infobox (Shop 'Speed Multiplier' 100/125/150% = infobox levels 3/4/5)",
+  "rate_text": "Item Producer: throughput=60 • 90 • 120 • 150 • 180, ratio=1. 'produces a full belt of any shape'",
+  "belt_items_per_second": null,
+  "lane_fraction": 1.0,
+  "footprint": "1 x 1 x 1",
+  "inputs": "0",
+  "outputs": "1 belt",
+  "mechanic": "Sandbox source: exactly one saturated belt of a configured shape code (any parts/layers).",
+  "wiki_file": "Item Producer.txt"
+ },
+ "Sandbox Machines": {
+  "buildings_json_ids": [
+   "SandboxItemProducerDefaultVariant",
+   "SandboxFluidProducerDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Needs cheats + CBSandbox research; Item Producer = 1 belt, Fluid Producer = 24 launchers.",
+  "wiki_file": "Sandbox Machines.txt"
+ },
+ "Shape Machines": {
+  "buildings_json_ids": [
+   "BeltDefaultVariant",
+   "RotatorOneQuadVariant",
+   "RotatorOneQuadCCWVariant",
+   "RotatorHalfVariant",
+   "CutterHalfVariant",
+   "CutterDefaultVariant",
+   "HalvesSwapperDefaultVariant",
+   "StackerDefaultVariant",
+   "StackerStraightVariant",
+   "ExtractorDefaultVariant",
+   "PinPusherDefaultVariant",
+   "LabelDefaultVariant",
+   "TrashDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Toolbar index page only; numbers live on the per-machine pages.",
+  "wiki_file": "Shape Machines.txt"
+ },
+ "Shape Processing": {
+  "buildings_json_ids": [
+   "BeltDefaultVariant",
+   "RotatorOneQuadVariant",
+   "RotatorOneQuadCCWVariant",
+   "RotatorHalfVariant",
+   "CutterHalfVariant",
+   "CutterDefaultVariant",
+   "HalvesSwapperDefaultVariant",
+   "StackerDefaultVariant",
+   "StackerStraightVariant",
+   "ExtractorDefaultVariant",
+   "PinPusherDefaultVariant",
+   "LabelDefaultVariant",
+   "TrashDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Shape Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Toolbar index page only; numbers live on the per-machine pages.",
+  "wiki_file": "Shape Processing.txt"
+ },
+ "Simulated Machines": {
+  "buildings_json_ids": [
+   "VirtualRotatorDefaultVariant",
+   "VirtualRotatorCCWVariant",
+   "VirtualHalfCutterDefaultVariant",
+   "VirtualStackerDefaultVariant",
+   "VirtualUnstackerDefaultVariant",
+   "VirtualPainterDefaultVariant",
+   "VirtualCrystalGeneratorDefaultVariant",
+   "VirtualHalvesSwapperDefaultVariant",
+   "VirtualPinPusherDefaultVariant",
+   "VirtualAnalyzerDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1 (Swapper 2 tiles)",
+  "inputs": "wire signals",
+  "outputs": "wire signals",
+  "mechanic": "Wire-only: transform shape/color SIGNALS with the same rules as the real machines; no item throughput. Stacker: left input stacks on top of right (mirrored swaps). Unstacker: top layer left, rest right. Painter/Crystal: shape rear, color side.",
+  "wiki_file": "Simulated Machines.txt"
+ },
+ "Simulated Rotator": {
+  "buildings_json_ids": [
+   "VirtualRotatorDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Rotator.txt"
+ },
+ "Simulated Reverse Rotator": {
+  "buildings_json_ids": [
+   "VirtualRotatorCCWVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Reverse Rotator.txt"
+ },
+ "Simulated Half Destroyer": {
+  "buildings_json_ids": [
+   "VirtualHalfCutterDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Half Destroyer.txt"
+ },
+ "Simulated Stacker": {
+  "buildings_json_ids": [
+   "VirtualStackerDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Stacker.txt"
+ },
+ "Simulated Unstacker": {
+  "buildings_json_ids": [
+   "VirtualUnstackerDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Unstacker.txt"
+ },
+ "Simulated Painter": {
+  "buildings_json_ids": [
+   "VirtualPainterDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Painter.txt"
+ },
+ "Simulated Crystal Generator": {
+  "buildings_json_ids": [
+   "VirtualCrystalGeneratorDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Crystal Generator.txt"
+ },
+ "Simulated Swapper": {
+  "buildings_json_ids": [
+   "VirtualHalvesSwapperDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Swapper.txt"
+ },
+ "Simulated Pin Pusher": {
+  "buildings_json_ids": [
+   "VirtualPinPusherDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Simulated Machines]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "1 x 1 x 1",
+  "inputs": "wire",
+  "outputs": "wire",
+  "mechanic": "signal-only; see Simulated Machines",
+  "wiki_file": "Simulated Pin Pusher.txt"
+ },
+ "Upgrades": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "Speed Multiplier levels 1/2/3 = 100%/125%/150%: Conveyer Belt 120/150/180, Belt Launcher 120/150/180, Rotators 60/75/90, Half Destroyer 40/50/60, Pin Pusher 40/50/60, Mini-Miner 30/37.5/45, Cutter 30/37.5/45, Swapper 30/37.5/45, Bent Stacker 30/37.5/45, Painter 30/37.5/45, Stacker 20/25/30, Crystal Generator 20/25/30 (per minute)",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "All machine and fluid rates scale together with the Speed Multiplier, so ratios are level-independent.",
+  "wiki_file": "Shop.txt",
+  "speed_multiplier_per_min": {
+   "Conveyer Belt": [
+    120,
+    150,
+    180
+   ],
+   "Belt Launcher": [
+    120,
+    150,
+    180
+   ],
+   "Rotators": [
+    60,
+    75,
+    90
+   ],
+   "Half Destroyer": [
+    40,
+    50,
+    60
+   ],
+   "Pin Pusher": [
+    40,
+    50,
+    60
+   ],
+   "Mini-Miner": [
+    30,
+    37.5,
+    45
+   ],
+   "Cutter": [
+    30,
+    37.5,
+    45
+   ],
+   "Swapper": [
+    30,
+    37.5,
+    45
+   ],
+   "Bent Stacker": [
+    30,
+    37.5,
+    45
+   ],
+   "Painter": [
+    30,
+    37.5,
+    45
+   ],
+   "Stacker": [
+    20,
+    25,
+    30
+   ],
+   "Crystal Generator": [
+    20,
+    25,
+    30
+   ]
+  }
+ },
+ "Upgrade": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "#REDIRECT [[Shop#Upgrades]]",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "All machine and fluid rates scale together with the Speed Multiplier, so ratios are level-independent.",
+  "wiki_file": "Upgrade.txt",
+  "speed_multiplier_per_min": {
+   "Conveyer Belt": [
+    120,
+    150,
+    180
+   ],
+   "Belt Launcher": [
+    120,
+    150,
+    180
+   ],
+   "Rotators": [
+    60,
+    75,
+    90
+   ],
+   "Half Destroyer": [
+    40,
+    50,
+    60
+   ],
+   "Pin Pusher": [
+    40,
+    50,
+    60
+   ],
+   "Mini-Miner": [
+    30,
+    37.5,
+    45
+   ],
+   "Cutter": [
+    30,
+    37.5,
+    45
+   ],
+   "Swapper": [
+    30,
+    37.5,
+    45
+   ],
+   "Bent Stacker": [
+    30,
+    37.5,
+    45
+   ],
+   "Painter": [
+    30,
+    37.5,
+    45
+   ],
+   "Stacker": [
+    20,
+    25,
+    30
+   ],
+   "Crystal Generator": [
+    20,
+    25,
+    30
+   ]
+  }
+ },
+ "Operator Level": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Infinite goal lines; no machine rates.",
+  "wiki_file": "Operator Level.txt"
+ },
+ "3rd Machine Level": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Unlocks floor 3 (so a notch carries 12 belts, and more Vortex ports).",
+  "wiki_file": "3rd Machine Level.txt"
+ },
+ "Wire Machines": {
+  "buildings_json_ids": [
+   "WireDefaultVariant",
+   "WireBridgeVariant",
+   "WireTransmitterSenderVariant",
+   "WireTransmitterReceiverVariant",
+   "ConstantSignalDefaultVariant",
+   "BeltReaderDefaultVariant",
+   "BeltFilterDefaultVariant",
+   "PipeGateDefaultVariant",
+   "WireGlobalTransmitterReceiverVariant",
+   "ControlledSignalTransmitterVariant",
+   "ControlledSignalReceiverVariant",
+   "LogicGateAndVariant",
+   "LogicGateOrVariant",
+   "LogicGateNotVariant",
+   "LogicGateXOrVariant",
+   "LogicGateCompareVariant",
+   "LogicGateIfVariant",
+   "DisplayDefaultVariant",
+   "Display2x2Variant",
+   "Display3x3Variant",
+   "ButtonDefaultVariant"
+  ],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Toolbar index only.",
+  "wiki_file": "Wire Machines.txt"
+ },
+ "Glossary": {
+  "buildings_json_ids": [],
+  "items_per_second": null,
+  "items_per_minute_wiki": null,
+  "levels_note": null,
+  "rate_text": "Ratio: the amount of machines required to process a full belt/pipe... always a whole number if the upgrades are at equal levels, e.g. 2 Rotators per belt. Throughput: usually quantified in shapes/litres per minute.",
+  "belt_items_per_second": null,
+  "lane_fraction": null,
+  "footprint": "",
+  "inputs": "",
+  "outputs": "",
+  "mechanic": "Defines 'ratio' = machines per full belt and confirms per-minute units.",
+  "wiki_file": "Glossary.txt"
+ }
+}

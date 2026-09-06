@@ -1,0 +1,2 @@
+= Global Signal Transmitter =
+#REDIRECT [[Signal Transmission#Global Signal Transmitter]]

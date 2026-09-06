@@ -1,0 +1,18 @@
+= Trash =
+{{Machine Infobox
+|title=Trash
+|image=Trash-500.png
+|footprint=1 x 1 x 1
+|milestone=1
+|researchcost=4
+}}
+
+{{Shape Processing}}
+
+== Overview ==
+
+The Trash trashes shapes it receives.
+
+[[Belt]]s can be connected to all four sides to the trash, and there is no limit on how many shapes can be trashed.
+
+The trash can only be built on the first level of [[Machine Platforms]].

@@ -1,0 +1,43 @@
+= Pipe =
+{{Machine Infobox
+|title=Pipe
+|image=Pipe-500.png
+|footprint=1 x 1 x 1
+|fluidinouts=2 (Bidirectional)
+|milestone=4
+|researchcost=N/A (Unlocked with milestone)
+}}
+
+{{Fluid Machines}}
+
+== Pipe  ==
+
+Pipes transport fluid across platforms.  Pipes actually contain no fluid and the transfer rate is unlimited.
+
+Pipes are placed by dragging while holding the 'Confirm Placement' hotkey (default 'Left Click'). While dragging to place pipes, Anchors are used to lock the pipe pieces without placing them. Anchors can be added and removed by pressing the 'Place Anchor' hotkey (default 'C').
+
+If the color of the fluid input is changed, the fluid in the Pipe will drain and be replaced with the new color.
+
+=== Splitter and Merger ===
+
+Splitters and mergers are created by dragging from a pre-existing pipe, by dragging a pipe next to machine inputs/outputs, or by placing machines with their input/output facing an adjacent pipe. Pipes are omnidirectional, and can split and merge in all 4 directions.
+
+=== Vertical Pipe ===
+
+Vertical Pipes transport fluid between machine levels. While placing a Pipe, press the 'Level Up' hotkey (default 'E') to go up a level, or 'Level Down' (default 'Q') to go down a level. Vertical Pipes have one input and one output.
+
+{{Machine Infobox
+|title=Fluid Launcher and Catcher
+|image=[[Fluid-Launcher-Catcher-GIF-500.gif]]
+|footprint=1 x 1 x 1
+|milestone=4
+|researchcost=N/A (Unlocked with milestone)
+|fluidinput=1200 • 1500 • 1800
+|fluidoutput=1200 • 1500 • 1800
+}}
+
+== Fluid Launcher and Catcher ==
+
+Fluid Launchers and Catchers are used to transport fluid between [[Machine Platforms]] and [[Space Pipe]]s as well as on Machine Platforms. On Machine Platforms, they must be placed by starting to drag on the wanted position of the launcher, then dragging until the wanted position of the catcher, with the limitation that the catcher can only have 1 to 4 empty tiles of distance with the launcher. A launcher will try to connect to the furthest catcher in range. If there are multiple launchers trying to connect to a single catcher, the launcher furthest from the catcher will be chosen.
+
+If the color of the fluid input is changed, the fluid in the Launcher or Catcher will drain and be replaced with the new color.

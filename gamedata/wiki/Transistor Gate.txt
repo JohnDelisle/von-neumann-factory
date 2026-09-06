@@ -1,0 +1,2 @@
+= Transistor Gate =
+#REDIRECT [[Logic_Gates#Transistor Gate]]

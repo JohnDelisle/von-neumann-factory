@@ -1,0 +1,33 @@
+= Vortex =
+[[File:Vortex-Platform.png|500px|right|class=responsive-image]]
+
+== The Vortex Platform ==
+
+The Vortex Platform is where the player begins their Shapez journey. It is a unique and permanent 3x3 platform located at the center of [[Game Modes|Classic Mode]] [[Map]]s, with the Vortex in the center. Its available building space is a 54x54 (2,916 tiles) square with the central 20x20 (400 tiles) chunk blocked by the Vortex itself, equaling 2,516 usable tiles, which is the same amount as the 4x2 [[Machine Platforms|Machine Platform]].
+
+Located on each of the four sides of the Vortex Platform are [[Map#Resource Patches|Resource Patches]] where player can extract [[Shapes]]. The player builds factories on this platform for the first few [[Milestones]]. Shapes extracted from the patches are transformed by the factory machines and delivered to the Vortex with [[Belt]]s and [[Belt Launcher]]s.
+
+The Vortex Platform has 12 [[Notch|Notches]] around its outer perimeter, allowing to deliver up to 144 belts of shapes when Train Vortex Delivery is not unlocked.
+
+== The Vortex ==
+
+The Vortex is the massive swirling feature located directly in the center of the map.  The Vortex is where all shapes must be delivered in order to be counted for credit towards a [[Milestone]] or [[Jobs|Job]].
+
+The Vortex has twelve, 3-level ports on each of the four sides. However, only 4 ports on each side are available when starting a new game. Additional ports are unlocked with the 3rd Machine Level [[Shop]] item, and can be added by purchasing [[Upgrades#Vortex Inputs|Vortex Upgrade]]s.
+
+The rotation of shapes doesn't matter when delivering them to the Vortex. Pins, in some cases, are ignored by the Vortex. See [[Pins]] for details.
+
+Where do the shapes go after you put them in the Vortex? We don't know, but shapes must flow and the factory must grow!
+
+== Delivery Indicators ==
+
+The background of shape predictions at the end of belts, notably at the vortex, changes if the shape is relevent to the current [[Scenario]]'s research.
+
+* Gray Background: When a shape is not required for any current or future [[Milestone]], [[Jobs|Job]], or [[Operator Level]].
+* Green Background: When a shape is being counted towards a current Milestone or Job.
+* Flag: When a shape was being counted towards a Milestone or Job, but enough have now been delivered to collect the reward.
+* Orange Lock: When a shape is correct, but for a future Milestone or Job that is not yet unlocked.
+* Purple Star: When an [[Operator Level]] shape is being delivered.
+* Blue 'B': When a [[Blueprint Points | Blueprint Shape]] is being delivered.
+
+[[File:Delivery-Icons.png|400px|class=responsive-image]]

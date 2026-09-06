@@ -1,0 +1,6 @@
+= How to contribute =
+If you see any page that doesn't exist yet and that you want to create or if you want to make changes to an existing page, feel free to by using the 'Edit' button in the top right of the page in question.
+
+If you have any questions, preferably refer to the #wiki channel on [https://discord.gg/bvq5uGxW8G Discord]. Alternatively, you can use the talk page of the page the question is about.
+
+See also: [[Style Guide]]

@@ -1,0 +1,2 @@
+= Comparison Gate =
+#REDIRECT [[Logic_Gates#Comparison Gate]]

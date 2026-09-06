@@ -1,0 +1,49 @@
+= Wire Machines =
+__NOTITLE__
+{{Machines}}
+= {{PAGENAME}} =
+The tools in the Wires toolbar include [[Wire]]s and a set of machines that can be used with wires.  Wire machines are also called Gates.
+
+{| class="wikitable"
+! Toolbar<br>Slot<br>Number !! Name !! Icons !! Machines
+|-
+| style="text-align:center;" | 3
+| [[Wire]]
+| [[File:Wire-Icon-100.png|link=Wire|50px]]
+| [[File:Wire-Icon-100.png|link=Wire|50px]] [[File:Wire-Bridge-Icon-100.png|link=Wire Bridge|50px]] [[File:Wireless-Sender-Icon-100.png|link=Wireless Sender|50px]] [[File:Wireless-Receiver-Icon-100.png|link=Wireless Receiver|50px]] <br> [[File:Wire-500.png|link=Wire|50px]] [[File:Wire-Bridge-500.png|link=Wire Bridge|50px]] [[File:Wireless-Sender-500.png|link=Wireless Sender|50px]] [[File:Wireless-Receiver-500.png|link=Wireless Receiver|50px]]
+|-
+| style="text-align:center;" | 4
+| [[Signal Producer]]
+| [[File:Signal-Producer-Icon-100.png|link=Signal Producer|50px]]
+| [[File:Signal-Producer-500.png|link=Signal Producer|50px]]
+|-
+| style="text-align:center;" | 5
+| [[Flow Control]]
+| [[File:Flow-Control-Icon-100.png|link=Flow Control|50px]]
+| [[File:Belt-Reader-Icon-100.png|link=Belt Reader|50px]] [[File:Flow-Control-Icon-100.png|link=Belt Filter|50px]] [[File:Pipe-Gate-Icon-100.png|link=Pipe Gate|50px]] <br> [[File:Belt-Reader-500.png|link=Belt Reader|50px]] [[File:Belt-Filter-500.png|link=Belt Filter|50px]] [[File:Pipe-Gate-500.png|link=Pipe Gate|50px]]
+|-
+| style="text-align:center;" | 6
+| [[Signal Transmission]]
+| [[File:Signal-Transmission-Icon-100.png|link=Signal Transmission|50px]]
+| [[File:Global-Signal-Transmitter-Icon-100.png|link=Global Signal Transmitter|50px]] [[File:Global-Signal-Receiver-Icon-100.png|link=Global Signal Receiver|50px]] [[File:Operator-Signal-Receiver-Icon-100.png|link=Operator Signal Receiver|50px]] <br> [[File:Global-Signal-Transmitter-500.png|link=Global Signal Transmitter|50px]] [[File:Global-Signal-Receiver-500.png|link=Global Signal Receiver|50px]] [[File:Operator-Signal-Receiver-500.png|link=Operator Signal Receiver|50px]]
+|-
+| style="text-align:center;" | 7
+| [[Logic Gates]]
+| [[File:Logic-Gates-Icon-100.png|link=Logic Gates|50px]]
+| [[File:AND-Gate-Icon-100.png|link=AND Gate|50px]] [[File:OR-Gate-Icon-100.png|link=OR Gate|50px]] [[File:NOT-Gate-Icon-100.png|link=NOT Gate|50px]] [[File:XOR-Gate-Icon-100.png|link=XOR Gate|50px]] [[File:Comparison-Gate-Icon-100.png|link=Comparison Gate|50px]] [[File:Transistor-Gate-Icon-100.png|link=Transistor Gate|50px]] <br> [[File:AND-Gate-500.png|link=AND Gate|50px]] [[File:OR-Gate-500.png|link=OR Gate|50px]] [[File:NOT-Gate-500.png|link=NOT Gate|50px]] [[File:XOR-Gate-500.png|link=XOR Gate|50px]] [[File:Comparison-Gate-500.png|link=Comparison Gate|50px]] [[File:Transistor-Gate-500.png|link=Transistor Gate|50px]]
+|-
+| style="text-align:center;" | 8
+| [[Simulated Machines]]
+| [[File:Simulated-Buildings-Icon-100.png|link=Simulated Machines|50px]]
+| [[File:Simulated-Rotator-Icon-100.png|link=Simulated Rotator|50px]] [[File:Simulated-Reverse-Rotator-Icon-100.png|link=Simulated Reverse Rotator|50px]] [[File:Simulated-Half-Destroyer-Icon-100.png|link=Simulated Half Destroyer|50px]] [[File:Simulated-Stacker-Icon-100.png|link=Simulated Stacker|50px]] [[File:Simulated-Unstacker-Icon-100.png|link=Simulated Unstacker|50px]] [[File:Simulated-Painter-Icon-100.png|link=Simulated Painter|50px]] [[File:Simulated-Crystal-Generator-Icon-100.png|link=Simulated Crystal Generator|50px]] [[File:Simulated-Swapper-Icon-100.png|link=Simulated Swapper|50px]] [[File:Simulated-Pin-Pusher-Icon-100.png|link=Simulated Pin Pusher|50px]] [[File:Shape-Analyzer-Icon-100.png|link=Shape Analyzer|50px]] <br> [[File:Simulated-Rotator-500.png|link=Simulated Rotator|50px]] [[File:Simulated-Rotator-500.png|link=Simulated Reverse Rotator|50px]] [[File:Simulated-Half-Destroyer-500.png|link=Simulated Half Destroyer|50px]] [[File:Simulated-Stacker-500.png|link=Simulated Stacker|50px]] [[File:Simulated-Unstacker-500.png|link=Simulated Unstacker|50px]] [[File:Simulated-Painter-500.png|link=Simulated Painter|50px]] [[File:Simulated-Crystal-Generator-500.png|link=Simulated Crystal Generator|50px]] [[File:Simulated-Swapper-500.png|link=Simulated Swapper|50px]] [[File:Simulated-Pin-Pusher-500.png|link=Simulated Pin Pusher|50px]] [[File:Shape-Analyzer-500.png|link=Shape Analyzer|50px]]
+|-
+| style="text-align:center;" | 9
+| [[Display]]
+| [[File:Display-1x1-Icon-100.png|link=Display|50px]]
+| [[File:Display-1x1-Icon-100.png|link=Display|50px]] [[File:Display-2x2-Icon-100.png|link=Display|50px]] [[File:Display-3x3-Icon-100.png|link=Display|50px]] <br> [[File:Display-1x1-500.png|link=Display|50px]] [[File:Display-2x2-500.png|link=Display|50px]] [[File:Display-3x3-500.png|link=Display|50px]]
+|-
+| style="text-align:center;" | 10
+| [[Toggle Button]]
+| [[File:Toggle-Button-Icon-100.png|link=Toggle Button|50px]]
+| [[File:Toggle-Button-500.png|link=Toggle Button|50px]]
+|}

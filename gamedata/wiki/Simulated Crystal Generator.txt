@@ -1,0 +1,2 @@
+= Simulated Crystal Generator =
+#REDIRECT [[Simulated_Machines#Simulated_Crystal_Generator]]

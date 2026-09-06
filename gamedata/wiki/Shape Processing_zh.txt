@@ -1,0 +1,20 @@
+= Shape Processing/zh =
+形状处理工具栏中的工具包括[[传送带|传送带]]、[[回收站]]和一组用于对[[shapes/zh|形状]]进行基本变换的建筑物。
+
+{| class="wikitable"
+! 工具栏<br>槽位 !! 名称 !! 图标 !! 建筑
+|-
+| 1 || [[传送带]] || [[File:Conveyor-Belt-Icon-100.png|link=传送带|50px]] || [[File:Conveyor-Belt-500.png|link=传送带|50px]] [[File:Belt-Launcher-500.png|link=传带发射器|50px]] [[File:Belt-Catcher-500.png|link=传带接收器|50px]] [[File:Overflow-Splitter-500.png|link=溢流分离器|50px]]
+|-
+| 2 || [[旋转器]] || [[File:Rotator-Icon-100.png|link=旋转器|50px]] || [[File:90-CW-Rotator-500.png|link=顺时针90°旋转器|50px]] [[File:90-CCW-Rotator-500.png|link=逆时针90°旋转器|50px]] [[File:180-Rotator-500.png|link=180°旋转器|50px]]
+|-
+| 3 || [[切割机]] || [[File:Cutting-Icon-100.png|link=切割机|50px]] ||  [[File:Half-Destroyer-500.png|link=半破机|50px]] [[File:Cutter-500.png|link=切割机|50px]] [[File:Swapper-500.png|link=交换机|50px]]
+|-
+| 4 || [[堆垛机]] || [[File:Stacker-Icon-100.png|link=堆垛机|50px]] || [[File:Stacker-500.png|link=堆垛机|50px]] [[File:Stacker-Bent-500.png|link=堆垛机（弯）|50px]]
+|-
+| 5 || [[开采器]] || [[File:Extractor-Icon-100.png|link=开采器|50px]] || [[File:Extractor-500.png|link=开采器|50px]]
+|-
+| 6 || [[顶针器]] || [[File:Pin-Pusher-Icon-100.png|link=顶针器|50px]] || [[File:Pin-Pusher-500.png|link=顶针器|50px]]
+|-
+| 7 || [[回收站]] || [[File:Trash-Icon-100.png|link=回收站|50px]] || [[File:Trash-500.png|link=回收站|50px]]
+|}

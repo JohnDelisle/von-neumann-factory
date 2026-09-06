@@ -1,0 +1,16 @@
+= FAQ =
+=== Does shape rotation matter? ===
+
+It does not matter for the Vortex. Only for machines.
+
+See also: [[Vortex]], [[Rotator]], [[Knowledge Panel]]
+
+=== How do I open the Debug/Cheat console? ===
+
+Press F1, on a laptop fn + F1.
+
+See also: [[Debug Console]]
+
+=== Where are the log files / savegames / Blueprint Library? ===
+
+See [[Game_Files#Persistent_Data_Folder|Game Files]]

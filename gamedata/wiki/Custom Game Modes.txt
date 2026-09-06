@@ -1,0 +1,450 @@
+= Custom Game Modes =
+== Overview ==
+
+The game allows to import custom scenarios and custom scenario presets as [https://www.json.org/ json] files. These files are packaged inside a [[Modding | Mod]], which provides an easy way to add custom scenarios along with the mod's other features. Importantly, the game automatically loads the custom content if it's in the correct place, meaning that you can make and distribute custom scenarios without coding anything in C#, which is referred to as a "non-code mod". These non-code mods are sometimes not considered real mods, since they can only modify features the game allows to modify, and also because historically (before the 1.0 update), custom scenarios used to be loadable without mods via dedicated folders. They are however still mods, meaning that creating and publishing custom scenarios still follows some of the workflow for creating code mods, like making a folder in the [[Game Files#mods | mods]] folder, or making a [[Mod Development#Mod Manifest | manifest.json]] file. See [[Modding]] for full details.
+
+You can open json files like regular text files, although using a specialized editor that supports editing json is recommended.
+
+The ingame scenarios can be used as a base to create custom scenarios. To access them, use the [[Debug Console#debug.export-game-data | debug.export-game-data]] [[Debug Console | console command]], then in the [[Game Files#Persistent Data Folder | Persistent Data Folder]], open the [[Game Files#basedata-vXXXX | basedata]] folder. In there, the [[Game Files#scenarios | scenarios]] and [[Game Files#scenario-parameter-presets | scenario-parameter-presets]] folders will contain the ingame content. Keep in mind that the ingame scenarios can't be loaded directly without modifications, see the section below for more details.
+
+== Custom Content Loading Checklist ==
+
+<div style="float: right;">
+ MyMod
+ ├ manifest.json
+ ├ scenarios
+ │ └ my-scenario.json
+ └ scenario-presets
+   └ my-scenario-preset.json
+''File structure for custom content.''
+</div>
+
+If you're having issues loading a custom scenario, here is a quick checklist of common mistakes. Refer to the full documentation below this section to get more details on specific points.
+
+* Make sure you have a [[Mod Development#Mod Manifest | manifest.json]] file.
+* Make sure you have a [[#Custom Scenario Presets | Custom Scenario Preset]] pointing to your custom scenario.
+* Make sure there is a space between <code>"FormatVersion":</code> and <code>3,</code>.
+* Make sure the <code>UniqueId</code> keys for the scenario and the scenario preset are different from the ingame IDs.
+* Make sure the <code>ToolbarConfig</code> value is an [[#Include Raw | Include Raw]] string.
+
+== Include Syntax ==
+
+Custom scenarios and scenario presets support a special include syntax which allows including content from resource files to reduce repetitions across scenarios. The syntax to use is <code>"#include:<path>"</code> (including the <code>"</code>s), with <code><path></code> the path to the resource file without the file extension (and without <code><</code> or <code>></code>).
+
+The path is passed to the [https://docs.unity3d.com/ScriptReference/Resources.Load.html Resources.Load] Unity method, meaning that it can be used to include the content from any file in a <code>Resources</code> folder inside the game files. The ingame files inside <code>Resources</code> folders that are not made for scenarios will result in invalid scenario files if used with the include syntax, meaning that this syntax is only useful if the path points to a scenario component file, i.e. the path starts with <code>Scenarios/</code>. You can find a list of all ingame scenario components in [https://github.com/Loupau38/shapez2-assets/tree/main/assets/scenarioComponents this link]. The include syntax can't load mod provided files without a mod that adds that functionality with code.
+
+The include strings are processed before the json object is parsed, meaning that they can be anywhere in the file, even in places that make the file not valid json, as long as it results in valid json after the include strings are processed. When an include string is processed, the content of the file associated to the path is gathered, then any include strings inside the content get processed, and finally the resolved content fully replaces the string in its place.
+
+=== Include Raw ===
+
+The game has an alternative "include raw" syntax, similar to the include syntax, but with notable differences:
+
+* The prefix is <code>#include_raw:</code>.
+* It's not processed before the json is parsed.
+* It can only be used as a string value for an object key that expects an include raw string.
+* Unlike the regular include, it's not optional, if an object key expects an include raw string, it can't be the value that will replace the string.
+* Include strings or raw include strings contained inside the associated file content are not processed immediately<ref name="no-immediate-parse">Though include string and json parsing can be done at a later stage ingame.</ref>.
+* The string is converted to a custom C# object containing the file content as a string (json parsing is not done immediately<ref name="no-immediate-parse"/>).
+
+<references/>
+
+== Custom Scenarios ==
+
+Custom scenario files must be placed in the <code>scenarios</code> folder inside the root folder of the mod that wants to load the custom scenarios.
+
+{{JSON-Format-Description}}
+
+=== Main Object Format ===
+
+* <code>FormatVersion</code> number: The format version of the file, currently <code>3</code>. The game checks this value in the raw file content, meaning that the file must contain the exact string <code>"FormatVersion": 3,</code> (i.e. with a space after the <code>:</code>) anywhere in the file, but the value is otherwise unused.
+* <code>GameVersion</code> number: Supposedly the game version number this scenario was made for, but the value doesn't have any impact.
+* <code>UniqueId</code> string: The ID used by the game to identify the scenario, so it has to be unique. It also means the scenario file name doesn't matter.
+* <code>IsTutorial</code> bool: Indicates if the scenario is a tutorial scenario, mostly for main menu UIs.
+<!---->
+* <code>SupportedGameModes</code> array (default: <code>[]</code>): An array of strings indicating the game modes supported by this scenario. The full list is used to determine under which game mode(s) the scenario will be shown in the scenario selection screen. Only the first value in the list is used to determine the actual game mode that will be used when playing the save. The vanilla game mode IDs are <code>RegularGameMode</code>, <code>ConverterGameMode</code>, and <code>TutorialGameMode</code>.
+* <code>NextScenarios</code> array (default: <code>[]</code>): An array of strings of scenario IDs that can be selected after completing the current scenario. The scenario selection screen will only be shown if the <code>IsTutorial</code> key is <code>true</code>. If the scenario is a tutorial, providing an empty array will softlock the game when the selection screen shows up.
+* <code>ExampleShapes</code> array (default: <code>[]</code>): An array of strings of shape codes<ref name="shape-code"/>. Only the first value is used for the shape on the scenario badge, and thus on the scenario selection screens. If the array is empty then the badge won't have a shape.
+<!---->
+* <code>Title</code> TranslationString: The scenario's title.
+* <code>Description</code> TranslationString: The scenario's description.
+* <code>PreviewImageId</code> string: The ID of the image that will show in the background in the scenario selection screens.
+* <code>PlayerBadge</code> object: Configuration for the scenario's badge, it has the following keys:
+** <code>Title</code> TranslationString: The badge's title.
+** <code>ImageId</code> string: The ID of the badge's background image.
+<!---->
+* <code>ResearchConfig</code> object: An object containing configuration data for the scenario with the following keys:
+<!---->
+** <code>BaseChunkLimitMultiplier</code> number (Percentage) (default: <code>100</code>): Multiplies the platform limit rewards.
+** <code>BaseBlueprintRewardMultiplier</code> number (Percentage) (default: <code>100</code>): Multiplies the blueprint points rewards.
+** <code>MaxShapeLayers</code> number (default: <code>4</code>): The maximum number of layers that shapes can have.
+** <code>InitialResearchPoints</code> number: The number of research points given when starting a save with the scenario. Will be added to any research points rewards given by initially unlocked milestones and jobs.
+** <code>ShapesConfigurationId</code> string: Which types of shapes the scenario uses. The vanilla shape configuration IDs are <code>DefaultShapesQuadConfiguration</code> for quad shapes, <code>DefaultShapesHexagonalConfiguration</code> for hex shapes, and <code>OnboardingShapesQuadConfiguration</code> for quad shapes without the <code>Y</code> refined shape.
+** <code>ColorSchemeConfigurationId</code> string: Which color scheme the scenario uses. A color scheme defines what colors are available, the color mixing recipes, and which color modes (RGB, RYB, etc) are available. The only vanilla color scheme is <code>DefaultColorSchemeRGBFlex</code>.
+** <code>ResearchLevelsAreProgressive</code> bool: <code>true</code>: Classic mode display of milestone shapes. <code>false</code>: Manufacture mode display of milestone shapes (no arrows around the shapes, shapes centered horizontally and vertically when applicable).
+** <code>ResearchPointsGenerationMode</code> number: How research credits are generated in the scenario. Changes some translation strings in the UIs that mention how to get research credits. <code>0</code>: Jobs and Operator Level, <code>1</code>: Jobs, <code>2</code>: Research Stations. Any other value gives the same result as <code>0</code>.
+<!---->
+** <code>BlueprintCurrencyShapes</code> array (default: <code>[]</code>): An array indicating the shapes that will give blueprint points, each element is an object with the following keys:
+*** <code>Shape</code> string: The shape code<ref name="shape-code"/>.
+*** <code>RequiredUpgradeIds</code> array (default: <code>[]</code>): An array of upgrade<ref name="upgrade"/> IDs required to unlock that shape.
+*** <code>RequiredMechanicIds</code> array (default: <code>[]</code>): An array of mechanic IDs required to unlock that shape.
+*** <code>Amount</code> number: The amount of blueprint points given when delivering that shape.
+<!---->
+** <code>IntroductionWikiEntryId</code> string: The ID of the codex entry that should be displayed when starting a save with this scenario.
+** <code>InitiallyUnlockedUpgrades</code> array (default: <code>[]</code>): An array of strings of upgrade<ref name="upgrade"/> IDs that should be unlocked when starting a save with this scenario.
+** <code>TutorialConfig</code> string: What tutorial to use. The vanilla tutorial config IDs are <code>TCOnboarding</code> for the classic mode tutorial, <code>TCConverter</code> for the manufacture mode tutorial, and <code>TCNoTutorial</code> for no tutorial.
+<!---->
+* <code>Progression</code> object: What is included in the research screens, it has the following keys:
+<!---->
+** <code>Levels</code> object: It has the following keys:
+*** <code>Levels</code> array: An array of milestones, each element is an object with the following keys:
+<!---->
+**** <code>Definition</code> object: Information about the milestone, it has the following keys:
+***** <code>Id</code> string: The milestone's ID.
+***** <code>VideoId</code> string: The ID of the video that will show when unlocking the milestone.
+***** <code>PreviewImageId</code> string?: No effect.
+***** <code>Title</code> TranslationString: The milestone's title.
+***** <code>Description</code> TranslationString: The milestone's description.
+***** <code>WikiEntryId</code> string?: The codex entry that will be opened when clicking the 'more information' button in the unlock screen.
+***** <code>SignatureShape</code> string?: The shape code<ref name="shape-code"/> of the shape that will be displayed after an arrow pointing right, itself to the right of the other shapes from the milestone. This is usually the output of the trade station associated to that milestone in manufacture mode.
+***** <code>IconId</code> string?: The ID of the icon shown on the milestone in the milestones and trades screens. <code>null</code> or <code>""</code> means no icon.
+<!---->
+**** <code>Lines</code> object: It has the following keys:
+***** <code>Lines</code> array (default: <code>[]</code>): An array of the shape lines required to unlock the milestone. There can be up to 2 lines before visual issues appear ingame. Each element is an object with the following keys:
+****** <code>ReusedAtNextMilestone</code> bool: <code>true</code> if the final shape is reused in the next milestone.
+****** <code>ReusedAtNextMilestoneOffset</code> number: No effect.
+****** <code>ReusedAtSameMilestone</code> bool: <code>true</code> if the final shape is reused in another line of the milestone.
+****** <code>ReusedAtSameMilestoneOffset</code> number: Indicates in which line it is reused, -1 for above and 1 for below.
+****** <code>ReusedForPlayerLevel</code> bool: <code>true</code> if the final shape is reused in an operator level goal line.
+****** <code>StartingOffset</code> number: Indicates by how many shapes the line should be pushed to the right when rendered in the milestones screen.
+****** <code>Shapes</code> array (default: <code>[]</code>): An array of shapes contained in the line. There can be up to 3 shapes before visual issues appear ingame. Each element is an object with the following keys:
+******* <code>Shape</code> string: The shape code<ref name="shape-code"/>.
+******* <code>Amount</code> number: The amount required.
+<!---->
+**** <code>Rewards</code> object: It has the following keys:
+***** <code>Rewards</code> array (default: <code>[]</code>): An array of [[#Rewards Object Format | rewards objects]].
+<!---->
+** <code>SideQuestGroups</code> object: It has the following keys:
+*** <code>SideQuestGroups</code> array: An array of job lines, each element is an object with the following keys:
+<!---->
+**** <code>Title</code> TranslationString: The job line's title.
+**** <code>RequiredUpgradeIds</code> array: An array of strings of required upgrade<ref name="upgrade"/> IDs to unlock that job line.
+**** <code>RequiredMechanicIds</code> array: An array of strings of required mechanic IDs to unlock that job line.
+<!---->
+**** <code>SideQuests</code> array: An array of jobs in the line, each element is an object with the following keys:
+***** <code>Id</code> string: The job's ID.
+***** <code>IsFollowupForLevel</code> bool: No effect.
+***** <code>Rewards</code> array (default: <code>[]</code>): An array of [[#Rewards Object Format | rewards objects]].
+***** <code>Costs</code> array (default: <code>[]</code>): An array of costs for the job. More than one cost will create visual issues ingame, but will remain functional. Each element is an object with the following keys:
+****** <code>Shape</code> string: The shape code<ref name="shape-code"/>.
+****** <code>Amount</code> number: The amount required.
+<!---->
+** <code>ScenarioContent</code> object: It has the following keys:
+*** <code>UpgradeCategories</code> array: An array of strings of category IDs indicating which categories the shop items will be grouped into. The translation strings associated are hardcoded to have the key be <code>research.category.</code> followed by the category ID.
+*** <code>ContentBundles</code> array: An array of content bundle groups. How content bundles are grouped has no impact ingame. Each element is an object with the following keys:
+**** <code>ContentBundle</code> array: An array of content bundles. A content bundle will be a shop item ingame, except if it's listed as a reward of a milestone in the scenario, in which case it will be shown as an entry in the rewards for the milestone. Each element is an object with the following keys:
+<!---->
+***** <code>Id</code> string: The content bundle's ID.
+***** <code>PreviewImageId</code> string: The ID of the image that will show in the shop. No effect if it's not a shop item.
+***** <code>VideoId</code> string?: No effect.
+***** <code>Title</code> TranslationString: The content bundle's title.
+***** <code>IconId</code> string?: The ID of the icon shown for this content bundle. No effect if it's a shop item.
+***** <code>Description</code> TranslationString: The content bundle's description.
+***** <code>Hidden</code> bool: If it's a shop item, whether it should be hidden from the shop and removed from shop item counting computations. In this case, [[Debug Console#cheats.enable | cheats]] need to be used to unlock it. If it's not a shop item, whether to hide it from the milestone rewards.
+***** <code>Category</code> string: The ID of the category in which the shop item should be displayed. Providing an ID that is not in the <code>UpgradeCategories</code> list mentioned above will make the shop item not appear in the shop. No effect if it's not a shop item.
+***** <code>LinkedConverter</code> string?: The ID of the trade station unlocked by this shop item, used to show the trade station's recipe in the shop. Only has an effect if it's a shop item and the <code>ShopDisplayMode</code> key below is set to <code>2</code>.
+***** <code>ShopDisplayMode</code> number: <code>0</code>: Normal display for shop items. <code>1</code>: Adds icons for all the machines and platforms unlocked by this item. <code>2</code>: Adds a display for a trade station recipe, controlled by the <code>LinkedConverter</code> key. Any other value gives the same effect as <code>0</code>. Only has an effect if it's a shop item.
+***** <code>RequiredUpgradeIds</code> array (default <code>[]</code>): An array of strings of required upgrade<ref name="upgrade"/> IDs to unlock the shop item. No effect if it's not a shop item.
+***** <code>RequiredMechanicIds</code> array (default <code>[]</code>): An array of strings of required mechanic IDs to unlock the shop item. No effect if it's not a shop item.
+***** <code>Rewards</code> array (default <code>[]</code>): An array of [[#Rewards Object Format | rewards objects]].
+***** <code>Costs</code> array (default <code>[]</code>): An array of [[#Costs Object Format | costs objects]]. Only the first value is used to display the cost ingame. Using shape costs technically works, but they won't be displayed ingame, and delivering the required shapes isn't enough to update the 'unlock' button to be clickable (the save might need to be reloaded). No effect if it's not a shop item.
+<!---->
+** <code>LinearUpgrades</code> object: Configuration about the linear upgrades<ref name="linear-upgrade"/> in the scenario, it has the following keys:
+<!---->
+*** <code>HubInputSizeUpgradeId</code> string: The ID of the linear upgrade to increase the number of vortex inputs.
+*** <code>ShapeQuantityUpgradeId</code> string: The ID of the linear upgrade to multiply delivered shapes.
+*** <code>ChunkLimitAddUpgradeId</code> string: The ID of the linear upgrade to increase the platform capacity.
+*** <code>SpeedsToLinearUpgradeMappings</code> dictionary: A mapping specifying by which linear upgrade ID is controlled each speed ID. Values for the keys that have an effect ingame are <code>BeltSpeed</code>, <code>CutterSpeed</code>, <code>StackerSpeed</code>, <code>PainterSpeed</code>, <code>TrainSpeed</code>, <code>TrainCapacity</code>. The dictionary values are linear upgrade IDs.
+<!---->
+*** <code>LinearUpgrades</code> array: The linear upgrades in the scenario, each element is an object with the following keys:
+**** <code>Id</code> string: The linear upgrade's ID.
+**** <code>Title</code> TranslationString: The linear upgrade's title.
+**** <code>DisplayType</code> number: Indicates how the value of each level should be displayed : <code>1</code>: A speed, <code>2</code>: A percentage, <code>3</code>: The number as is, <code>4</code>: The number divided by 100, <code>5</code>: A platform capacity<ref name="chunk-limit"/> value.
+**** <code>Levels</code> array (default: <code>[]</code>): An array of levels for the linear upgrade. The array needs to have at least one element. Each element is an object with the following keys:
+***** <code>Value</code> number: The value of the level, displayed according to <code>DisplayType</code>.
+***** <code>Cost</code> object?: A [[#Costs Object Format | costs object]]. No effect for the first level. Can't be <code>null</code> for other levels than the first. Same notes as the <code>Costs</code> key of content bundles about shape costs.
+**** <code>Attribute</code> TranslationString: No effect.
+**** <code>Description</code> TranslationString: The linear upgrade's description.
+**** <code>RequiredUpgradeIds</code> array (default: <code>[]</code>): An array of strings of required upgrade<ref name="upgrade"/> IDs to unlock that linear upgrade.
+**** <code>RequiredMechanicIds</code> array (default: <code>[]</code>): An array of strings of required mechanic IDs to unlock that linear upgrade.
+**** <code>Category</code> string: The ID of the shop category in which this linear upgrade should be displayed. Uses the values from the <code>UpgradeCategories</code> key mentioned above the content bundle data.
+<!---->
+** <code>WikiConfiguration</code> object: Configuration for the codex in this scenario, it has the following keys:
+*** <code>Categories</code> array: An array of groups of codex categories. How the categories are grouped has no effect ingame. Each group is an array of codex categories, and each codex category is an object with the following keys:
+**** <code>Id</code> string: The category's ID.
+**** <code>IconId</code> string: The ID of the category's icon.
+**** <code>TitleId</code> TranslationString: The category's title.
+**** <code>RequiredUpgradeIds</code> array (default: <code>[]</code>): An array of strings of upgrade<ref name="upgrade"/> IDs required to unlock this category.
+**** <code>RequiredMechanicIds</code> array (default: <code>[]</code>): An array of strings of mechanic IDs required to unlock this category.
+*** <code>WikiEntries</code> array: An array of groups of codex pages. How the pages are grouped has no effect ingame. Each group is an array of codex pages, and each codex page is an object with the following keys:
+**** <code>EntryId</code> string: The codex page's ID. This must be the ID of an existing codex page.
+**** <code>CategoryId</code> string: The ID of the category in which this page will be displayed. This must be an ID defined in the section above.
+**** <code>RequiredMechanicIds</code> array (default: <code>[]</code>): An array of strings of mechanic IDs required to unlock this page. The array will be merged with the <code>RequiredMechanicIds</code> array of the assigned category.
+**** <code>RequiredUpgradeIds</code> array (default: <code>[]</code>): An array of strings of upgrade<ref name="upgrade"/> IDs required to unlock this page. The array will be merged with the <code>RequiredUpgradeIds</code> array of the assigned category.
+**** <code>UnavailableIfLocked</code> bool: Whether the page should be inaccessible if it's not unlocked.
+<!---->
+* <code>StartingLocation</code> object: Configuration for the starting area, it has the following keys:
+<!---->
+** <code>InitialViewport</code> object: Configuration about the camera's starting position, it has the following keys:
+*** <code>PositionX</code> number: The X position.
+*** <code>PositionY</code> number: The Y position.
+*** <code>Zoom</code> number: The zoom.
+*** <code>RotationDegrees</code> number: The rotation.
+*** <code>Angle</code> number: The angle.
+*** <code>BuildingLayer</code> number: The machine level.
+*** <code>IslandLayer</code> number: The platform level.
+*** <code>ShowAllBuildingLayers</code> bool: Whether or not to have all machine levels visible.
+*** <code>ShowAllIslandLayers</code> bool: Whether or not to have all platform levels visible.
+<!---->
+** <code>CentralElementCoordinate</code> object: Where the camera jumps to when using the 'jump to home' function. The coordinates are space level. It has the following keys:
+*** <code>x</code> number: The X position.
+*** <code>y</code> number: The Y position.
+*** <code>z</code> number: The Z position.
+<!---->
+** <code>InitialIslands</code> object: It has the following keys:
+*** <code>InitialIslands</code> array: An array of initially placed platforms, each element is an object with the following keys:
+**** <code>Position_GC</code> object: Space level position of the platform with the following keys:
+***** <code>x</code> number: The X position.
+***** <code>y</code> number: The Y position.
+***** <code>z</code> number: The Z position.
+**** <code>Rotation</code> number: The platform's rotation.
+**** <code>LayoutId</code> string: The type of platform.
+<!---->
+** <code>FixedPatches</code> object: It has the following keys:
+*** <code>FixedPatches</code> array: An array of shape patches whose exact position is predetermined, each element is an object with the following keys:
+**** <code>Shape</code> string: The shape code<ref name="shape-code"/> of the shape.
+**** <code>Position_LC</code> object: Space level position of the patch's origin relative to the north west corner of the center super chunk. It has the following keys:
+***** <code>x</code> number: The X position.
+***** <code>y</code> number: The Y position.
+***** <code>z</code> number: The Z position.
+**** <code>LocalTiles</code> array (default: <code>[]</code>): An array of each of the patch's individual tiles, space level positions relative to the patch's origin. Each element is an object with the following keys:
+***** <code>x</code> number: The X offset.
+***** <code>y</code> number: The Y offset.
+***** <code>z</code> number: The Z offset.
+<!---->
+** <code>StartingChunks</code> object: It has the following keys:
+*** <code>StartingChunks</code> array: An array of shape and fluid patches which must generate in each super chunk, but the position inside that super chunk is random, each element is an object with the following keys:
+**** <code>SuperChunk</code> object: Coordinates of the super chunk for which the data is for (used as a dictionary key ingame). It has the following keys:
+***** <code>x</code> number: The X position.
+***** <code>y</code> number: The Y position.
+**** <code>GuaranteedShapePatches</code> array (default: <code>[]</code>): An array of strings of shape codes<ref name="shape-code"/> for the shape patches in the super chunk.
+**** <code>GuaranteedColorPatches</code> array (default: <code>[]</code>): An array of strings of color codes for the fluid patches in the super chunk.
+<!---->
+* <code>PlayerLevelConfig</code> object: An object containing configuration data for the operator level screen with the following keys:
+** <code>IconicLevelShapes</code> object: It has the following keys:
+*** <code>LevelShapes</code> array (default: <code>[]</code>): An array of strings of shape codes<ref name="shape-code"/> indicating the operator level shape badges.
+** <code>IconicLevelShapeInterval</code> number (default: <code>5</code>): Indicates the number of levels each shape badge should last, for example <code>1</code> would change the badge every level, and <code>5</code> would change every 5 levels.
+** <code>RankDifficultyMultiplier</code> number (default: <code>1.0</code>): By how much the current operator level is multiplied before being given to the ranking formula.
+<!---->
+** <code>GoalLines</code> array (default: <code>[]</code>): An array of operator level goal lines, each element is an object with the following keys:
+*** <code>Id</code> string: The goal line's ID.
+*** <code>Randomized</code> bool: If the goal line should be randomized.
+*** <code>RandomizedUseCrystals</code> bool: If the goal line should use crystals. No effect if it's not randomized.
+*** <code>RandomizedExtraShapesPer10Level</code> array (default: <code>[]</code>): Additional shape parts to add in the random shape generation. See [[Operator Level#ROS | ROS]] for more info. Each element must be a two characters string representing a shape part. No effect if it's not randomized.
+*** <code>Shape</code> string?: The shape code<ref name="shape-code"/> if it's not randomized.
+*** <code>ConvertedShape</code> string?: The shape code<ref name="shape-code"/> of the shape to show as a research station byproduct of this goal line's <code>Shape</code>.
+*** <code>StartingAmount</code> number: How much shapes should be required at the first level.
+*** <code>ExponentialGrowthPercentPerLevel</code> number: How much each level will increase the number of shapes required.
+*** <code>RequiredUpgradeIds</code> array (default: <code>[]</code>): An array of strings of required upgrade<ref name="upgrade"/> IDs to unlock that goal line.
+*** <code>RequiredMechanicIds</code> array (default: <code>[]</code>): An array of strings of required mechanic IDs to unlock that goal line.
+<!---->
+** <code>Rewards</code> array (default: <code>[]</code>): An array of rewards for advancing one operator level. Ingame, the first object in the array that has a <code>MinimumLevel</code> less than or equal to the current level is chosen. Each element is an object with the following keys:
+*** <code>MinimumLevel</code> number: Indicates starting at which operator level these rewards should be given. Changed to <code>0</code> if negative.
+*** <code>Rewards</code> array: An array of [[#Rewards Object Format | rewards objects]]. Only blueprint points, research credits, and platform capacity rewards will have an effect ingame.
+<!---->
+* <code>Mechanics</code> object: It has the following keys:
+** <code>Mechanics</code> array: An array of mechanics unlocked throughout the progression (layers, blueprints, platforms, fluids, trains, etc), each element is an object with the following keys:
+*** <code>Id</code> string: The mechanic's ID.
+*** <code>Title</code> TranslationString: The mechanic's title.
+*** <code>Description</code> TranslationString: The mechanic's description.
+*** <code>IconId</code> string: The ID of the mechanic's icon.
+*** <code>HideReward</code> bool: Hide the mechanic from any list of rewards containing it.
+<!---->
+** <code>BuildingLayerMechanicIds</code> array: An array of strings of mechanic IDs for the machine level mechanics. Each mechanic in this array will add an extra unlockable machine level above the previous. Using machine levels above the 3rd will cause visual issues ingame.
+** <code>IslandLayerMechanicIds</code> array: An array of strings of mechanic IDs for the platform level mechanics. Each mechanic in this array will add an extra unlockable platform level, the position of which is given by the number at the same index in the <code>IslandLayersUnlockOrder</code> array below. 
+** <code>IslandLayersUnlockOrder</code> array: An array of numbers representing the order in which each platform level index should unlock. The array must have at least the same number of elements as <code>IslandLayerMechanicIds</code>. Ingame, the platform levels actually unlocked will be the complete range between the minimum index unlocked and the maximum index unlocked. If a platform level with a negative index is unlocked, platforms will stop rendering when zooming in machine level.
+** <code>BlueprintsMechanicId</code> string: The mechanic ID for unlocking blueprints.
+** <code>RailsMechanicId</code> string: The mechanic ID for unlocking trains.
+** <code>IslandManagementMechanicId</code> string: The mechanic ID for unlocking platform building.
+** <code>PlayerLevelMechanicId</code> string: The mechanic ID for unlocking the operator level screen.
+** <code>TrainHubDeliveryMechanicId</code> string: The mechanic ID for unlocking launching trains into the vortex.
+** <code>SideUpgradeMechanicId</code> string: The mechanic ID for unlocking the jobs screen.
+** <code>TradeStationsMechanicId</code> string: The mechanic ID for unlocking the trades research screen.
+<!---->
+* <code>ConvertersConfig</code> object: Configuration for the trade stations in the scenario, it has the following keys:
+<!---->
+** <code>RocketGroups</code> array (default <code>[]</code>): The rocket groups in the scenario, used for the statistics screen and achievements, each element is an object with the following keys:
+*** <code>RocketGroupId</code> string: The rocket group's ID.
+*** <code>IconId</code> string: The ID of the rocket group's icon.
+*** <code>TitleId</code> TranslationString: The rocket group's title.
+*** <code>RocketIds</code> array: An array of strings of rocket IDs belonging to this group.
+*** <code>RequiredUpgradeIds</code> array (default <code>[]</code>): An array of strings of upgrade<ref name="upgrade"/> IDs required to unlock this rocket group.
+*** <code>RequiredMechanicIds</code> array (default <code>[]</code>): An array of strings of mechanic IDs required to unlock this rocket group.
+<!---->
+** <code>Configs</code> object: A dictionary defining the trade stations available in the scenario, the keys will be the platform IDs of the trade stations, and the associated object will be the configuration for the trade station. Each object has the following keys:
+*** <code>Title</code> string: The translation ID for the trade station's title.
+*** <code>Description</code> string: The translation ID for the trade station's description.
+*** <code>Icon</code> string: The ID of the trade station's icon.
+*** <code>ChunkCost</code> number: The trade station's platform capacity<ref name="chunk-limit"/> cost.
+*** <code>IsSelectable</code> bool: Whether the trade station can be selected once placed.
+*** <code>IsBuildable</code> bool: Whether the trade station can be placed.
+*** <code>IsRemovable</code> bool: Whether the trade station can be deleted once placed.
+*** <code>AccentColorPaletteIndex</code> number: The color palette index for the trade station's accent color. <code>0</code>: Orange, <code>1</code>: Blue, <code>2</code>: Light Blue, <code>3</code>: Grey, <code>4</code>: Red, <code>5</code>: Yellow, <code>6</code>: Green, <code>7</code>: Cyan, <code>8</code>: Blue, <code>9</code>: Magenta, <code>10</code>: White, <code>11</code>: Black, <code>12</code>: Dark Purple, <code>13</code>: Orange, <code>14</code>: Purple, <code>15</code>: Light Cyan.
+*** <code>LinkedWikiEntry</code> string?: The ID of the codex page to open when clicking the 'more information' button in the trade station's tooltip. Defaults to the trade stations codex page if <code>null</code> or <code>""</code>.
+<!---->
+*** <code>Modules</code> array (default: <code>[]</code>): The visual modules making up the trade station, each element is an object with the following keys:
+**** <code>Transform</code> object: The module's position relative to the trade station's origin as a [[#Position Transform Object Format | position transform object]].
+**** <code>Name</code> string: The module's model ID.
+*** <code>SimpleAnimationModules</code> array (default: <code>[]</code>): TBD, the elements are objects with the following keys:
+**** <code>Transform</code>: [[#Position Transform Object Format | position transform object]]
+**** <code>Name</code>: string
+<!---->
+*** <code>IOs</code> object: The trade station's inputs and outputs configuration, it has the following keys:
+**** <code>Inputs</code> array (default: <code>[]</code>): The positions of the trade station's shape inputs relative to the trade station's origin. Each element is a [[#Position Transform Object Format | position transform object]]. The inputs must be connected to one of the trade station's tiles to work.
+**** <code>Outputs</code> array (default: <code>[]</code>): The positions of the trade station's shape outputs relative to the trade station's origin. Each element is a [[#Position Transform Object Format | position transform object]]. The outputs must be connected to one of the trade station's tiles to work.
+**** <code>TopUI</code> object: The position of the trade station's colored light indicator as a [[#Position Transform Object Format | position transform object]].
+**** <code>Rockets</code> array (default: <code>[]</code>): The trade station's rocket modules. The objects have the same format (and have the same class internally) as the objects in the <code>Modules</code> array mentioned above.
+<!---->
+*** <code>Recipe</code> object: Configuration for the trade station's conversion recipe, it has the following keys:
+**** <code>Inputs</code> array (default: <code>[]</code>): The trade station's input shapes. Each element corresponds to the object with the same index in the <code>Inputs</code> array of the <code>IOs</code> object above. Each element is an object with the following keys:
+***** <code>Shape</code> string: The shape code<ref name="shape-code"/>.
+**** <code>Outputs</code> array (default: <code>[]</code>): The trade station's output shapes. Each element corresponds to the object with the same index in the <code>Outputs</code> array of the <code>IOs</code> object above. Each element is an object with the following keys:
+***** <code>Shape</code> string: The shape code<ref name="shape-code"/>.
+**** <code>RocketId</code> string: The rocket ID for this recipe.
+**** <code>ConversionsPerRocket</code> number: The number of shape conversions that the trade station needs to do before launching a rocket.
+**** <code>ConvertersPerFullBelt</code> number: The number of inputs/outputs of this trade station needed to consume/produce a full machine level belt on each spot of a [[Notch]]. Must be at least 2.
+**** <code>RequiredUpgradeIds</code> array (default: <code>[]</code>): An array of strings of upgrade<ref name="upgrade"/> IDs required to unlock this recipe. Leave empty to make available as soon as the trade station is unlocked.
+**** <code>RequiredMechanicIds</code> array (default: <code>[]</code>): An array of strings of mechanic IDs required to unlock this recipe. Leave empty to make available as soon as the trade station is unlocked.
+<!---->
+* <code>ResearchStationConfig</code> object?: Configuration for the research station recipes. <code>null</code> will make the <code>Recipes</code> dictionary empty. It has the following keys:
+** <code>Recipes</code> object: A dictionary of shape conversions the research stations should handle. Keys are input shape codes<ref name="shape-code"/> and values are output shape codes. Rotations of the input shapes are not automatically generated and must be provided in the dictionary if the behavior of all rotations being accepted is desired.
+<!---->
+* <code>RailColorsConfig</code> object: Configuration of the displayed colors for trains and train platforms, it has the following keys:
+** <code>RailColors</code> array (default: <code>[]</code>): Configuration for each color, each element is an object with the following keys:
+*** <code>Id</code> object: It has the following keys:
+**** <code>RailColorId</code> string: The ID of the rail color to configure the displayed color. Across the array, this key must be set at least once to each value in <code>Red</code>, <code>Green</code>, <code>Blue</code>, <code>Cyan</code>, <code>Magenta</code>, <code>Yellow</code>, <code>White</code>.
+*** <code>Tint</code> string: The color in hexadecimal format.
+<!---->
+* <code>ToolbarConfig</code> string: An [[#Include Raw | Include Raw]] string configuring the toolbar in the scenario. The include raw paths that provide valid data are:
+** <code>Scenarios/Classic/DefaultData/Toolbar/ToolbarConfig</code>
+** <code>Scenarios/Classic/DefaultData/Toolbar/ToolbarConfigWithConverters</code>
+** <code>Scenarios/Converter/Regular/Toolbar/ToolbarConfig</code>
+** <code>Scenarios/Converter/Hard/Toolbar/ToolbarConfig</code>
+: When the ingame scenarios are exported with the [[Debug Console#debug.export-game-data | debug.export-game-data]] command, the value that gets resolved for the include raw string is included, meaning that the scenario doesn't have a valid format and thus can't be loaded ingame without changing the value of this key.
+<!---->
+* <code>CinematicIntroConfig</code> object: Configuration for the cinematic camera sequence shown when starting the scenario for the first time. It has the following keys:
+** <code>Steps</code> array (default: <code>[]</code>): An array of camera keyframes for the cinematic sequence. An empty array means no intro sequence. Each element is an object with the following keys:
+*** <code>PositionX</code> number: The camera X position for this step.
+*** <code>PositionY</code> number: The camera Y position for this step.
+*** <code>Zoom</code> number: The camera zoom for this step.
+*** <code>RotationDegrees</code> number: The camera rotation for this step.
+*** <code>Angle</code> number: The camera angle for this step.
+*** <code>Text</code> TranslationString: The text displayed during this step.
+*** <code>TransitionDuration</code> number (default: <code>2.0</code>): The duration in seconds of the transition to this step.
+
+=== Rewards Object Format ===
+
+* <code>$type</code> string: The type of reward, can be <code>BlueprintCurrencyReward</code>, <code>ResearchPointsReward</code>, <code>ChunkLimitReward</code>, <code>BuildingReward</code>, <code>IslandGroupReward</code>, <code>ContentBundleReward</code>, or <code>MechanicReward</code>.
+* <code>Amount</code> number: The amount if it's a blueprint points, research credits<ref name="research-point"/>, or platform capacity<ref name="chunk-limit"/> reward.
+* <code>BuildingDefinitionGroupId</code> string?: The machine variant ID if it's a machine reward.
+* <code>GroupId</code> string?: The platform group ID if it's a platform group reward.
+* <code>ContentBundleId</code> string?: The content bundle ID if it's a content bundle reward.
+* <code>MechanicId</code> string?: The mechanic ID if it's a mechanic reward.
+
+=== Costs Object Format ===
+
+* <code>$type</code> string: The type of cost, can be <code>ResearchPointsCost</code> or <code>FixedShapeCost</code>.
+* <code>Amount</code> number: The amount of research credits<ref name="research-point"/> or shapes required.
+* <code>Shape</code> string: The shape code<ref name="shape-code"/> if it's a shape cost.
+
+=== Position Transform Object Format ===
+
+Represents a space level position relative to an origin point.
+
+* <code>X</code> number: The X offset.
+* <code>Y</code> number: The Y offset.
+* <code>Z</code> number: The Z offset.
+* <code>Rotation</code> number: The rotation.
+
+=== Notes ===
+
+<references>
+<ref name="upgrade">In this context, the term "upgrade" refers to a milestone, job, or shop item, except for linear upgrades.</ref>
+<ref name="shape-code">Any shape code must be valid under the [[Shapes#Strict Ruleset | Strict Shapes Ruleset]].</ref>
+<ref name="chunk-limit">Any platform capacity value will be halved when displayed ingame. This is to keep integer values while allowing platforms like space belts to have a cost of 0.5.</ref>
+<ref name="research-point">Any research credit value will be multiplied by 100 when displayed ingame. This is supposedly for aesthetic purposes.</ref>
+<ref name="linear-upgrade">Linear upgrades are just called "upgrades" ingame, but they will be called linear upgrades here to not confuse them with upgrades</ref>
+</references>
+
+== Custom Scenario Presets ==
+
+Custom scenario preset files must be placed in the <code>scenario-presets</code> folder inside the root folder of the mod that wants to load the custom scenario presets. Although scenario presets are no longer displayed ingame, a scenario preset pointing to a specific scenario is still required to start a save with said scenario. The scenario presets exported by the game using the [[Debug Console#debug.export-game-data | debug.export-game-data]] command are the raw files, meaning that the [[#Include Syntax | Include Strings]] are not resolved. You can find the complete versions in [https://github.com/Loupau38/shapez2-assets/tree/main/assets/scenarioParameterPresets this link].
+
+{{JSON-Format-Description}}
+
+=== Main Object Format ===
+
+* <code>Version</code> number: No effect. The game also accepts the value as a string (which is the case in the ingame scenario presets) due to the JSON loader used being permissive, but the string must still represent a valid integer.
+* <code>UniqueId</code> string: The ID used by the game to identify the scenario preset, so it has to be unique, it also means the scenario preset file name doesn't matter.
+* <code>Title</code> TranslationString: The scenario preset's title.
+* <code>Description</code> TranslationString: The scenario preset's description.
+* <code>Parameters</code> object: The actual data of the scenario preset, it has the following keys:
+** <code>MapGenerationParameters</code> object: The configuration of the map generation settings, it has the following keys:
+<!---->
+*** <code>FluidsSpawnPrimaryColors</code> bool (default: <code>true</code>): Whether or not to spawn fluid patches of the primary colors.
+*** <code>FluidsSpawnSecondaryColors</code> bool: Whether or not to spawn fluid patches of the secondary colors.
+*** <code>FluidsSpawnTertiaryColors</code> bool: Whether or not to spawn fluid patches of the tertiary colors.
+<!---->
+*** <code>FluidPatchLikelinessPercent</code> number (default: <code>15</code>): The likeliness of fluid patches as a percentage.
+*** <code>FluidPatchBaseSize</code> number (default: <code>2</code>): The base size of fluid patches.
+*** <code>FluidPatchSizeGrowPercentPerChunk</code> number (default: <code>70</code>): How much fluid patches should grow per chunk as a percentage.
+*** <code>FluidPatchMaxSize</code> number (default: <code>4</code>): The maximum size of fluid patches.
+<!---->
+*** <code>ShapePatchLikelinessPercent</code> number (default: <code>30</code>): The likeliness of shape patches as a percentage.
+*** <code>ShapePatchBaseSize</code> number (default: <code>2</code>): The base size of shape patches.
+*** <code>ShapePatchSizeGrowPercentPerChunk</code> number (default: <code>70</code>): How much shape patches should grow per chunk as a percentage.
+*** <code>ShapePatchMaxSize</code> number (default: <code>5</code>): The maximum size of shape patches.
+<!---->
+*** <code>ShapePatchShapeColorfulnessPercent</code> number (default: <code>50</code>): The colorfulness of shape patches as a percentage.
+*** <code>ShapePatchRareShapeLikelinessPercent</code> number (default: <code>30</code>): The likeliness of rare shapes in shape patches as a percentage.
+*** <code>ShapePatchVeryRareShapeLikelinessPercent</code> number (default: <code>10</code>): The likeliness of very rare shapes in shape patches as a percentage.
+<!---->
+*** <code>SpiralGeneration</code> bool: Whether or not to use spiral-based generation for the map.
+*** <code>SpiralThickness</code> number (default: <code>1.0</code>): The thickness of the spiral.
+*** <code>SpiralTwist</code> number (default: <code>1.0</code>): The twist of the spiral.
+<!---->
+*** <code>ShapePatchGenerationLikeliness</code> array (default: <code>[{"GenerationType":"UncoloredFullShape","Weight":100}]</code>): An array of generation settings for each type of shape patch. There can be multiple elements with the same <code>GenerationType</code> value. Each element is an object with the following keys:
+**** <code>GenerationType</code> string: The type of generation this object affects. Must be <code>UncoloredHalfShape</code>, <code>UncoloredAlmostFullShape</code>, <code>UncoloredFullShape</code>, <code>UncoloredFullShapePure</code>, <code>PrimaryColorHalfShape</code>, <code>PrimaryColorAlmostFullShape</code>, <code>PrimaryColorFullShape</code>, <code>PrimaryColorFullShapePure</code>, <code>SecondaryColorHalfShape</code>, <code>SecondaryColorAlmostFullShape</code>, <code>SecondaryColorFullShape</code>, <code>SecondaryColorFullShapePure</code>, <code>TertiaryColorHalfShape</code>, <code>TertiaryColorAlmostFullShape</code>, <code>TertiaryColorFullShape</code>, or <code>TertiaryColorFullShapePure</code>.
+**** <code>MinimumDistanceToOrigin</code> number: The minimum distance from the center of the map for this type of shape patch to generate. Must be between <code>0</code> and <code>50</code>.
+**** <code>Weight</code> number: The relative weight (likeliness) of this type of shape patch. Must be between <code>0</code> and <code>100000</code>.
+**** <code>MaximumDistanceToOrigin</code> number (default: <code>-1</code>): The maximum distance to the center of the map for this type of shape patch to generate. A negative value means no maximum distance. Must be <code>50</code> or less.
+<!---->
+** <code>GameRuleParameters</code> object: The configuration of the game rules, it has the following keys:
+*** <code>RuleIds</code> array (default: <code>[]</code>): An array of strings of game rule IDs that should be enabled. Each one must be an existing game rule ID.
+** <code>ScenarioId</code> string (default: <code>"default-scenario"</code>): The ID of the scenario this scenario preset should use.
+
+== Difficulty Presets ==
+
+The game currently doesn't support loading custom difficulty presets as json files, however you can still find the in-game ones in the [[Game Files#difficulty-presets | difficulty-presets]] folder of the [[Game Files#basedata-vXXXX | basedata]] folder.
+
+{{JSON-Format-Description}}
+
+=== Main Object Format ===
+
+* <code>Version</code> number: No effect. The game also accepts the value as a string (which is the case in the ingame difficulty presets) due to the JSON loader used being permissive, but the string must still represent a valid integer.
+* <code>UniqueId</code> string: The ID used by the game to indentify the difficulty preset.
+* <code>Title</code> TranslationString: The difficulty preset's title.
+* <code>IconId</code> string: The difficulty preset's icon ID.
+* <code>Parameters</code> object: The actual data of the difficulty preset, it has the following keys:
+** <code>ResearchShapeCostMultiplier</code> number (default: <code>100</code>): The Goal Multiplier as a percentage.
+** <code>ChunkLimitMultiplier</code> number (default: <code>100</code>): The Platform Capacity multiplier as a percentage.
+** <code>BlueprintCostMultiplier</code> number (default: <code>100</code>): The Copy/Paste Cost multiplier as a percentage.

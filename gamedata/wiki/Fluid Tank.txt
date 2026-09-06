@@ -1,0 +1,20 @@
+= Fluid Tank =
+{{Machine Infobox
+|title=Fluid Tank
+|image=Fluid-Tank-500.png
+|footprint=2 x 2 x 1
+|fluidinouts=1 : 1
+|milestone=4
+|researchcost=10
+|fluidinput=1200 • 1500 • 1800
+|fluidoutput=1200 • 1500 • 1800
+|fluidratio=1
+}}
+
+{{Fluid Machines}}
+
+== Overview ==
+
+The Fluid Tank stores up to 2,400 L of a single fluid color.
+
+Changing fluid colors will cause the previous color to drain out before the new color begins to fill the tank.  The tank will only input fluid if the pipe network it is connected to has excess fluid.  That is, other fluid machines that consume fluid will have priority over the fluid tank.

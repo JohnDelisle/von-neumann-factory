@@ -1,0 +1,2 @@
+= Simulated Rotator =
+#REDIRECT [[Simulated_Machines#Simulated_Rotator]]

@@ -1,0 +1,2 @@
+= NOT Gate =
+#REDIRECT [[Logic_Gates#NOT_Gate]]

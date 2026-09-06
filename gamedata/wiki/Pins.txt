@@ -1,0 +1,2 @@
+= Pins =
+#REDIRECT [[Shapes#Pins]]

@@ -1,0 +1,58 @@
+= Machine Platforms =
+[[File:All-Foundations.png|450px|right|class=responsive-image]]
+
+== Overview ==
+
+Machine Platforms provide terrain suitable for building the many machines needed to manipulate Shapez. Placing Machine Platforms costs <span class="gl">Platform Capacity</span>. The cost is equal to the number of space grid tiles (aka chunks) the platform occupies. The 1x1 costs 1, the 2x1 costs 2, etc. Platform Capacity can be gained by completing [[Milestones]] or [[Jobs]], or by purchasing it from the [[Shop#Platform_Capacity|Shop]].
+
+Machine Platform edges are set back from the chunk border by two tiles, and a third tile-wide edge exists. In the middle of each chunk edge is a 4 tile wide [[Notch]] marked by arrows. As a result of three rows and columns being unavailable for construction, the smallest possible Machine Platform has an effective building area of 14x14, while each space tile boundary crossed by a larger platform provides an extra 6 rows or columns, giving a 2x2 space platform a building area of 34x34, or nearly 1.5 times as much building space as 4 single-chunk machine platforms.
+
+The first Machine platforms (1x1 and 2x1) are unlocked for free when the player reaches the [[Milestones | Space Platforms Milestone]] (Milestone 2 in the hexagonal [[Scenario]], 3 otherwise). Additional platform varieties can be purchased with Research Points from the [[Shop#Platforms|Shop]] screen.
+
+== Linear Platforms ==
+
+{| class="wikitable" style="text-align: center;"
+! Preview !! Tiles (Cost) !! Size !! Total area
+|-
+| style="padding: 20px;" | [[File:Foundation-1x1-500.png|200px]] || 1 || 1 x 1 || 14x14 = 196
+|-
+| [[File:Foundation-2x1-500.png|200px]] || 2 || 2 x 1 || 34x14 = 476
+|-
+| [[File:Foundation-3x1-500.png|200px]] || 3 || 3 x 1 || 54x14 = 756
+|-
+| [[File:Foundation-4x1-500.png|200px]] || 4 || 4 x 1 || 74x14 = 1,036
+|}
+
+== Blocky Platforms ==
+
+{| class="wikitable" style="text-align: center;"
+! Preview !! Tiles (Cost) !! Size !! Total area
+|-
+| [[File:Foundation-2x2-500.png|200px]] || 4 || 2 x 2 || 34x34 = 1,156
+|-
+| [[File:Foundation-3x2-500.png|200px]] || 6 || 3 x 2 || 54x34 = 1,836
+|-
+| [[File:Foundation-4x2-500.png|200px]] || 8 || 4 x 2 || 74x34 = 2,516
+|-
+| [[File:Foundation-3x3-500.png|200px]] || 9 || 3 x 3 || 54x54 = 2,916
+|}
+
+== Irregular Platforms ==
+
+Note: Buildable areas are equal to those of linear platforms with the same number of tiles, as none cover an entire corner.
+
+{| class="wikitable" style="text-align: center;"
+! Preview !! Tiles (Cost) !! Size !! Total area
+|-
+| [[File:Foundation-L-500.png|200px]] || 3 || 2 x 2 || 756
+|-
+| [[File:Foundation-L4-500.png|200px]] || 4 || 3 x 2 || 1,036
+|-
+| [[File:Foundation-S4-500.png|200px]] || 4 || 3 x 2 || 1,036
+|-
+| [[File:Foundation-T-500.png|200px]] || 4 || 3 x 2 || 1,036
+|-
+| [[File:Foundation-Cross-500.png|200px]] || 5 || 3 x 3 || 1,316
+|}
+
+<references/>

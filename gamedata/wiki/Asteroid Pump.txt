@@ -1,0 +1,10 @@
+= Asteroid Pump =
+== Overview ==
+
+Asteroid Pumps are unlocked with the Fluids & Painting [[Milestones | Milestone]] and must be placed above [[Map#Fluid Asteroids | Fluid Asteroids]], on the bottom platform level. Each Asteroid Pump costs 2 <span class="gl">Platform Capacity</span>. By default, Asteroid Pumps provide 4 extraction points for [[Fluids]], with additional extraction points being unlocked by connecting [[#Pump Booster | Pump Boosters]].
+
+Asteroid Pumps provide a small amount of building space, with the back border taking up half the chunk. The two side borders are 4 tile wide and the front border has a [[Notch]] available with the normal 3 tile gap to the edge. Its available building space is 12x7 (84 tiles), with 16 of the first machine level tiles as available spots to place [[Mini Pump]]s, although any Machine can be placed on those spots.
+
+== Pump Booster ==
+
+Pump Boosters must be placed on a [[Map#Fluid Asteroids | Fluid Asteroid]], and point to an Asteroid Pump or another Pump Booster. Up to 3 Miner Booster platforms may be connected to an Asteroid Pump or chained to connect to an Asteroid Pump. Each additional booster provides 4 additional [[Mini Pump]] locations, up to a total of 16. Each Pump Booster costs 1 <span class="gl">Platform Capacity</span>.

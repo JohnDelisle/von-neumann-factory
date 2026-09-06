@@ -1,0 +1,2 @@
+= Simulated Swapper =
+#REDIRECT [[Simulated_Machines#Simulated_Swapper]]

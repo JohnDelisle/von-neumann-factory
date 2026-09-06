@@ -1,0 +1,89 @@
+= Flow Control =
+{{Machine Infobox
+|title=Belt Reader
+|image=Belt-Reader-500.png
+|footprint=1 x 1 x 1
+|inouts=1 : 1
+|wireinouts=0 : 1
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Wire Basics]]
+|researchcost=15
+|throughput=60 • 90 • 120 • 150 • 180
+|ratio=1
+}}
+
+{{Wires}}
+
+== Belt Reader ==
+
+The Belt Reader displays the rate of shapes per minute moving through it, and outputs the Shape Signal of the shapes on the [[Wire]] output.
+
+{{Machine Infobox
+|title=Belt Filter
+|image=Belt-Filter-500.png
+|footprint=1 x 1 x 1
+|wireinouts=1 : 0
+|inouts=1 : 2
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Wire Basics]]
+|researchcost=15
+|throughput=60 • 90 • 120 • 150 • 180
+|ratio=1
+}}
+
+== Belt Filter ==
+
+The Belt Filter routes the flow of shapes.  It has two outputs:
+* <span style="color:green">✔</span> straight through
+* <span style="color:red">✘</span> to the side
+Which output the shapes are passed to depends on the [[Wire]] input signal.
+
+{| class="wikitable" 
+! Signal !! Filter Result
+|-
+| Null || Blocks belt (shapes do not move)
+|-
+| Conflict || Blocks belt (shapes do not move)
+|-
+| Integer = 0 || <span style="color:red">✘</span> - All shapes
+|-
+| Integer ≠ 0 || <span style="color:green">✔</span> - All shapes
+|-
+| Shape || <span style="color:green">✔</span> - Shapes matching the shape signal <br> <span style="color:red">✘</span> - Shapes not matching the shape signal
+|-
+| Color || <span style="color:red">✘</span> - All shapes
+|}
+
+{{Machine Infobox
+|title=Pipe Gate
+|image=Pipe-Gate-500.png
+|footprint=1 x 1 x 1
+|fluidinouts=1 : 1
+|wireinouts=0 : 1
+|milestone=3
+|wireresearchset=[[Upgrades#Unlockable Upgrades|Wire Basics]]
+|researchcost=15
+|fluidinput=1200 • 1500 • 1800
+|fluidoutput=1200 • 1500 • 1800
+|fluidratio=1
+}}
+
+== Pipe Gate ==
+
+The Pipe Gate limits fluid throughput depending on the [[Wire]] input signal.
+
+{| class="wikitable" 
+! Signal !! Filter Result
+|-
+| Null || Blocks Fluids (No throughput)
+|-
+| Conflict || Blocks Fluids (No throughput)
+|-
+| Integer = 0 || Blocks Fluids (No throughput)
+|-
+| Integer ≠ 0 || Allows Fluid throughput
+|-
+| Shape || Blocks Fluids (No throughput)
+|-
+| Color || Allows Fluid throughput if the fluid matches the input color signal.
+|}

@@ -1,0 +1,59 @@
+= Development Environment =
+== Overview ==
+
+This page contains information to help mod developers set up a modding development environment.
+
+== Prerequisites ==
+
+* Software developement knowledge (preferably C#)
+* A text editor (preferably an IDE that supports decompiling)
+* The [https://dotnet.microsoft.com/en-us/download .NET SDK]
+
+== Common Editors ==
+
+* [https://www.jetbrains.com/rider/ Jetbrains Rider]
+* [https://visualstudio.microsoft.com/ Visual Studio]
+* [https://code.visualstudio.com/ vscode]
+
+== Environment setup ==
+
+=== Windows ===
+
+To set up your environment, see the [https://tobspr-games.notion.site/shapez2-modding-documentation#2543c9e752e080a08de1e83eb34344cc official modding docs].
+
+=== Linux and MacOS ===
+
+If you are on Linux or MacOS, it may be harder to set environment variables globally. One of the solutions is setting the variable in your shell startup script and starting the ide from the command line. For example, edit your <code>.bashrc</code>, <code>.zshrc</code>, <code>.fishrc</code>, etc and add these lines
+
+<pre>
+export SPZ2_PATH=".../Steam/steamapps/common/shapez 2/shapez 2_Data/Managed"
+export SPZ2_PERSISTENT=".../tobspr Games/shapez 2"
+export SPZ2_SHIFTER=".../ShapezShifter.dll"
+</pre>
+
+Then, source the file (<code>. .bashrc</code>) you will need to start your ide in the same shell, for example by typing <code>rider</code> or <code>code</code>
+
+Alternatively, if you add these lines to your <code>.profile</code> or similar and restart your device, the environment variables should be set on boot, allowing you to run your ide normally.
+
+== Project setup ==
+
+Raphdf201 has created a .NET project template that can be used to create a new mod project.  The template can be installed with the following command:
+
+<code>dotnet new install Raphdf201.Shapez2Template</code>
+
+To create a mod project using the template, run the following command:
+
+<code>dotnet new shapez2mod -n MyMod -o ./MyModFolder</code>
+
+MyMod is the mod's name and MyModFolder is the folder in which the mod project will be created.
+The template will generate all the necessary files to get started, including a solution, csproj and Main file.
+If you already have a solution (for example, if you put all your mods in the same repo), you can delete the generated solution safely.
+The template already includes some references to the game assemblies and assumes you set up the environment correctly.
+
+After generating the project using the template, you will need to fill the Author and Description fields in <code>manifest.json</code>.
+After that, you should be good to go. Build the mod and launch the game to see if it loads correctly.
+
+== Other Tools ==
+
+* [https://github.com/dnSpy/dnSpy dnSpy]
+* [https://github.com/dnSpyEx/dnSpy dnSpyEx]

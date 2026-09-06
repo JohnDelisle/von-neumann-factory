@@ -1,0 +1,26 @@
+= Color Mixer =
+{{Machine Infobox
+|title=Color Mixer
+|image=Color-Mixer-500.png
+|footprint=3 x 2 x 1
+|fluidinouts=2 : 1
+|milestone=7
+|researchcost=N/A (Unlocked with milestone)
+|fluidinput=300 • 375 • 450
+|fluidoutput=600 • 750 • 900
+|fluidratio=2
+}}
+
+{{Fluid Machines}}
+
+== Overview ==
+
+The Fluid Mixer takes two fluids and mixes them according to the mixing tables. The total fluid volume is maintained.  For example, 60L of each input color results in 120L of the output color.
+
+Fluid color mixing tables are here: [[Fluids#Mixing Tables|Mixing Tables]]
+
+== Specifics ==
+
+Fluid must be supplied to both inputs in order for the Mixer to produce an output.  Both inputs are consumed equally.  The amount of fluid produced is exactly the same amount of fluid as was consumed in total from both the inputs.
+
+If the color of one of the inputs changes color, the input buffer attached to that input will drain the old color before filling with the fluid of the new color.

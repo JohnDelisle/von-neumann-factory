@@ -1,0 +1,106 @@
+= Shape Patterns =
+This page lists some of the shape patterns creatable ingame, with a description, optionally hints, and a solution for how to create them.
+
+== Standalone Pins ==
+
+[[File:Shape-Pattern-Standalone-Pins.png|200px|right]]
+
+Standalone pins are shapes composed of a single layer of just pins. There are multiple methods to get them. For each, the optimal ratios indicate how many full belts of shapes and/or launchers of fluids you need to get a full belt of standalone pins. Feedback loop means you allow the design to reuse some of the output to feed the input. In cases where it matters, only cutting output shapes in halves is considered, and not 1/4 or 1/6.
+
+=== Without Crystals ===
+
+Optimal ratios
+* With feedback loop: 2 shapes
+* Without: 3 shapes
+
+Hints
+# {{spoiler|Pins are created with something on top of them, so to get them alone, the parts on top of them need to be removed, what can cause a part in a shape to disappear?}}
+# {{spoiler|Try creating a shape with 5 layers and see what happens.}}
+# {{spoiler|Try stacking a 1 layer pinned shape on a 3 layer shape and see what happens.}}
+# {{spoiler|What would you need to modify in the previous operation so that half of the pins are on the bottom layer?}}
+# {{spoiler|They would need to fall, what is preventing them from falling currently?}}
+
+Solution: {{spoiler|Stack a 1 layer pinned shape on top of a 3 or 4 layer half shape.}}
+
+=== With Crystals Method 1 ===
+
+Optimal ratios
+* With feedback loop: 4 fluids
+* Without: 1 shape, 4 fluids
+
+Hints
+# {{spoiler|What can cause crystals to disappear?}}
+# {{spoiler|Cutting through them, what shape would result in standalone pins if all crystals in it would disappear?}}
+
+Solution: {{spoiler|Pin a 1 layer crystal shape and cut/swap it.}}
+
+=== With Crystals Method 2 ===
+
+Optimal ratios
+* With feedback loop: 4 fluids
+* Without: 1 shape, 2 fluids
+
+Hints
+# {{spoiler|Try pin pushing a 4 layer shape and see what happens.}}
+# {{spoiler|If that shape was all crystals, the disappearing top layer would be separated from the rest, what happens when connected crystals are separated?}}
+
+Solution: {{spoiler|they all shatter, so pin push a 4 layer all crystals shape.}}
+
+== Gap:Shape:Crystal ==
+
+[[File:Shape-Pattern-Gap-Shape-Crystal.png|200px|right]]
+
+Note: The gap, shape, and crystal can all be any amount of layers tall.
+
+Hints
+# {{spoiler|The crystal can't be created while the gap is already there as it would transform into crystal too.}}
+# {{spoiler|So the gap has to be created afterwards, what can transform into a gap?}}
+
+Solution: {{spoiler|Make the shape with a crystal in place of the gap and with an extra crystal next to it, then cut through those two crystals to get the gap.}}
+
+== Shape:Gap:Crystal ==
+
+[[File:Shape-Pattern-Shape-Gap-Crystal.png|200px|right]]
+
+Note: The gap, shape, and crystal can all be any amount of layers tall.
+
+Hints
+# {{spoiler|You have to start with a [[#Gap:Shape:Crystal | Gap:Shape:Crystal]].}}
+# {{spoiler|What is the difference between that shape and the wanted shape?}}
+# {{spoiler|The shape needs to fall, what would allow that while still having the crystal supported?}}
+
+Solution: {{spoiler|Make the shape fall by having a support on the side which is pins until the crystal layer, where it's then a regular shape to support it.}}
+
+If there is a crystal under the pattern : {{spoiler|The 'shape' section must be at least 2 layers tall, and the initial gap (hint #1) has to be created in between two of the shapes (as it can't be created on top of the bottom crystal).}}
+
+== Gap:Shape:Gap:Crystal ==
+
+[[File:Shape-Pattern-Gap-Shape-Gap-Crystal.png|200px|right]]
+
+This shape is like Shape:Gap:Crystal, but there is an additional gap on the bottom.
+
+Note: All 4 sections can be one or two layers tall.
+
+Hints
+# {{spoiler|This cannot be made in the same way as Shape:Gap:Crystal because the shape would fall all the way to the bottom.}}
+# {{spoiler|Instead of dropping the shape, what if the crystal could be lifted?}}
+# {{spoiler|Lifting can be done with a pin pusher.}}
+# {{spoiler|This would need support for both the top crystal and the bottom shape, but the support must be in different columns.}}
+# {{spoiler|This needs a crystal break, but only under the support for the bottom shape. Without a crystal break, the entire shape would be lifted.}}
+# {{spoiler|Pin pushing breaks crystals when they at the top of a column.  Use a full column of crystal in the quadrant opposite of the goal shape.}}
+
+Solution: {{spoiler|Pin push {{ShapeRender|--cwcwCu:CuCucwP-:cr--cwCu:----cw--|50|quad}}<code>--cwcwCu:CuCucwP-:cr--cwCu:----cw--</code>.}}
+
+== Claws ==
+
+[[File:Shape-Pattern-Claw.png|200px|right]]
+
+The name 'Claw' comes from the look of the shape showcased here.  This shape can't be made by directly stacking layers or swapping columns.
+
+Hints
+# {{spoiler|This shape is not possible without the two pins on the bottom layer}}
+# {{spoiler|The two circle quadrants can't both be swapped onto the shape as is, at least one of them needs a scaffolding.}}
+# {{spoiler|The scaffolding is removed at the same time as the two bottom layer pins are created.}}
+# {{spoiler|Use a pin push to break a full column of crystal and the scaffolding at the same time.}}
+
+Solution: {{spoiler|Pin push {{ShapeRender|cw--P---:cwCucrCu:cw------:cw------|50|quad}}<code>cw--P---:cwCucrCu:cw------:cw------</code>.}}

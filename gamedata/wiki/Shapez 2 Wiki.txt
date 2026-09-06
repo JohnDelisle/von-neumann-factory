@@ -1,0 +1,80 @@
+= Shapez 2 Wiki =
+__NOTOC__{{DISPLAYTITLE:Official Shapez2 Wiki|noerror}}
+[[Image:Shapez2-logo.png|center|400px|link=https://shapez2.com/|class=responsive-image]]
+<p style="text-align:center">
+Welcome to the Official Shapez2 Wiki!<br>
+[[Special:Statistics|{{NUMBEROFARTICLES}} articles]] | [[Special:ListFiles|{{NUMBEROFFILES}} images]]
+</p>
+{{#vardefine:cell-style|style="background-color: #235C; width: 300px; border-radius: 12px; border: 2px solid #555; padding: 0.7em; box-shadow: 0 1px 5px #0008; margin: 5px;"}}
+<div style="width: 90%; margin: auto; display: flex; flex-direction: flow; flex-wrap: wrap; justify-content: center;">
+
+<div {{#var:cell-style}}><span class="shapez-header">About</span>
+Successor to the popular Shapez game, Shapez 2 allows you to build huge 3D factories in space.  Mine raw shapes from asteroids, assemble and paint them using factories you build, and deliver them to the giant Vortex.  You can see how every machine works in a stress-free environment.
+</div>
+
+<div {{#var:cell-style}}><span class="shapez-header">Official Websites</span>
+* [https://shapez2.com/ Shapez2.com]
+* [https://store.steampowered.com/app/2162800/shapez_2/ Steam]
+* [https://shapez-2.nolt.io/ Suggestions]
+* [https://www.patreon.com/tobsprgames Patreon]
+* [https://www.youtube.com/c/tobsprGames YouTube]
+* [https://twitter.com/tobspr Twitter/X]
+</div>
+
+<div {{#var:cell-style}}><span class="shapez-header">Versions</span>
+* [[Changelog]]
+<span class="shapez-header">Developer</span>
+* [https://tobspr.io/ tobspr Games]
+<span class="shapez-header">Publisher</span>
+* [https://tobspr.io/ tobspr Games] (Worldwide)
+* [https://gameragames.com/ Gamera Games] (China/Japan)
+</div>
+
+<div {{#var:cell-style}}><span class="shapez-header">Gameplay</span>
+* [[Shapes]]
+* [[Fluids]]
+* [[Game Modes]]
+* [[Milestones]]
+* [[Jobs]]
+* [[Shop|Upgrade Shop]]
+* [[Operator Level]]
+* [[Blueprints]]
+</div>
+
+<div {{#var:cell-style}}><span class="shapez-header">Machines</span>
+* [[Shape Machines]]
+* [[Fluid Machines]]
+* [[Wire Machines]]
+* [[Sandbox Machines]]
+</div>
+
+<div {{#var:cell-style}}><span class="shapez-header">Platforms</span>
+* [[Space Platforms]]
+* [[Space Transport]]
+* [[Trade Stations]]
+* [[Trains]]
+* [[Vortex]]
+</div>
+
+<div {{#var:cell-style}}><span class="shapez-header">Misc</span>
+* [[Glossary | Shapez Glossary]]
+* [[Shape Patterns]]
+* [[User Interface]]
+* [[Modding]]
+* [[FAQ]]
+</div>
+
+<div {{#var:cell-style}}><span class="shapez-header">Wiki</span>
+* [[How to contribute]]
+* [[Style Guide]]
+</div>
+
+<div {{#var:cell-style}}><span class="shapez-header">Community</span>
+* [https://discord.gg/bvq5uGxW8G Discord]
+* [https://www.reddit.com/r/shapezio/ Reddit]
+* [https://steamcommunity.com/app/2162800 Steam]
+* [[Community Tools]]
+</div>
+
+</div>
+<br>

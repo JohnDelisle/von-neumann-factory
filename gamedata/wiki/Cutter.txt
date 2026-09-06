@@ -1,0 +1,54 @@
+= Cutter =
+{{Machine Infobox
+|title=Half Destroyer
+|image=Half-Destroyer-500.png
+|footprint=1 x 1 x 1
+|inouts=1 : 1
+|milestone=0
+|researchcost=N/A (Unlocked with milestone)
+|throughput=20 • 30 • 40 • 50 • 60
+|ratio=3
+}}
+
+{{Shape Processing}}
+== Half Destroyer ==
+
+The Half Destroyer destroys the west half of shapes it receives as input and outputs the result. If you only want to keep half of a shape, it is recommended to use this as it is the fastest one and does not produce extra outputs that you need to get rid of.
+
+{{Machine Infobox
+|title=Cutter
+|image=Cutter-500.png
+|footprint=1 x 2 x 1
+|inouts=1 : 2
+|milestone=1
+|researchcost=6
+|throughput=15 • 22.5 • 30 • 37.5 • 45
+|ratio=4
+}}
+
+== Cutter ==
+
+The Cutter cuts the shape in half vertically and outputs the east half on the main output and the west half on the secondary output. The same is true for its mirrored variant.
+
+{{Machine Infobox
+|title=Swapper
+|image=Swapper-500.png
+|footprint=1 x 2 x 1
+|inouts=2 : 2
+|milestone=1
+|researchcost=12
+|throughput=15 • 22.5 • 30 • 37.5 • 45
+|ratio=4
+}}
+
+== Swapper ==
+
+The Swapper swaps the west halves of the shapes it receives as input and outputs the results. It is similar to two cutters and two stackers combined in a single machine, making it powerful for creating some shape patterns. However, unlike the stacker, when the halves are combined, they aren't dropped but instead put next to each other, thus [[Crystals]] will not break at this point, making the Swapper required to create some shapes containing crystals.
+
+== Common to all 3 ==
+
+The machine's rotation does not affect its working, this means it always operates on east and west halves.
+
+During a cutting operation, if two connected crystal pieces are cut through (or if one of them is destroyed in the case of the Half Destroyer), they will shatter along with all other connected crystal pieces. See also [[Crystals]].
+
+After a cutting operation, the [[Shape Gravity Rules]] are applied to the resulting shape(s).

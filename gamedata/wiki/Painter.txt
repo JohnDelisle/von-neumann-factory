@@ -1,0 +1,28 @@
+= Painter =
+{{Machine Infobox
+|title=Painter
+|image=Painter-500.png
+|footprint=1 x 2 x 1
+|inouts=1 : 1
+|fluidinouts=3 (bidirectional)
+|milestone=4
+|researchcost=N/A (Unlocked with milestone)
+|throughput=30 • 37.5 • 45
+|fluidinput=300 • 375 • 450
+|ratio=4
+|fluidratio=4
+}}
+
+{{Fluid Machines}}
+
+== Overview ==
+
+The Painter takes shapes on the belt input and fluid through any of the 3 pipe inputs and paints the top layer of the shape the color of the fluid provided.
+
+== Specifics ==
+
+If the color of the fluid is changed, the fluid in the painter will drain and be replaced with the new color.
+
+Painter pipe ports are bidirectional.  Fluid can pass through the painter to another fluid machine such as [[Pipe]], another Painter, or to any other machine with a fluid input.
+
+The painter will only change the color of regular [[Shapes#Part Types | shapes]] (types C, R, S, W, F, G, H). Refined shapes (types X and Y), [[Pins]] and [[Crystals]] will go through unchanged.
