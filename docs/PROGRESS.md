@@ -58,7 +58,8 @@ is the rule working, not an interruption. Read the sections in order and go.
 
 John asked for a platform of Claude's design: full space belt in, only the NE
 quadrant out. **v2** is in the in-game folder and `blueprints/` as
-`VN-20 NE quadrant full belt.spz2bp`, awaiting John's second assessment.
+`VN-20 NE quadrant full belt.spz2bp` — **VALIDATED in-game by John (2026-09-06):
+"that worked."** A full belt in, the NE quadrant out, no bottleneck.
 
 - **v1 REJECTED by John in-game**: it split each lane in two, and a **Half Destroyer
   keeps up with only a THIRD of a belt lane — three per lane, not two.** A one-quad
@@ -73,8 +74,8 @@ quadrant out. **v2** is in the in-game folder and `blueprints/` as
   the game's own `BeltInputs`/`BeltOutputs` — `PASS 48 lanes, 144 paths, 576
   operators all on-path`, lane-preserving. Checked first against John's VN-02 and
   VN-03 (launchers included); both pass.
-- **Still unverified in-game**: v2's throughput end to end (v1 stamped and ran, so
-  the 1x4 shell and direct operator chaining are no longer in doubt).
+- **Verified in-game**: v2 keeps up with the belt. The 1x4 shell copied from the
+  Quaded Filter and direct operator-to-operator chaining are both confirmed at scale.
 
 ### Building rates per belt lane (John, in-game, 2026-09-06)
 | building | keeps up with | per lane |

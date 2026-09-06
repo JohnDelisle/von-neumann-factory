@@ -9,7 +9,9 @@ Co-building a constructive **Make Anything Machine (MAM)** in Shapez 2 with John
 2. **`docs/PROGRESS.md`** — current state and the active objective ONLY (~170 lines).
    Superseded material lives in `docs/history/`; read it only when you need a WHY.
 3. **`docs/PLAYBOOK.md`** — how we build: method, design patterns, gotchas.
-4. `docs/architecture.md` (MAM design + John's modules) and `docs/conventions.md`
+4. `docs/HOW-CLAUDE-IS-APPLIED.md` — how the model is used on this project, for an
+   assessing agent; update it when the working method changes, not per session.
+5. `docs/architecture.md` (MAM design + John's modules) and `docs/conventions.md`
    (file formats + game constraints) are **references — grep them for the thing you
    need; do not read them front to back.**
 
