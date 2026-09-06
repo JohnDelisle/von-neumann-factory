@@ -66,16 +66,64 @@ PLAYBOOK "Tool output is a verdict, not a table".
 the two or three numbers that decide it. `python tools/token_report.py --top` is the
 acceptance test: no single tool result much above 4k chars.
 
-## Task 2 — is the space belt actually saturated? (VN-18's loose end)
+## Task 2 — ANSWERED (2026-09-05, late): we are supply-capped at ONE mining unit
 
-`RuRuRuRu` measured 433.8/s against 108.9/s for one unboosted `CuCuCuCu` miner: 3.98x,
-suspiciously *exactly* 4x for something that should be 12 lanes. Either 12 boosted
-miners genuinely saturate a belt, or something downstream caps us at four
-miner-equivalents — and if it is the cap, every throughput number in the Phase 2 cost
-model is wrong. This is a READ, not a build: land collector A (7 lanes) and collector B
-(5 lanes) on edges of *different* hub tiles and read the two edges separately. A 7:5
-split confirms the law; anything else means we are capped. Settle this before designing
-anything new on top of it.
+**VN-18 delivers exactly one lane, not twelve.** Not the belt, not the hub — the mine.
+
+### The experiment (one build variant, one load, one 200 s run)
+
+`RuRuRuRu` had been measured at 4.00x the single unboosted `CuCuCuCu` miner in two
+separate intervals (433.8/108.9 = 3.98, then 478.9/119.7 = 4.001). That is not "four
+miner-equivalents, suspiciously close to 4" — under our own law (1 miner + 3 boosters
+= 1 lane) it is **exactly one lane**, since an unboosted miner is a quarter lane.
+
+So: cut collector B out of the save (one `SpaceBelt_Forward` island at (10,-13)),
+load, run, and normalise against the Cu miner, which no variant touches.
+
+| | Ru / Cu ratio | predicted if supply-capped |
+|---|---|---|
+| 12 lanes intact (v109) | **4.001** | — |
+| collector B severed, 7 lanes (v111) | **3.934** | 2.33 |
+
+**Removing five of the twelve lanes changed delivery by 1.7%.** And after 200 s of
+running severed, collector B's nineteen `Forward` belts still read **474 B — the empty
+form**. If the N-block miners were producing anything, those belts had nowhere to send
+it and would have filled.
+
+### What that means
+
+The N block was contributing nothing before it was cut, and the whole 48-tile build
+delivers 4 unboosted-miner-equivalents = one miner + three boosters = **one unit**.
+
+**Best-supported reading: contiguous miner platforms merge into ONE mining unit.** The
+48 islands form a solid rectangle; the game keeps them as `Layout_ShapeMiner` (the
+rotations are right, so nothing was rewritten this time) but produces as though there
+is a single miner with three effective boosters. This is the adjacency trap already in
+these notes — "contiguous miners are silently rewritten to extensions" — one level up:
+**even when the islands survive as miners, touching units share one production group.**
+
+Not yet proven as a mechanism, and the honest alternative is that both collectors are
+mis-wired AND collector A also passes only one lane. That needs two coincidences to
+explain one exact 4.00x, so it is the weaker story — but it is testable.
+
+### The next build, which settles it
+
+Rebuild the patch as **12 SEPARATED units**: each a miner + its 3 boosters in a chain,
+with at least one empty island tile between every unit and the next, each emitting into
+the collector on its own port. If the merge story is right the rate goes to ~12 lanes
+(~48 Cu-units); if it does not move, the cap is in the collector and the merge chain is
+next. Either way the answer arrives in one build.
+
+**Do not scale anything on the current numbers.** Every throughput figure in the Phase 2
+cost model assumed 12 boosted miners = one saturated belt. What we have actually
+demonstrated is one lane from 48 ore tiles.
+
+### State left behind
+
+* `backup-v112` = the intact VN-18 build with all progress kept (`RuRuRuRu` 2,658,480);
+  the severed variant is `v110`/`v111`, kept for the record. Nothing was modified in
+  place — every step wrote a new file.
+* The game is loaded on v112 at speed 1.
 
 ## Task 3 — VN-16 stage C, batched
 
@@ -99,6 +147,11 @@ Four sequential single-hypothesis cycles is what burned an earlier budget.
 ---
 
 # Background: the throughput law, and VN-18 (`RuRuRuRu`, built and running)
+
+> **CORRECTED 2026-09-05 by the Task 2 experiment above: this build delivers ONE
+> lane, not twelve. The "12 boosted miners = one saturated space belt" law is not
+> wrong about the game, but our contiguous 48-tile rectangle is not 12 units — it
+> behaves as one. Read the section below as the design intent, not as measured fact.**
 
 ## The law that VN-17 got wrong and VN-18 gets right
 **A `Layout_ShapeMiner` is not a space belt.** John's rule, confirmed against his

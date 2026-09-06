@@ -327,3 +327,35 @@ in full before the `head` ran. `docs/token-economics.md` has the measurements.
 The same rule applies to anything typed ad hoc: **do not print a table and then read
 it — write the assertion, and print PASS/FAIL plus the two or three numbers that decide
 it.** If a verdict ever surprises you, `--full` is right there.
+
+## Measure ratios against a control, never absolute rates (2026-09-05)
+
+`TotalPlaytime` counts REAL seconds, not sim ticks, so a "shapes per second" figure
+moves with sim speed, frame rate and how long the load screen took. The same intact
+build measured 433.8/s, then 478.9/s, then 393.5/s across three intervals — a 21%
+spread with nothing changed.
+
+**Keep an untouched machine in the world and quote every rate as a multiple of it.**
+VN-15's single unboosted `CuCuCuCu` miner is that control: against it, `RuRuRuRu` reads
+4.001 / 3.98 / 3.934 across those same three intervals — stable to under 2%, and the
+one number the conclusion actually rested on.
+
+Corollary: **an exact small integer is a finding, not a coincidence.** 4.00x said "one
+miner + three boosters" — one lane — long before the severing experiment confirmed it.
+
+## Miner platforms merge when they touch (2026-09-05)
+
+A solid rectangle of 12 `Layout_ShapeMiner` + 36 `Layout_ShapeMinerExtension` produced
+**one unit's output**, not twelve: 48 ore tiles, one lane. Cutting five of the twelve
+lanes out of the save changed delivery by 1.7%, and the severed collector's belts
+stayed at the empty 474-byte form — those miners had never been sending anything.
+
+This is the adjacency trap one level up from the known one. The known trap is that
+contiguous miners with the wrong rotation are silently **rewritten** to extensions on
+load. The new one: even when the rotations are right and the islands survive as
+`Layout_ShapeMiner`, **touching units appear to share a single production group, and
+only three boosters count.**
+
+**So: leave a gap between mining units.** Space every miner + 3 boosters clear of the
+next, and verify by rate, not by reading the layout back — the layout read back clean
+in the failing build.
