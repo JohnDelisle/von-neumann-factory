@@ -28,7 +28,7 @@ hand you an `IMapModel` for the wrong map.
 
 ---
 
-# >>> START HERE (2026-09-05, late): CHEAPER TOOLS FIRST, THEN THE THROUGHPUT QUESTION <<<
+# >>> START HERE (2026-09-05, night): BUILD STAGE C — TASKS 1 AND 2 ARE DONE <<<
 
 **You are a fresh session on purpose.** The previous one was ending near 200k context,
 where every turn costs three to four times what the same turn cost at the start. The
@@ -41,12 +41,18 @@ should not go looking for it.
 python tools/brief.py          # measured state in ~14 lines. Do not read history first.
 ```
 
-Nothing in the game moved in the previous session — it was spent on session economics.
-`docs/token-economics.md` has the measurements (2,732 model calls, 806M input tokens
-re-read, 302k average context per call, ~a third of every session's input spend landing
-in its last quarter of turns). New since you last looked: `tools/brief.py`,
-`tools/token_report.py`, this file cut from 1,138 lines to ~220 with the remainder in
-`docs/history/`, and a start-a-session procedure at the top of `CLAUDE.md`.
+**Tasks 1 and 2 are finished and committed** (details in their sections below):
+Task 1 gave every read tool a verdict-only default via `tools/say.py`; Task 2 proved
+VN-18 delivers ONE lane, not twelve, and that the mine is the cap, not the belt.
+
+**Your job is Task 3: build stage C.** It is fully specified below, including every
+piece's geometry read out of the game's own `buildings.json`, the exact lane layout,
+the two unknowns to settle first, and why it must run as two saves rather than two
+lanes. Expect to write the generator, produce two variant saves, load each, and
+measure — one game session.
+
+The previous session stopped at 211k context rather than start this build there; that
+is the rule working, not an interruption. Read the sections in order and go.
 
 ## Task 1 — DONE (2026-09-05, late)
 
@@ -125,11 +131,69 @@ demonstrated is one lane from 48 ore tiles.
   place — every step wrote a new file.
 * The game is loaded on v112 at speed 1.
 
-## Task 3 — VN-16 stage C, batched
+## Task 3 — SPECIFIED, NOT BUILT: VN-16 stage C
 
-Still queued, still specified below under "Still queued: the VN-16 stage C test". Run it
-as ONE build with both splitter variants side by side, each feeding its own stacker.
-Four sequential single-hypothesis cycles is what burned an earlier budget.
+Stage C was never committed — only described — so it has to be written. The expensive
+half is done: every piece's geometry below is read out of
+`gamedata/basedata-v1138/buildings.json`, not guessed.
+
+### Declared geometry (`Tiles`, `BeltInputs`, `BeltOutputs`, all local)
+
+| building | tiles | in | out |
+|---|---|---|---|
+| `CutterDefaultInternalVariantMirrored` | (0,0,0) (0,1,0) | (0,0,0) side 2 | (0,1,0) side 0 **and** (0,0,0) side 0 |
+| `Splitter1To2LInternalVariant` | (0,0,0) | side 2 | side 0 **and side 3** |
+| `Splitter1To2LInternalVariantMirrored` | (0,0,0) | side 2 | side 0 **and side 1** |
+| `RotatorHalfInternalVariant` | (0,0,0) | side 2 | side 0 |
+| `Lift1UpForwardInternalVariant` | (0,0,0) (0,0,1) | (0,0,0) side 2 | **(0,0,1) side 0** |
+| `StackerStraightInternalVariant` | (0,0,0) (0,0,1) | side 2 on **both floors** | (0,0,0) side 0 |
+| `TrashDefaultInternalVariant` | (0,0,0) | all four sides | none |
+
+Rotation `R` rotates those directions: R1 = CW = d+1, R2 = 180 = d+2, R3 = d+3, with
+0=+X 1=+Y 2=-X 3=-Y. **The whole machine flows west, so everything is R=2** and a
+declared side-2 input faces world +X (accepts from the east), a side-0 output emits
+world -X (west).
+
+**This settles the question that stalled stage C.** At R=2 the plain variant's second
+output (local side 3, -Y) emits to world **+Y**, and the mirrored variant's (local side
+1) emits to world **-Y**. The trash sits at (15,9) — which is -Y of the lane and is
+where the cutter's discarded half goes — so the old suspicion was right in shape:
+one of the two variants throws branch B towards the trash side. It is the MIRRORED one
+that goes -Y, so **the plain variant is the one whose branch B goes +Y**, into clear
+space at (14,11). Verify by building, do not take this paragraph as measured.
+
+### The layout to build (lane y=10, all R=2 unless noted)
+
+    (16,10)+(16,9)  cutter mirrored   kept half -> west (15,10); discard -> trash (15,9)
+    (15,10)         belt west         -> splitter
+    (14,10)         Splitter1To2L     branch A -> (13,10) west ; branch B -> (14,11)
+    (13..10, 10)    belts west        branch A, floor 0
+    (14,11) ...     branch B: RotatorHalf (180 -> Su----Su), then
+                    Lift1UpForward to floor 1, then belts west along floor 1
+    (9,10,L1)       branch B arrives from the east on floor 1
+    (8,10)          StackerStraight   floor 0 in from (9,10,L0), floor 1 in from (9,10,L1)
+    (7..3, 10)      belts west        stacker output -> senders at x=2
+
+### Two unknowns to settle before writing the generator
+
+1. **Turn-belt variant ids.** Stage B only ever used `BeltDefaultForwardInternalVariant`.
+   Branch B has to turn west after (14,11); grep `buildings.json` for the left/right
+   belt variants and read their declared in/out rather than assuming.
+2. **Whether a rotator accepts on a rotated face** — i.e. can `RotatorHalf` at (14,11)
+   with R=1 take the item the splitter pushes +Y into it, or does branch B need a belt
+   tile first. The declaration answers the geometry; only the game answers the
+   acceptance.
+
+### Run it as TWO SAVES, not two lanes
+
+The queued plan was both splitter variants in one save on parallel lanes. **Don't** —
+`StoredShapes` counts shapes, not lanes, so if `SuSuSuSu` appears you still cannot tell
+which variant produced it. Instead write two saves identical but for the splitter
+variant, load them one after the other in the same running game (a load is ~15 s), and
+run each for 90 s. Attribution is then unambiguous and it is still one game session.
+
+**Normalise the result against VN-15's Cu miner**, per PLAYBOOK — absolute rates spread
+21% across intervals with nothing changed.
 
 ## How to run this session
 
